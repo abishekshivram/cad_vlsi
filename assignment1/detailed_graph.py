@@ -5,7 +5,10 @@ from chain import Chain
 from mesh import Mesh
 from foldedTorus import FoldedTorus
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6222c6542a207df32a3f0b27f4e8eba48d561e8e
 def network(level,networkType,n,m):
 	if (networkType == 'B'):
 		assert (n==m),"Dimensions of Butterfly network should be equal"
@@ -55,3 +58,11 @@ with open ("L2Topology.txt", 'r') as f:
 	for line in f:
 		L2.append(line.strip().replace(" ", "").split(','))
 		L2_network.append(network('L2',L2[-1][0],int(L2[-1][1]),int(L2[-1][2])))	
+<<<<<<< HEAD
+=======
+
+#from butterfly import *
+
+#check_B = Butterfly("B1", 8)
+#check_B.print_all()
+>>>>>>> 6222c6542a207df32a3f0b27f4e8eba48d561e8e
