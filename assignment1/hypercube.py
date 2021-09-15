@@ -1,10 +1,11 @@
 from node import Node
-from butterfly import dec_to_bin,log
+from butterfly import dec_to_bin
 
 class Hypercube:
-    def __init__(self,name,nodeCount):
+    def __init__(self,name,dim):
         self.name=name
-        self.nodeCount=nodeCount
+        self.dim=dim
+        self.nodeCount=2**dim
         self.nodes=[]
         self.create()
 
@@ -16,10 +17,10 @@ class Hypercube:
         for i in range(self.nodeCount):
             self.nodes.append(Node(self.get_node_name(i)))
             
-        logn = log(self.nodeCount)
+        #logn = log(self.nodeCount)
         for i in range(self.nodeCount):
-            for j in range(logn):
-                neighbour_index = i ^ (1 << (logn-1-j))
+            for j in range(self.dim):
+                neighbour_index = i ^ (1 << (self.dim-1-j))
                 self.nodes[i].add_neighbour(self.nodes[neighbour_index])
                 
 
