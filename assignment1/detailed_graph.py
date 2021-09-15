@@ -5,15 +5,6 @@ from chain import Chain
 from mesh import Mesh
 from foldedTorus import FoldedTorus
 
-'''from enum import Enum
-
-class Graph(Enum):
-	BUTTERFLY = 'B'
-	CHAIN = 'C'
-	RING = 'R'
-	MESH = 'M'
-	FOLDED TORUS = 'F'
-	HYPERCUBE = 'H' '''
 
 def network(level,networkType,n,m):
 	if (networkType == 'B'):

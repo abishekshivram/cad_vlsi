@@ -20,10 +20,15 @@ class Switch:
             self.right_neighbours.append(node)
 
     def print_neighbours(self):
-        print(self.name,"---", end="")
-        for x in(self.neighbour):
-            print("--",x.name,end="")
-        print()
+        #print("Printing SWITCH Neighbours:")
+        print("Name of switch: ", self.name)
+        print("     Printing Left Neighbours of the switch:")
+        for i in(self.left_neighbours):
+            print("     ", i.name,end="\n")
+        print("     Printing Right Neighbours of the switch:")
+        for i in(self.right_neighbours):
+            print("     ", i.name,end="\n")
+        return ""
 
 
 def log(n):
@@ -55,7 +60,20 @@ class Butterfly:
         self.create_nodes()
         self.create_switches()
         self.connect_switches_nodes()
-    
+
+    def print_all(self):
+        print(f"Printing from Class Butterfly named: {self.name}")
+        print("\nPrinting Left nodes")
+        for i in self.left_nodes:
+            print(i.print_neighbour())
+        print("\nPrinting Right nodes")
+        for i in self.right_nodes:
+            print(i.print_neighbour())
+        print("\nPrinting Switches nodes")
+        for i in self.switches:
+            print(i.print_neighbours())
+        print("\n")
+
     def create_nodes(self):
         #no. nodes = num*num
         for i in range(self.num):
@@ -63,8 +81,8 @@ class Butterfly:
             self.right_nodes.append(Node("R"+dec_to_bin(i)))
     
     def create_switches(self):
-        layers = log(self.num)
-        rows_switch = self.num/2
+        layers = int(log(self.num))
+        rows_switch = int(self.num/2)
         # no_switch = layers*rows_switch
         # BL1 = butterfly switch layer 1 (from left)
         for i in range(layers):
@@ -73,9 +91,10 @@ class Butterfly:
 
     def connect_switches_nodes(self):
         for i in range(len(self.switches)):
-            col_offset = self.num/2
-            row_offset = pow(2,log(self.num) - int(i/col_offset) - 2)
-            flag = 1 if if_even(int(i/row_offset)) else -1
+            col_offset = int(self.num/2)
+            row_offset = int(pow(2,log(self.num) - int(i/col_offset) - 2))
+            if(row_offset):
+                flag = 1 if if_even(int(i/row_offset)) else -1
             
             if (i < self.num/2): # First layer
                 self.switches[i].add_left_neighbour(self.left_nodes[2*i])
@@ -93,10 +112,11 @@ class Butterfly:
             elif (i >= (log(self.num)-1)*self.num/2): #Last layer
                 #self.switches[i].add_left_neighbour(self.switches[i-col_offset])
                 #self.switches[i].add_left_neighbour(self.switches[i-col_offset+flag*row_offset])
-                self.switches[i].add_right_neighbour(self.right_nodes[2*i])
-                self.right_nodes[2*i].add_neighbour(self.switches[i])
-                self.switches[i].add_right_neighbour(self.right_nodes[2*i+1])
-                self.right_nodes[2*i+1].add_neighbour(self.switches[i])
+                j = int(i - (log(self.num)-1)*self.num/2)
+                self.switches[i].add_right_neighbour(self.right_nodes[2*j])
+                self.right_nodes[2*j].add_neighbour(self.switches[i])
+                self.switches[i].add_right_neighbour(self.right_nodes[2*j+1])
+                self.right_nodes[2*j+1].add_neighbour(self.switches[i])
 
             else: # Middle layers
                 self.switches[i].add_right_neighbour(self.switches[i+col_offset])
