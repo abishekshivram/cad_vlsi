@@ -55,6 +55,14 @@ class Butterfly:
         self.create_nodes()
         self.create_switches()
         self.connect_switches_nodes()
+
+    def print_all(self):
+        for i in self.left_nodes:
+            print(i.print_neighbour)
+        for i in self.right_nodes:
+            print(i.print_neighbour)
+        for i in self.switches:
+            print(i.print_neighbours)
     
     def create_nodes(self):
         #no. nodes = num*num
@@ -63,8 +71,8 @@ class Butterfly:
             self.right_nodes.append(Node("R"+dec_to_bin(i)))
     
     def create_switches(self):
-        layers = log(self.num)
-        rows_switch = self.num/2
+        layers = int(log(self.num))
+        rows_switch = int(self.num/2)
         # no_switch = layers*rows_switch
         # BL1 = butterfly switch layer 1 (from left)
         for i in range(layers):
@@ -73,9 +81,13 @@ class Butterfly:
 
     def connect_switches_nodes(self):
         for i in range(len(self.switches)):
-            col_offset = self.num/2
-            row_offset = pow(2,log(self.num) - int(i/col_offset) - 2)
-            flag = 1 if if_even(int(i/row_offset)) else -1
+            col_offset = int(self.num/2)
+            print(f"i value:{i}")
+            print(int(i/col_offset))
+            #print(len(self.switches))
+            row_offset = int(pow(2,log(self.num) - int(i/col_offset) - 2))
+            if(row_offset):
+                flag = 1 if if_even(int(i/row_offset)) else -1
             
             if (i < self.num/2): # First layer
                 self.switches[i].add_left_neighbour(self.left_nodes[2*i])
@@ -93,10 +105,11 @@ class Butterfly:
             elif (i >= (log(self.num)-1)*self.num/2): #Last layer
                 #self.switches[i].add_left_neighbour(self.switches[i-col_offset])
                 #self.switches[i].add_left_neighbour(self.switches[i-col_offset+flag*row_offset])
-                self.switches[i].add_right_neighbour(self.right_nodes[2*i])
-                self.right_nodes[2*i].add_neighbour(self.switches[i])
-                self.switches[i].add_right_neighbour(self.right_nodes[2*i+1])
-                self.right_nodes[2*i+1].add_neighbour(self.switches[i])
+                j = int(i - (log(self.num)-1)*self.num/2)
+                self.switches[i].add_right_neighbour(self.right_nodes[2*j])
+                self.right_nodes[2*j].add_neighbour(self.switches[i])
+                self.switches[i].add_right_neighbour(self.right_nodes[2*j+1])
+                self.right_nodes[2*j+1].add_neighbour(self.switches[i])
 
             else: # Middle layers
                 self.switches[i].add_right_neighbour(self.switches[i+col_offset])
