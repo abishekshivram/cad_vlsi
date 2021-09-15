@@ -1,6 +1,6 @@
 from node import Node
 
-class Mesh:
+class FoldedTorus:
     def __init__(self,name,rowCount,colCount):
         self.name=name
         self.rowCount=rowCount
