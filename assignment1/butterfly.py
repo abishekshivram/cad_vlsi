@@ -20,10 +20,15 @@ class Switch:
             self.right_neighbours.append(node)
 
     def print_neighbours(self):
-        print(self.name,"---", end="")
-        for x in(self.neighbour):
-            print("--",x.name,end="")
-        print()
+        #print("Printing SWITCH Neighbours:")
+        print("Name of switch: ", self.name)
+        print("     Printing Left Neighbours of the switch:")
+        for i in(self.left_neighbours):
+            print("     ", i.name,end="\n")
+        print("     Printing Right Neighbours of the switch:")
+        for i in(self.right_neighbours):
+            print("     ", i.name,end="\n")
+        return ""
 
 
 def log(n):
@@ -57,13 +62,18 @@ class Butterfly:
         self.connect_switches_nodes()
 
     def print_all(self):
+        print(f"Printing from Class Butterfly named: {self.name}")
+        print("\nPrinting Left nodes")
         for i in self.left_nodes:
-            print(i.print_neighbour)
+            print(i.print_neighbour())
+        print("\nPrinting Right nodes")
         for i in self.right_nodes:
-            print(i.print_neighbour)
+            print(i.print_neighbour())
+        print("\nPrinting Switches nodes")
         for i in self.switches:
-            print(i.print_neighbours)
-    
+            print(i.print_neighbours())
+        print("\n")
+
     def create_nodes(self):
         #no. nodes = num*num
         for i in range(self.num):
@@ -82,9 +92,6 @@ class Butterfly:
     def connect_switches_nodes(self):
         for i in range(len(self.switches)):
             col_offset = int(self.num/2)
-            print(f"i value:{i}")
-            print(int(i/col_offset))
-            #print(len(self.switches))
             row_offset = int(pow(2,log(self.num) - int(i/col_offset) - 2))
             if(row_offset):
                 flag = 1 if if_even(int(i/row_offset)) else -1

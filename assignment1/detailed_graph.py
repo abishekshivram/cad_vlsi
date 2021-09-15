@@ -11,5 +11,10 @@ with open ("L2Topology.txt", 'r') as f:
     for line in f:
         L2.append(line.strip().replace(" ", "").split(','))
         
-print(L1)
-print(L2)
+#print(L1)
+#print(L2)
+
+from butterfly import *
+
+check_B = Butterfly("B1", 8)
+check_B.print_all()
