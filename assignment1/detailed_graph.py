@@ -1,5 +1,5 @@
 from hypercube import Hypercube
-from butterfly import Butterfly
+from butterfly import *
 from ring import Ring
 from chain import Chain
 from mesh import Mesh
@@ -8,7 +8,7 @@ from foldedTorus import FoldedTorus
 def network(level,networkType,n,m):
 	if (networkType == 'B'):
 		assert (n==m),"Dimensions of Butterfly network should be equal"
-		network = Butterfly(level+networkType,n)
+		network = Butterfly(level+networkType,n, False if level == 'L1' else True)
 		network.print_all()
 		return network
 	elif (networkType == 'C'):
@@ -53,7 +53,15 @@ L2_network = []
 with open ("L2Topology.txt", 'r') as f:
 	for line in f:
 		L2.append(line.strip().replace(" ", "").split(','))
-		L2_network.append(network('L2',L2[-1][0],int(L2[-1][1]),int(L2[-1][2])))	
+		L2_network.append(network('L2',L2[-1][0],int(L2[-1][1]),int(L2[-1][2])))
+
+
+for i in L2_network:
+	L1_network.insert_nodes(i.head_node())
+L1_network.create_network()
+
+
+
 
 #from butterfly import *
 

@@ -51,16 +51,19 @@ def if_even(num):
 # num = 4,8 or 16 - represents size of network
 
 class Butterfly:
-    def __init__(self, name, num):
+    def __init__(self, name, num, create=True):
         self.name = name
         self.num = num
         self.left_nodes = []
         self.right_nodes = []
         self.switches = []
-        self.create_nodes()
+        if (create):
+            self.create_nodes()
+
+    def create_network(self):
         self.create_switches()
         self.connect_switches_nodes()
-
+        
     def print_all(self):
         print(f"\nPrinting from Class Butterfly named: {self.name}")
         print("\nPrinting Left nodes")
@@ -73,6 +76,13 @@ class Butterfly:
         for i in self.switches:
             print(i.print_neighbours())
         print("\n")
+
+    def insert_nodes(self, node):
+        if(len(self.left_nodes) <= self.num):
+            self.left_nodes.append(node)
+        else:
+            self.right_nodes.append(node)
+        
 
     def create_nodes(self):
         #no. nodes = num*num
@@ -126,4 +136,4 @@ class Butterfly:
                 self.switches[i+col_offset+flag*row_offset].add_left_neighbour(self.switches[i])
         
     def head_node(self):
-        return self.left_nodes[self.num/2]
+        return self.left_nodes[self.num//2]
