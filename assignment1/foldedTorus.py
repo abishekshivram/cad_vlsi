@@ -11,13 +11,13 @@ class FoldedTorus:
     def get_node_name(self,i,j):
         return self.name+str(i)+str(j)
     
-    def next_index(index,dim):
+    def next_index(self,index,dim):
         assert (index < dim and index >= 0),"Invalid index for Mesh"
         if (index == dim-1):
             return 0
         return index + 1
         
-    def prev_index(index,dim):
+    def prev_index(self,index,dim):
         assert (index < dim and index >= 0),"Invalid index for Mesh"
         if (index == 0):
             return dim-1

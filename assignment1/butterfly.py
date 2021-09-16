@@ -62,7 +62,7 @@ class Butterfly:
         self.connect_switches_nodes()
 
     def print_all(self):
-        print(f"Printing from Class Butterfly named: {self.name}")
+        print(f"\nPrinting from Class Butterfly named: {self.name}")
         print("\nPrinting Left nodes")
         for i in self.left_nodes:
             print(i.print_neighbour())

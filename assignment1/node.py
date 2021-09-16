@@ -14,7 +14,7 @@ class Node:
         print(self.name)
 
     def print_neighbour(self):
-        print("Name of node:", self.name, end="\n")
+        print("\nName of node:", self.name, end="\n")
         print("     Neighbours: ", end='')
         for i in(self.neighbour):
             print(i.name, end=", ")

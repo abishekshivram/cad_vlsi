@@ -1,4 +1,5 @@
 from node import Node
+from butterfly import dec_to_bin
 
 class Mesh:
     def __init__(self,name,rowCount,colCount):
@@ -28,12 +29,15 @@ class Mesh:
                 self.rowVertices[i][j].add_neighbour(self.rowVertices[i][j+1])
 
         #Top row and bottom row of the mesh
-        lastRow=len(self.rowVertices)-1
+        lastRow=self.rowCount-1
         for i in range(1, self.colCount-1):
             self.rowVertices[0][i].add_neighbour(self.rowVertices[0][i+1])
             self.rowVertices[0][i].add_neighbour(self.rowVertices[0][i-1])
+            self.rowVertices[0][i].add_neighbour(self.rowVertices[1][i])
+            
             self.rowVertices[lastRow][i].add_neighbour(self.rowVertices[lastRow][i+1])
             self.rowVertices[lastRow][i].add_neighbour(self.rowVertices[lastRow][i-1])
+            self.rowVertices[lastRow][i].add_neighbour(self.rowVertices[lastRow-1][i])
 
         #Corners of the mesh
         if self.colCount >1:
@@ -52,11 +56,13 @@ class Mesh:
         for i in range(1, self.rowCount-1):
             self.rowVertices[i][0].add_neighbour(self.rowVertices[i+1][0])
             self.rowVertices[i][0].add_neighbour(self.rowVertices[i-1][0])
+            self.rowVertices[i][0].add_neighbour(self.rowVertices[i][1])
+            
             self.rowVertices[i][self.colCount-1].add_neighbour(self.rowVertices[i+1][self.colCount-1])
             self.rowVertices[i][self.colCount-1].add_neighbour(self.rowVertices[i-1][self.colCount-1])
-
-
-
+            self.rowVertices[i][self.colCount-1].add_neighbour(self.rowVertices[i][self.colCount-2])
+            
+            
     def print(self):
         for i in range(0,self.rowCount):
             for j in range(0,self.colCount):

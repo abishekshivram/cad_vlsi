@@ -9,7 +9,7 @@ def network(level,networkType,n,m):
 	if (networkType == 'B'):
 		assert (n==m),"Dimensions of Butterfly network should be equal"
 		network = Butterfly(level+networkType,n)
-		network.print()
+		network.print_all()
 		return network
 	elif (networkType == 'C'):
 		assert (m==1),"Second dimension of Chain network is invalid"
