@@ -20,7 +20,7 @@ class Chain:
     def get_node_name(self,id):
         return self.name+str(id)
 
-    def print(self):
+    def print_nodes(self):
         for i in self.vertices:
             i.print_neighbour()
 

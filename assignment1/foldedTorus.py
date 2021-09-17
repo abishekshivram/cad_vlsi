@@ -12,24 +12,7 @@ class FoldedTorus:
 
 	def get_node_name(self,i,j):
 		return self.name+str(i)+str(j)
-
-    def insert_nodes(self, node):
-		row_bits = log(self.rowCount)
-		col_bits = log(self.colCount)
-		for i in range(self.rowCount):
-			row=[]
-			for j in range(self.colCount):
-				row.append(Node(self.get_node_name(dec_to_bin(i,row_bits),dec_to_bin(j,col_bits))))
-			self.rowVertices.append(row)
-
-		#Nodes in the folded torus
-		for i in range(len(self.rowVertices)):
-			for j in range(len(self.rowVertices[i])):
-				self.rowVertices[i][j].add_neighbour(self.rowVertices[self.prev_index(i,self.rowCount)][j])
-				self.rowVertices[i][j].add_neighbour(self.rowVertices[self.next_index(i,self.rowCount)][j])
-				self.rowVertices[i][j].add_neighbour(self.rowVertices[i][self.prev_index(j,self.colCount)])
-				self.rowVertices[i][j].add_neighbour(self.rowVertices[i][self.next_index(j,self.colCount)])
-            	
+				
 	def next_index(self,index,dim):
 		assert (index < dim and index >= 0),"Invalid index for Mesh"
 		if (index == dim-1):
@@ -50,8 +33,26 @@ class FoldedTorus:
 			row=[]
 			for j in range(self.colCount):
 				row.append(Node(self.get_node_name(dec_to_bin(i,row_bits),dec_to_bin(j,col_bits))))
+			
 			self.rowVertices.append(row)
+			
+		self.create_network()
 
+	def insert_nodes(self, node):
+		max_row = len(self.rowVertices)
+		
+		if max_row > 0:
+			max_column = len(self.rowVertices[-1])
+		else:
+			max_column = 0
+		
+		assert (max_row < self.rowCount or (max_row == self.rowCount and max_column < self.colCount)),"More than expected rows for Folded Torus network"
+		
+		if (max_row == 0 or len(self.rowVertices[-1]) == self.colCount):
+			self.rowVertices.append([])	
+		self.rowVertices[-1].append(node)
+			
+	def create_network(self):
 		#Nodes in the folded torus
 		for i in range(len(self.rowVertices)):
 			for j in range(len(self.rowVertices[i])):
@@ -60,12 +61,10 @@ class FoldedTorus:
 				self.rowVertices[i][j].add_neighbour(self.rowVertices[i][self.prev_index(j,self.colCount)])
 				self.rowVertices[i][j].add_neighbour(self.rowVertices[i][self.next_index(j,self.colCount)])
 
-
-	def print(self):
+	def print_nodes(self):
 		for i in range(0,self.rowCount):
 			for j in range(0,self.colCount):
 				self.rowVertices[i][j].print_neighbour()
-
 
 	def get_head_node(self):
 		midrow=self.rowCount//2

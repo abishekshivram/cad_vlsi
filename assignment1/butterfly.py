@@ -59,12 +59,13 @@ class Butterfly:
         self.switches = []
         if (create):
             self.create_nodes()
+            self.create_network()
 
     def create_network(self):
         self.create_switches()
         self.connect_switches_nodes()
         
-    def print_all(self):
+    def print_nodes(self):
         print(f"\nPrinting from Class Butterfly named: {self.name}")
         print("\nPrinting Left nodes")
         for i in self.left_nodes:
@@ -135,5 +136,5 @@ class Butterfly:
                 self.switches[i].add_right_neighbour(self.switches[i+col_offset+flag*row_offset])
                 self.switches[i+col_offset+flag*row_offset].add_left_neighbour(self.switches[i])
         
-    def head_node(self):
+    def get_head_node(self):
         return self.left_nodes[self.num//2]

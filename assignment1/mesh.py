@@ -63,7 +63,7 @@ class Mesh:
             self.rowVertices[i][self.colCount-1].add_neighbour(self.rowVertices[i][self.colCount-2])
             
             
-    def print(self):
+    def print_nodes(self):
         for i in range(0,self.rowCount):
             for j in range(0,self.colCount):
                 self.rowVertices[i][j].print_neighbour()

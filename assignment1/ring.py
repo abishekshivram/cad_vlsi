@@ -21,7 +21,7 @@ class Ring:
             self.vertices[self.count-1].add_neighbour(self.vertices[self.count-2])
             self.vertices[self.count-1].add_neighbour(self.vertices[0])
 
-    def print(self):
+    def print_nodes(self):
         for i in self.vertices:
             i.print_neighbour()
 

@@ -24,7 +24,7 @@ class Hypercube:
                 self.nodes[i].add_neighbour(self.nodes[neighbour_index])
                 
 
-    def print(self):
+    def print_nodes(self):
         for i in range(self.nodeCount):
           self.nodes[i].print_neighbour()
     

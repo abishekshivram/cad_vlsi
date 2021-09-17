@@ -9,35 +9,32 @@ def network(level,networkType,n,m):
 	if (networkType == 'B'):
 		assert (n==m),"Dimensions of Butterfly network should be equal"
 		network = Butterfly(level+networkType,n, False if level == 'L1' else True)
-		network.print_all()
-		return network
+	
 	elif (networkType == 'C'):
 		assert (m==1),"Second dimension of Chain network is invalid"
 		network = Chain(level+networkType,n)
-		network.print()
-		return network
+
 	elif (networkType == 'R'):
 		assert (m==1),"Second dimension of Ring network is invalid"
 		network = Ring(level+networkType,n)
-		network.print()
-		return network
+
 	elif (networkType == 'M'):
 		assert (m>1 and n>1 and m+n>4),"The given dimension doesn't correspond to a Mesh network"
 		network = Mesh(level+networkType,m,n)
-		network.print()
-		return network	
-	elif (networkType == 'F', False if level == 'L1' else True):
+
+	elif (networkType == 'F'):
 		assert (m>1 and n>1),"The given dimension doesn't correspond to a Folded Torus network"
-		network = FoldedTorus(level+networkType,m,n)
-		network.print()
-		return network	
+		network = FoldedTorus(level+networkType,m,n,False if level == 'L1' else True)
+
 	elif (networkType == 'H'):
 		assert (m==n),"Please specify the dimension of the Hypercube network properly"
 		network = Hypercube(level+networkType,n)
-		network.print()
-		return network
+
 	else:
 		print("Please choose a valid network")
+		network = None
+	
+	return network
 
 # Reading L1 topology text file
 # This file contains how all the central nodes of each network are connected
@@ -55,11 +52,13 @@ with open ("L2Topology.txt", 'r') as f:
 		L2.append(line.strip().replace(" ", "").split(','))
 		L2_network.append(network('L2',L2[-1][0],int(L2[-1][1]),int(L2[-1][2])))
 
-
 for i in L2_network:
-	L1_network.insert_nodes(i.head_node())
+	L1_network.insert_nodes(i.get_head_node())
+
 L1_network.create_network()
 
+for networks in L2_network:
+	networks.print_nodes()
 
 
 
