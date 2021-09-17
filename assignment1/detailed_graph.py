@@ -26,7 +26,7 @@ def network(level,networkType,n,m):
 		network = Mesh(level+networkType,m,n)
 		network.print()
 		return network	
-	elif (networkType == 'F'):
+	elif (networkType == 'F', False if level == 'L1' else True):
 		assert (m>1 and n>1),"The given dimension doesn't correspond to a Folded Torus network"
 		network = FoldedTorus(level+networkType,m,n)
 		network.print()
