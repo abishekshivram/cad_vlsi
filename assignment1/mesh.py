@@ -8,37 +8,37 @@ class Mesh:
         self.colCount=colCount
         self.rowVertices=[]
         if (create):
-			self.create_nodes()
+            self.create_nodes()
 
     def get_node_name(self,i,j):
         return self.name+str(i)+str(j)
 
     def create_nodes(self):
         #init
-		row_bits = log(self.rowCount)
-		col_bits = log(self.colCount)
+        row_bits = log(self.rowCount)
+        col_bits = log(self.colCount)
         for i in range(0,self.rowCount):
             self.colVertices=[]
             for j in range(0,self.colCount):
                 self.colVertices.append(Node(self.get_node_name(dec_to_bin(i,row_bits),dec_to_bin(j,col_bits))))
             self.rowVertices.append(self.colVertices)
-		self.create_network()
-		
+        self.create_network()
+        
     def insert_nodes(self):
-		max_row = len(self.rowVertices)
-		
-		if max_row > 0:
-			max_column = len(self.rowVertices[-1])
-		else:
-			max_column = 0
-		
-		assert (max_row < self.rowCount or (max_row == self.rowCount and max_column < self.colCount)),"More than expected rows for Folded Torus network"
-		
-		if (max_row == 0 or len(self.rowVertices[-1]) == self.colCount):
-			self.rowVertices.append([])	
-		self.rowVertices[-1].append(node)
-		
-	def create_network(self):
+        max_row = len(self.rowVertices)
+        
+        if max_row > 0:
+            max_column = len(self.rowVertices[-1])
+        else:
+            max_column = 0
+        
+        assert (max_row < self.rowCount or (max_row == self.rowCount and max_column < self.colCount)),"More than expected rows for Folded Torus network"
+        
+        if (max_row == 0 or len(self.rowVertices[-1]) == self.colCount):
+            self.rowVertices.append([]) 
+        self.rowVertices[-1].append(node)
+        
+    def create_network(self):
         #Nodes in the center
         for i in range(1,len(self.rowVertices)-1):
             for j in range(1,len(self.rowVertices[i])-1):
