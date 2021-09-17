@@ -12,15 +12,15 @@ def network(level,networkType,n,m):
 	
 	elif (networkType == 'C'):
 		assert (m==1),"Second dimension of Chain network is invalid"
-		network = Chain(level+networkType,n)
+		network = Chain(level+networkType,n,False if level == 'L1' else True)
 
 	elif (networkType == 'R'):
 		assert (m==1),"Second dimension of Ring network is invalid"
-		network = Ring(level+networkType,n)
+		network = Ring(level+networkType,n,False if level == 'L1' else True)
 
 	elif (networkType == 'M'):
 		assert (m>1 and n>1 and m+n>4),"The given dimension doesn't correspond to a Mesh network"
-		network = Mesh(level+networkType,m,n)
+		network = Mesh(level+networkType,m,n,False if level == 'L1' else True)
 
 	elif (networkType == 'F'):
 		assert (m>1 and n>1),"The given dimension doesn't correspond to a Folded Torus network"
@@ -28,7 +28,7 @@ def network(level,networkType,n,m):
 
 	elif (networkType == 'H'):
 		assert (m==n),"Please specify the dimension of the Hypercube network properly"
-		network = Hypercube(level+networkType,n)
+		network = Hypercube(level+networkType,n,False if level == 'L1' else True)
 
 	else:
 		print("Please choose a valid network")
