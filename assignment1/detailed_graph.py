@@ -28,7 +28,7 @@ def isPowerOfTwo(x):
 
 	Returns:
 	--------
-	True of the number is power of two
+	True if the number is power of two
 	"""
     # First x in the below expression
     # is for the case when x is 0
@@ -36,7 +36,7 @@ def isPowerOfTwo(x):
 
 def network(level,networkType,idx,n,m):
 	"""
-	Reads the input file, performs necessary checks and builds the network
+	Reads the input file, performs necessary checks (based on expected dimensions of the network) and builds the network
 	
 	Parameters:
 	-----------
@@ -58,9 +58,15 @@ def network(level,networkType,idx,n,m):
 			Dimension of the network - m as per the input file
 	"""
 
+	# networkID gives us the format of the name for each network
 	networkID = level+"_"+"N"+str(idx)+"_"+networkType+"_"
+	
+	# Calculating expected number of head nodes in the network by determining the number of nodes in the L1 network
+	# Used to determine if there are enough networks defined in L2
 	total_head_nodes = 0
 	
+	# Assert statements to catch exceptions; and networks in L2 made based on the network specification in the input file
+	# For the network in L1, we only allow initiation of the network, and don't create new nodes since nodes of L2 make the network.
 	if (networkType == 'B'):
 		assert (n==m),"Dimensions of Butterfly network should be equal"
 		assert (isPowerOfTwo(n)), "n should be a power of two in Butterfly network"
@@ -104,8 +110,12 @@ def network(level,networkType,idx,n,m):
 	
 	return network, total_head_nodes
 
-# Reading L1 topology text file
-# This file contains how all the central nodes of each network are connected
+# Reading L1 topology text file: 
+# L1: Stores the attributes in L1Topology.txt
+# L1_network: Stores the class associated with L1 network 
+# Currently, we don't create nodes and connections for L1, and merely assign the dimensions for the L1 specification.
+# L1 network nodes are made up of the head-nodes in L2 
+# This file contains how all the head nodes of each network in L2 are interconnected
 with open ("L1Topology.txt",'r') as f:
 	for line in f:
 		if (line=='\n'):
@@ -116,6 +126,9 @@ with open ("L1Topology.txt",'r') as f:
 
 
 # Reading L2 topology text file
+# L2: Stores the attributes in L2Topology.txt
+# L2_network: Stores the classes associated with L2 networks
+# idx: Index of the network (1st network in L2: Index 0)
 # This contains details of each of the network
 L2 = []
 L2_network = []
@@ -130,20 +143,17 @@ with open ("L2Topology.txt", 'r') as f:
 		L2_network.append(network('L2',L2[-1][0],idx,int(L2[-1][1]),int(L2[-1][2]))[0])
 		idx += 1
 
-assert (len(L2_network) == total_head_nodes), "Please check your inputs, L1 and L2 inconsistency in number of nodes"
+# If there is an inconsistency in the number of nodes in L1 and the number of head-nodes in L2
+assert (len(L2_network) == total_head_nodes), "Please check your inputs, inconsistency in terms of number of nodes in L1 and networks in L2"
 
-
+# Based on head-nodes from L2, inserting nodes into the L1 network
 for i in L2_network:
 	L1_network.insert_nodes(i.get_head_node())
 
+# Making the L1 network: Connection between the nodes
 L1_network.create_network()
 
+# Printing the nodes in the network
+print("Nodes of the Two level hierarchical Network on Chip")
 for networks in L2_network:
 	networks.print_nodes()
-
-
-
-#from butterfly import *
-
-#check_B = Butterfly("B1", 8)
-#check_B.print_all()

@@ -31,7 +31,7 @@ class FoldedTorus:
     		The number of rows to be added in the topology
 		ColCount: Integer
 			The number of coloumns to be added in the topology
-		Ceate : True/False
+		Create : True/False
     		If true, the nodes of the topology are created
     		If false, the internal state is updated. Nodes are not created
     		Default is True

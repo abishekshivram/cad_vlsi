@@ -30,7 +30,7 @@ class Chain:
             The name to be assigned to the network topology.
         Count : Integer
             The number of nodes to be added in the topology
-        Ceate : True/False
+        Create : True/False
             If true, the nodes of the topology are created
             If flase, the internal state is updated. Nodes are not created
             Default is True
@@ -108,14 +108,17 @@ class Chain:
     def get_head_node(self):
         """
         Calculates the head node of the topology.
+        Since head-nodes of L2 are nodes of L1, we rename the network with prefix L1 (instead of L2)
         In the case of chain, it is the node located in the center
 
         Returns:
         --------
         The head node of the topology. Empty node, if the topology is not created
         """
-
+        
+        # a//2: Performs floor division
         headpos=self.count//2
+        
         if(len(self.vertices)>0 and len(self.vertices)>=headpos):
             self.vertices[headpos].name = 'L1'+self.vertices[headpos].name[2:]
             return self.vertices[headpos]

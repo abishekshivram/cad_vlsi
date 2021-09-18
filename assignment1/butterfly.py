@@ -88,7 +88,7 @@ class Butterfly:
             The name to be assigned to the network topology.
         num : Integer
             The size of the network to be created
-        Ceate : True/False
+        Create : True/False
             If true, the nodes of the topology are created
             If false, the internal state is updated. Nodes are not created
             Default is True
@@ -120,14 +120,13 @@ class Butterfly:
         This function treats intermediate switches also as nodes
         """
 
-        #print(f"\nPrinting from Class Butterfly named: {self.name}")
-        #print("\nPrinting Left nodes")
         for i in self.left_nodes:
             print(i.print_neighbour())
-        #print("\nPrinting Right nodes")
+
         for i in self.right_nodes:
             print(i.print_neighbour())
-        print("\nPrinting Switches: ")
+        
+        print("\nPrinting Switches: ")        
         for i in self.switches:
             print(i.print_neighbours())
         print("\n")
@@ -145,9 +144,9 @@ class Butterfly:
                The new node to be added to the topology
         """
 
-        if(len(self.left_nodes) <= self.num):
+        if(len(self.left_nodes) < self.num):
             self.left_nodes.append(node)
-        else:
+        elif (len(self.right_nodes) < self.num):
             self.right_nodes.append(node)
         
 
@@ -157,12 +156,9 @@ class Butterfly:
         This function, creates and assigns unique name to each node
         """
 
-        #no. nodes = 2*num
         digits = log(self.num)
         for i in range(self.num):
-            #self.left_nodes.append(Node(f"L2_L{self.identity}_B_"+dec_to_bin(i, digits)))
             self.left_nodes.append(Node(f"{self.name}L"+dec_to_bin(i, digits)))
-            #self.right_nodes.append(Node(f"L2_R{self.identity}_B_"+dec_to_bin(i, digits)))
             self.right_nodes.append(Node(f"{self.name}R"+dec_to_bin(i, digits)))
     
     def create_switches(self):
@@ -174,11 +170,10 @@ class Butterfly:
         layers = int(log(self.num))
         rows_switch = int(self.num/2)
         digits = log(rows_switch)
-        # no_switch = layers*rows_switch
+
         # BL1 = butterfly switch layer 1 (from left)
         for i in range(layers):
             for j in range(rows_switch):
-                #self.switches.append(Switch(f"BL{i}_"+dec_to_bin(j, digits)))
                 self.switches.append(Switch(f"{self.name}"+f"S{i}_"+dec_to_bin(j, digits)))
 
     def connect_switches_nodes(self):
@@ -208,8 +203,6 @@ class Butterfly:
                 self.switches[i+col_offset+flag*row_offset].add_left_neighbour(self.switches[i])
             
             elif (i >= (log(self.num)-1)*self.num/2): #Last layer
-                #self.switches[i].add_left_neighbour(self.switches[i-col_offset])
-                #self.switches[i].add_left_neighbour(self.switches[i-col_offset+flag*row_offset])
                 j = int(i - (log(self.num)-1)*self.num/2)
                 self.switches[i].add_right_neighbour(self.right_nodes[2*j])
                 self.right_nodes[2*j].add_neighbour(self.switches[i])
@@ -226,6 +219,7 @@ class Butterfly:
     def get_head_node(self):
         """
         Calculates the head node of the topology.
+        Since head-nodes of L2 are nodes of L1, we rename the network with prefix L1 (instead of L2)
         In the case of Butterfly, it selects the middle node
 
         Returns:

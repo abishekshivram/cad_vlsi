@@ -1,0 +1,529 @@
+Nodes of the Two level hierarchical Network on Chip
+
+NodeID: L1_N0_R_00
+Links: 3
+L1: L2_N0_R_01
+L2: L2_N0_R_10
+L3: L1_N0_B_S0_00
+
+NodeID: L2_N0_R_01
+Links: 2
+L1: L2_N0_R_10
+L2: L1_N0_R_00
+
+NodeID: L2_N0_R_10
+Links: 2
+L1: L2_N0_R_01
+L2: L1_N0_R_00
+
+NodeID: L1_N1_R_00
+Links: 3
+L1: L2_N1_R_01
+L2: L2_N1_R_10
+L3: L1_N0_B_S0_00
+
+NodeID: L2_N1_R_01
+Links: 2
+L1: L2_N1_R_10
+L2: L1_N1_R_00
+
+NodeID: L2_N1_R_10
+Links: 2
+L1: L2_N1_R_01
+L2: L1_N1_R_00
+
+NodeID: L1_N2_R_00
+Links: 3
+L1: L2_N2_R_01
+L2: L2_N2_R_10
+L3: L1_N0_B_S0_01
+
+NodeID: L2_N2_R_01
+Links: 2
+L1: L2_N2_R_10
+L2: L1_N2_R_00
+
+NodeID: L2_N2_R_10
+Links: 2
+L1: L2_N2_R_01
+L2: L1_N2_R_00
+
+NodeID: L1_N3_R_00
+Links: 3
+L1: L2_N3_R_01
+L2: L2_N3_R_10
+L3: L1_N0_B_S0_01
+
+NodeID: L2_N3_R_01
+Links: 2
+L1: L2_N3_R_10
+L2: L1_N3_R_00
+
+NodeID: L2_N3_R_10
+Links: 2
+L1: L2_N3_R_01
+L2: L1_N3_R_00
+
+NodeID: L1_N4_R_00
+Links: 3
+L1: L2_N4_R_01
+L2: L2_N4_R_10
+L3: L1_N0_B_S0_10
+
+NodeID: L2_N4_R_01
+Links: 2
+L1: L2_N4_R_10
+L2: L1_N4_R_00
+
+NodeID: L2_N4_R_10
+Links: 2
+L1: L2_N4_R_01
+L2: L1_N4_R_00
+
+NodeID: L2_N5_M_0_000
+Links: 2
+L1: L2_N5_M_0_001
+L2: L2_N5_M_1_000
+
+NodeID: L2_N5_M_0_001
+Links: 3
+L1: L2_N5_M_0_010
+L2: L2_N5_M_0_000
+L3: L2_N5_M_1_001
+
+NodeID: L2_N5_M_0_010
+Links: 3
+L1: L2_N5_M_0_011
+L2: L2_N5_M_0_001
+L3: L2_N5_M_1_010
+
+NodeID: L2_N5_M_0_011
+Links: 3
+L1: L2_N5_M_0_100
+L2: L2_N5_M_0_010
+L3: L1_N5_M_1_011
+
+NodeID: L2_N5_M_0_100
+Links: 3
+L1: L2_N5_M_0_101
+L2: L2_N5_M_0_011
+L3: L2_N5_M_1_100
+
+NodeID: L2_N5_M_0_101
+Links: 2
+L1: L2_N5_M_0_100
+L2: L2_N5_M_1_101
+
+NodeID: L2_N5_M_1_000
+Links: 2
+L1: L2_N5_M_1_001
+L2: L2_N5_M_0_000
+
+NodeID: L2_N5_M_1_001
+Links: 3
+L1: L2_N5_M_1_010
+L2: L2_N5_M_1_000
+L3: L2_N5_M_0_001
+
+NodeID: L2_N5_M_1_010
+Links: 3
+L1: L1_N5_M_1_011
+L2: L2_N5_M_1_001
+L3: L2_N5_M_0_010
+
+NodeID: L1_N5_M_1_011
+Links: 4
+L1: L2_N5_M_1_100
+L2: L2_N5_M_1_010
+L3: L2_N5_M_0_011
+L4: L1_N0_B_S0_10
+
+NodeID: L2_N5_M_1_100
+Links: 3
+L1: L2_N5_M_1_101
+L2: L1_N5_M_1_011
+L3: L2_N5_M_0_100
+
+NodeID: L2_N5_M_1_101
+Links: 2
+L1: L2_N5_M_1_100
+L2: L2_N5_M_0_101
+
+NodeID: L2_N6_C_000
+Links: 1
+L1: L2_N6_C_001
+
+NodeID: L2_N6_C_001
+Links: 2
+L1: L2_N6_C_010
+L2: L2_N6_C_000
+
+NodeID: L2_N6_C_010
+Links: 2
+L1: L1_N6_C_011
+L2: L2_N6_C_001
+
+NodeID: L1_N6_C_011
+Links: 3
+L1: L2_N6_C_100
+L2: L2_N6_C_010
+L3: L1_N0_B_S0_11
+
+NodeID: L2_N6_C_100
+Links: 2
+L1: L2_N6_C_101
+L2: L1_N6_C_011
+
+NodeID: L2_N6_C_101
+Links: 2
+L1: L2_N6_C_110
+L2: L2_N6_C_100
+
+NodeID: L2_N6_C_110
+Links: 1
+L1: L2_N6_C_101
+
+NodeID: L2_N7_B_L00
+Links: 1
+L1: L2_N7_B_S0_0
+
+
+NodeID: L2_N7_B_L01
+Links: 1
+L1: L2_N7_B_S0_0
+
+
+NodeID: L2_N7_B_L10
+Links: 1
+L1: L2_N7_B_S0_1
+
+
+NodeID: L2_N7_B_L11
+Links: 1
+L1: L2_N7_B_S0_1
+
+
+NodeID: L2_N7_B_R00
+Links: 1
+L1: L2_N7_B_S1_0
+
+
+NodeID: L2_N7_B_R01
+Links: 1
+L1: L2_N7_B_S1_0
+
+
+NodeID: L1_N7_B_R10
+Links: 2
+L1: L2_N7_B_S1_1
+L2: L1_N0_B_S0_11
+
+
+NodeID: L2_N7_B_R11
+Links: 1
+L1: L2_N7_B_S1_1
+
+
+Printing Switches: 
+Switch ID:  L2_N7_B_S0_0
+Links: 4
+Left Neighbours of the switch:
+L1:  L2_N7_B_L00
+L2:  L2_N7_B_L01
+Right Neighbours of the switch:
+L3:  L2_N7_B_S1_0
+L4:  L2_N7_B_S1_1
+
+Switch ID:  L2_N7_B_S0_1
+Links: 4
+Left Neighbours of the switch:
+L1:  L2_N7_B_L10
+L2:  L2_N7_B_L11
+Right Neighbours of the switch:
+L3:  L2_N7_B_S1_1
+L4:  L2_N7_B_S1_0
+
+Switch ID:  L2_N7_B_S1_0
+Links: 4
+Left Neighbours of the switch:
+L1:  L2_N7_B_S0_0
+L2:  L2_N7_B_S0_1
+Right Neighbours of the switch:
+L3:  L2_N7_B_R00
+L4:  L2_N7_B_R01
+
+Switch ID:  L2_N7_B_S1_1
+Links: 4
+Left Neighbours of the switch:
+L1:  L2_N7_B_S0_0
+L2:  L2_N7_B_S0_1
+Right Neighbours of the switch:
+L3:  L1_N7_B_R10
+L4:  L2_N7_B_R11
+
+
+
+
+NodeID: L1_N8_R_00
+Links: 3
+L1: L2_N8_R_01
+L2: L2_N8_R_10
+L3: L1_N0_B_S2_00
+
+NodeID: L2_N8_R_01
+Links: 2
+L1: L2_N8_R_10
+L2: L1_N8_R_00
+
+NodeID: L2_N8_R_10
+Links: 2
+L1: L2_N8_R_01
+L2: L1_N8_R_00
+
+NodeID: L1_N9_R_00
+Links: 3
+L1: L2_N9_R_01
+L2: L2_N9_R_10
+L3: L1_N0_B_S2_00
+
+NodeID: L2_N9_R_01
+Links: 2
+L1: L2_N9_R_10
+L2: L1_N9_R_00
+
+NodeID: L2_N9_R_10
+Links: 2
+L1: L2_N9_R_01
+L2: L1_N9_R_00
+
+NodeID: L1_N10_R_00
+Links: 3
+L1: L2_N10_R_01
+L2: L2_N10_R_10
+L3: L1_N0_B_S2_01
+
+NodeID: L2_N10_R_01
+Links: 2
+L1: L2_N10_R_10
+L2: L1_N10_R_00
+
+NodeID: L2_N10_R_10
+Links: 2
+L1: L2_N10_R_01
+L2: L1_N10_R_00
+
+NodeID: L1_N11_R_00
+Links: 3
+L1: L2_N11_R_01
+L2: L2_N11_R_10
+L3: L1_N0_B_S2_01
+
+NodeID: L2_N11_R_01
+Links: 2
+L1: L2_N11_R_10
+L2: L1_N11_R_00
+
+NodeID: L2_N11_R_10
+Links: 2
+L1: L2_N11_R_01
+L2: L1_N11_R_00
+
+NodeID: L1_N12_R_00
+Links: 3
+L1: L2_N12_R_01
+L2: L2_N12_R_10
+L3: L1_N0_B_S2_10
+
+NodeID: L2_N12_R_01
+Links: 2
+L1: L2_N12_R_10
+L2: L1_N12_R_00
+
+NodeID: L2_N12_R_10
+Links: 2
+L1: L2_N12_R_01
+L2: L1_N12_R_00
+
+NodeID: L2_N13_M_0_000
+Links: 2
+L1: L2_N13_M_0_001
+L2: L2_N13_M_1_000
+
+NodeID: L2_N13_M_0_001
+Links: 3
+L1: L2_N13_M_0_010
+L2: L2_N13_M_0_000
+L3: L2_N13_M_1_001
+
+NodeID: L2_N13_M_0_010
+Links: 3
+L1: L2_N13_M_0_011
+L2: L2_N13_M_0_001
+L3: L2_N13_M_1_010
+
+NodeID: L2_N13_M_0_011
+Links: 3
+L1: L2_N13_M_0_100
+L2: L2_N13_M_0_010
+L3: L1_N13_M_1_011
+
+NodeID: L2_N13_M_0_100
+Links: 3
+L1: L2_N13_M_0_101
+L2: L2_N13_M_0_011
+L3: L2_N13_M_1_100
+
+NodeID: L2_N13_M_0_101
+Links: 2
+L1: L2_N13_M_0_100
+L2: L2_N13_M_1_101
+
+NodeID: L2_N13_M_1_000
+Links: 2
+L1: L2_N13_M_1_001
+L2: L2_N13_M_0_000
+
+NodeID: L2_N13_M_1_001
+Links: 3
+L1: L2_N13_M_1_010
+L2: L2_N13_M_1_000
+L3: L2_N13_M_0_001
+
+NodeID: L2_N13_M_1_010
+Links: 3
+L1: L1_N13_M_1_011
+L2: L2_N13_M_1_001
+L3: L2_N13_M_0_010
+
+NodeID: L1_N13_M_1_011
+Links: 4
+L1: L2_N13_M_1_100
+L2: L2_N13_M_1_010
+L3: L2_N13_M_0_011
+L4: L1_N0_B_S2_10
+
+NodeID: L2_N13_M_1_100
+Links: 3
+L1: L2_N13_M_1_101
+L2: L1_N13_M_1_011
+L3: L2_N13_M_0_100
+
+NodeID: L2_N13_M_1_101
+Links: 2
+L1: L2_N13_M_1_100
+L2: L2_N13_M_0_101
+
+NodeID: L2_N14_C_000
+Links: 1
+L1: L2_N14_C_001
+
+NodeID: L2_N14_C_001
+Links: 2
+L1: L2_N14_C_010
+L2: L2_N14_C_000
+
+NodeID: L2_N14_C_010
+Links: 2
+L1: L1_N14_C_011
+L2: L2_N14_C_001
+
+NodeID: L1_N14_C_011
+Links: 3
+L1: L2_N14_C_100
+L2: L2_N14_C_010
+L3: L1_N0_B_S2_11
+
+NodeID: L2_N14_C_100
+Links: 2
+L1: L2_N14_C_101
+L2: L1_N14_C_011
+
+NodeID: L2_N14_C_101
+Links: 2
+L1: L2_N14_C_110
+L2: L2_N14_C_100
+
+NodeID: L2_N14_C_110
+Links: 1
+L1: L2_N14_C_101
+
+NodeID: L2_N15_B_L00
+Links: 1
+L1: L2_N15_B_S0_0
+
+
+NodeID: L2_N15_B_L01
+Links: 1
+L1: L2_N15_B_S0_0
+
+
+NodeID: L2_N15_B_L10
+Links: 1
+L1: L2_N15_B_S0_1
+
+
+NodeID: L2_N15_B_L11
+Links: 1
+L1: L2_N15_B_S0_1
+
+
+NodeID: L2_N15_B_R00
+Links: 1
+L1: L2_N15_B_S1_0
+
+
+NodeID: L2_N15_B_R01
+Links: 1
+L1: L2_N15_B_S1_0
+
+
+NodeID: L1_N15_B_R10
+Links: 2
+L1: L2_N15_B_S1_1
+L2: L1_N0_B_S2_11
+
+
+NodeID: L2_N15_B_R11
+Links: 1
+L1: L2_N15_B_S1_1
+
+
+Printing Switches: 
+Switch ID:  L2_N15_B_S0_0
+Links: 4
+Left Neighbours of the switch:
+L1:  L2_N15_B_L00
+L2:  L2_N15_B_L01
+Right Neighbours of the switch:
+L3:  L2_N15_B_S1_0
+L4:  L2_N15_B_S1_1
+
+Switch ID:  L2_N15_B_S0_1
+Links: 4
+Left Neighbours of the switch:
+L1:  L2_N15_B_L10
+L2:  L2_N15_B_L11
+Right Neighbours of the switch:
+L3:  L2_N15_B_S1_1
+L4:  L2_N15_B_S1_0
+
+Switch ID:  L2_N15_B_S1_0
+Links: 4
+Left Neighbours of the switch:
+L1:  L2_N15_B_S0_0
+L2:  L2_N15_B_S0_1
+Right Neighbours of the switch:
+L3:  L2_N15_B_R00
+L4:  L2_N15_B_R01
+
+Switch ID:  L2_N15_B_S1_1
+Links: 4
+Left Neighbours of the switch:
+L1:  L2_N15_B_S0_0
+L2:  L2_N15_B_S0_1
+Right Neighbours of the switch:
+L3:  L1_N15_B_R10
+L4:  L2_N15_B_R11
+
+
+

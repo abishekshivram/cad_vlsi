@@ -31,7 +31,7 @@ class Mesh:
             The number of rows to be added in the topology
         ColCount : Integer
             The number of coloums to be added in the topology
-        Ceate : True/False
+        Create : True/False
             If true, the nodes of the topology are created
             If false, the internal state is updated. Nodes are not created
             Default is True
@@ -168,6 +168,7 @@ class Mesh:
     def get_head_node(self):
         """
         Calculates the head node of the topology.
+        Since head-nodes of L2 are nodes of L1, we rename the network with prefix L1 (instead of L2)
         In the case of Mesh, it is the node in center
 
         Returns:

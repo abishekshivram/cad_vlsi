@@ -29,7 +29,7 @@ class Hypercube:
     		The name to be assigned to the network topology.
 		dim: Integer
 			The dimension of the Hypercube to be created.
-		Ceate : True/False
+		Create : True/False
     		If true, the nodes of the topology are created
     		If false, the internal state is updated. Nodes are not created
     		Default is True
@@ -122,6 +122,7 @@ class Hypercube:
 	def get_head_node(self):
 		"""
 		Returns the head node of the topology.
+        Since head-nodes of L2 are nodes of L1, we rename the network with prefix L1 (instead of L2)
 		In the case of Hypercube, it is the first node
 		
 		Returns:

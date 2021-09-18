@@ -1,3 +1,13 @@
+###########################################################################
+# CS6230:CAD for VLSI Systems - Project 1
+# Name: Two level hierarchical Network on Chip 
+# Team Name: Kilbees
+# Team Members: Abishekshivram AM (EE18B002)
+#               Gayatri Ramanathan Ratnam (EE18B006)
+#               Lloyd K L (CS21M001)
+# Description: Implementation of the Folded Torus network topology
+# Last updated on: 18-Sep-2021
+############################################################################
 
 class Switch:
     """
@@ -64,7 +74,6 @@ class Switch:
         Left neighbours are printed first, then right neighbours
 		"""
 
-        #print("Printing SWITCH Neighbours:")
         print("Switch ID: ", self.name)
         print(f"Links: {len(self.left_neighbours)+len(self.left_neighbours)}")
         print("Left Neighbours of the switch:")
