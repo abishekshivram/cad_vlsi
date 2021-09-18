@@ -12,6 +12,9 @@ class Hypercube:
 
 	def get_node_name(self,nodeID):
 		return self.name+str(nodeID)
+		
+	def rename(self,name):
+		self.name = name
 
 	def create_nodes(self):
 		#init
@@ -36,4 +39,5 @@ class Hypercube:
 		  self.nodes[i].print_neighbour()
 	
 	def get_head_node(self):
+		self.nodes[0].name = 'L1'+ self.nodes[0].name[2:]
 		return self.nodes[0] 

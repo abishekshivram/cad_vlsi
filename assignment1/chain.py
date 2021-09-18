@@ -40,6 +40,7 @@ class Chain:
     def get_head_node(self):
         headpos=self.count//2
         if(len(self.vertices)>0 and len(self.vertices)>=headpos):
+            self.vertices[headpos].name = 'L1'+self.vertices[headpos].name[2:]
             return self.vertices[headpos]
         else:
             print("Chain not created yet")

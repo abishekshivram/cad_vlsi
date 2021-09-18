@@ -33,9 +33,9 @@ class Switch:
 
 def log(n):
     count = 0
-    while(not n==1):
+    while(n>1):
         count += 1
-        n= n>>1
+        n= float(n/2)
     return count
 
 
@@ -88,8 +88,8 @@ class Butterfly:
     def create_nodes(self):
         #no. nodes = num*num
         for i in range(self.num):
-            self.left_nodes.append(Node("L"+dec_to_bin(i)))
-            self.right_nodes.append(Node("R"+dec_to_bin(i)))
+            self.left_nodes.append(Node("L_"+dec_to_bin(i)))
+            self.right_nodes.append(Node("R_"+dec_to_bin(i)))
     
     def create_switches(self):
         layers = int(log(self.num))
@@ -137,4 +137,5 @@ class Butterfly:
                 self.switches[i+col_offset+flag*row_offset].add_left_neighbour(self.switches[i])
         
     def get_head_node(self):
+        self.left_nodes[self.num//2].name = 'L1'+ self.left_nodes[self.num//2].name[2:]
         return self.left_nodes[self.num//2]

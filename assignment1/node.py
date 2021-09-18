@@ -23,7 +23,7 @@ class Node:
 
     def print_neighbour(self):
         print("\nNodeID:", self.name, end="\n")
-        print("Links",len(self.neighbour),end="\n")
+        print("Links:",len(self.neighbour),end="\n")
         for i in range(len(self.neighbour)):
             print(f"L{i+1}:",self.neighbour[i].name, end="\n")
         return ""

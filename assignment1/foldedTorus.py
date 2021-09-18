@@ -11,7 +11,7 @@ class FoldedTorus:
 			self.create_nodes()
 
 	def get_node_name(self,i,j):
-		return self.name+str(i)+str(j)
+		return self.name+str(i)+"_"+str(j)
 				
 	def next_index(self,index,dim):
 		assert (index < dim and index >= 0),"Invalid index for Mesh"
@@ -72,6 +72,7 @@ class FoldedTorus:
 
 		if(len(self.rowVertices)>0 and len(self.rowVertices)>=midrow):
 			if(len(self.rowVertices[midrow])>0 and len(self.rowVertices[midrow])>=midcol):
+				self.rowVertices[midrow][midcol].name = 'L1'+self.rowVertices[midrow][midcol].name[2:]
 				return self.rowVertices[midrow][midcol]
 		print("Folded Torus not created yet")
 		n=Node("NIL")

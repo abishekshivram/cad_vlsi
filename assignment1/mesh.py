@@ -11,7 +11,7 @@ class Mesh:
             self.create_nodes()
 
     def get_node_name(self,i,j):
-        return self.name+str(i)+str(j)
+        return self.name+str(i)+"_"+str(j)
 
     def create_nodes(self):
         #init
@@ -94,6 +94,7 @@ class Mesh:
 
         if(len(self.rowVertices)>0 and len(self.rowVertices)>=midrow):
             if(len(self.rowVertices[midrow])>0 and len(self.rowVertices[midrow])>=midcol):
+                self.rowVertices[midrow][midcol].name = 'L1'+self.rowVertices[midrow][midcol].name[2:]
                 return self.rowVertices[midrow][midcol]
         print("Mesh not created yet")
         n=Node("NIL")

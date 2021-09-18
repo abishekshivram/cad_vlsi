@@ -39,6 +39,7 @@ class Ring:
 
     def get_head_node(self):
         if(len(self.vertices)>0):
+            self.vertices[0].name = 'L1'+self.vertices[0].name[2:]
             return self.vertices[0]
         else:
             print("Ring not created yet")
