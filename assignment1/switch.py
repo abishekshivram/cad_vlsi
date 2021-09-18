@@ -5,7 +5,7 @@
 # Team Members: Abishekshivram AM (EE18B002)
 #               Gayatri Ramanathan Ratnam (EE18B006)
 #               Lloyd K L (CS21M001)
-# Description: Implementation of the Folded Torus network topology
+# Description: Implementation of the Switch in the network topology
 # Last updated on: 18-Sep-2021
 ############################################################################
 

@@ -32,7 +32,7 @@ def isPowerOfTwo(x):
 	"""
     # First x in the below expression
     # is for the case when x is 0
-	return (x and (not(x & (x - 1))) )
+	return (x and (not(x & (x - 1))))
 
 def network(level,networkType,idx,n,m):
 	"""
@@ -157,3 +157,7 @@ L1_network.create_network()
 print("Nodes of the Two level hierarchical Network on Chip")
 for networks in L2_network:
 	networks.print_nodes()
+
+# If L1 network is a Butterfly network, then printing its switches here
+if (L1[0] == 'B'):
+	L1_network.print_nodes(True)

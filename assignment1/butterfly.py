@@ -112,19 +112,19 @@ class Butterfly:
         self.create_switches()
         self.connect_switches_nodes()
         
-    def print_nodes(self):
+    def print_nodes(self, switch_alone=False):
         """
         Prints all the nodes in the network.
         Calls the print_neighbour() function in node class
         Prints nodes as per the output file format specification in the problem statement
         This function treats intermediate switches also as nodes
         """
+        if(not switch_alone):
+            for i in self.left_nodes:
+                print(i.print_neighbour())
 
-        for i in self.left_nodes:
-            print(i.print_neighbour())
-
-        for i in self.right_nodes:
-            print(i.print_neighbour())
+            for i in self.right_nodes:
+                print(i.print_neighbour())
         
         print("\nPrinting Switches: ")        
         for i in self.switches:
