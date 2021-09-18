@@ -24,7 +24,7 @@ class Mesh:
             self.rowVertices.append(self.colVertices)
         self.create_network()
         
-    def insert_nodes(self):
+    def insert_nodes(self,node):
         max_row = len(self.rowVertices)
         
         if max_row > 0:

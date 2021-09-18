@@ -18,7 +18,7 @@ class Ring:
             self.vertices.append(Node(self.get_node_name(dec_to_bin(i,len_bits))))
         self.create_network()
 
-    def insert_nodes(self):
+    def insert_nodes(self,node):
         max_len = len(self.vertices)
         assert (max_len < self.count),"More than expected nodes for Ring network"
         self.vertices.append(node)

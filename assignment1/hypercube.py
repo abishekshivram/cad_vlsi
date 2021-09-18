@@ -22,7 +22,7 @@ class Hypercube:
 			self.nodes.append(Node(self.get_node_name(dec_to_bin(i))))
 		self.create_network()    
 
-	def insert_nodes(self):
+	def insert_nodes(self,node):
 		max_len = len(self.nodes)
 		assert (max_len < self.nodeCount),"More than expected nodes for Hypercube network"
 		self.nodes.append(node)
