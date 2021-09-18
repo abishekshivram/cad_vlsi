@@ -62,6 +62,11 @@ class Hypercube:
 	def rename(self,name):
 		"""
 		A function to change the name of the topology
+
+		Parameters:
+		-----------
+		name : String
+    		The new name to be assigned
 		"""		
 
 		self.name = name
