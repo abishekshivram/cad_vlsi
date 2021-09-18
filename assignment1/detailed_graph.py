@@ -5,12 +5,19 @@ from chain import Chain
 from mesh import Mesh
 from foldedTorus import FoldedTorus
 
+# Function to check if x is power of 2
+def isPowerOfTwo(x):
+    # First x in the below expression
+    # is for the case when x is 0
+    return (x and (not(x & (x - 1))) )
+
 def network(level,networkType,idx,n,m):
 	networkID = level+"_"+networkType+str(idx)+"_"
 	total_head_nodes = 0
 	
 	if (networkType == 'B'):
 		assert (n==m),"Dimensions of Butterfly network should be equal"
+		assert (isPowerOfTwo(n)), "n should be a power of two in Butterfly network"
 		network = Butterfly(networkID,n,False if level == 'L1' else True)
 		if level == 'L1':
 			total_head_nodes = 2*m
