@@ -27,8 +27,10 @@ class Mesh:
         -----------
         name : string
             The name to be assigned to the network topology.
-        Count : Integer
-            The number of nodes to be added in the topology
+        RowCount : Integer
+            The number of rows to be added in the topology
+        ColCount : Integer
+            The number of coloums to be added in the topology
         Ceate : True/False
             If true, the nodes of the topology are created
             If false, the internal state is updated. Nodes are not created
@@ -44,13 +46,16 @@ class Mesh:
 
     def get_node_name(self,i,j):
         """
-        Generates a node name based on the topology and the Id given
-        Appends the given Id to the topology name to generate a new node name
+        Generates a node name based on the topology and the Row-Id & Col-Id given
+        Appends the given Ids to the topology name to generate a new node name
 
         Parameters:
         -----------
-        id : Integer
-            The idd to be added to the node name
+        i : Integer
+            The row id to be added to the node name
+        
+        j : Integer
+            The col id to be added to the node name
 
         Returns:
         --------
@@ -84,7 +89,7 @@ class Mesh:
         Parameters:
         -----------
         node : An object of Node class
-            The new node to be added to the topology
+               The new node to be added to the topology
         """
 
         max_row = len(self.rowVertices)
