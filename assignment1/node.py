@@ -1,6 +1,13 @@
-# Level represents the highest level where this Node is present
-# (ie) if its head node of L2, it will be present in L1
-# Hence, level=1 else level=2 
+###########################################################################
+# CS6230:CAD for VLSI Systems - Project 1
+# Name: Two level hierarchical Network on Chip 
+# Team Name: Kilbees
+# Team Members: Abishekshivram AM (EE18B002)
+#               Gayatri Ramanathan Ratnam (EE18B006)
+#               Lloyd K L (CS21M001)
+# Description: Implementation of the node in the network topology
+# Last updated on: 18-Sep-2021
+############################################################################
 
 class Node:
     """
