@@ -46,8 +46,8 @@ def network(level,networkType,idx,n,m):
 			total_head_nodes = 2**n
 
 	else:
-		print("Please choose a valid network")
-		network = None
+		print(f"Please choose a valid network, {networkType} is not a valid network type")
+		exit()
 	
 	return network, total_head_nodes
 
@@ -55,7 +55,10 @@ def network(level,networkType,idx,n,m):
 # This file contains how all the central nodes of each network are connected
 with open ("L1Topology.txt",'r') as f:
 	for line in f:
+		if (line=='\n'):
+			continue
 		L1 = line.strip().replace(" ", "").split(',')
+		assert(len(L1) == 3), "Please check your input"
 		L1_network, total_head_nodes = network('L1',L1[0],0,int(L1[1]),int(L1[2]))
 
 
@@ -68,7 +71,9 @@ with open ("L2Topology.txt", 'r') as f:
 	for line in f:
 		if (line=='\n'):
 			continue
-		L2.append(line.strip().replace(" ", "").split(','))
+		L2_input_network = line.strip().replace(" ", "").split(',')
+		assert (len(L2_input_network) == 3), "In L2Topology.txt, line is of invalid format, please check the inputs"
+		L2.append(L2_input_network)
 		L2_network.append(network('L2',L2[-1][0],idx,int(L2[-1][1]),int(L2[-1][2]))[0])
 		idx += 1
 
