@@ -187,42 +187,34 @@ NodeID: L2_N7_B_L00
 Links: 1
 L1: L2_N7_B_S0_0
 
-
 NodeID: L2_N7_B_L01
 Links: 1
 L1: L2_N7_B_S0_0
-
 
 NodeID: L2_N7_B_L10
 Links: 1
 L1: L2_N7_B_S0_1
 
-
 NodeID: L2_N7_B_L11
 Links: 1
 L1: L2_N7_B_S0_1
-
 
 NodeID: L2_N7_B_R00
 Links: 1
 L1: L2_N7_B_S1_0
 
-
 NodeID: L2_N7_B_R01
 Links: 1
 L1: L2_N7_B_S1_0
-
 
 NodeID: L1_N7_B_R10
 Links: 2
 L1: L2_N7_B_S1_1
 L2: L1_N0_B_S0_11
 
-
 NodeID: L2_N7_B_R11
 Links: 1
 L1: L2_N7_B_S1_1
-
 
 Printing Switches: 
 Switch ID:  L2_N7_B_S0_0
@@ -260,8 +252,6 @@ L2:  L2_N7_B_S0_1
 Right Neighbours of the switch:
 L3:  L1_N7_B_R10
 L4:  L2_N7_B_R11
-
-
 
 
 NodeID: L1_N8_R_00
@@ -451,42 +441,34 @@ NodeID: L2_N15_B_L00
 Links: 1
 L1: L2_N15_B_S0_0
 
-
 NodeID: L2_N15_B_L01
 Links: 1
 L1: L2_N15_B_S0_0
-
 
 NodeID: L2_N15_B_L10
 Links: 1
 L1: L2_N15_B_S0_1
 
-
 NodeID: L2_N15_B_L11
 Links: 1
 L1: L2_N15_B_S0_1
-
 
 NodeID: L2_N15_B_R00
 Links: 1
 L1: L2_N15_B_S1_0
 
-
 NodeID: L2_N15_B_R01
 Links: 1
 L1: L2_N15_B_S1_0
-
 
 NodeID: L1_N15_B_R10
 Links: 2
 L1: L2_N15_B_S1_1
 L2: L1_N0_B_S2_11
 
-
 NodeID: L2_N15_B_R11
 Links: 1
 L1: L2_N15_B_S1_1
-
 
 Printing Switches: 
 Switch ID:  L2_N15_B_S0_0
@@ -526,4 +508,112 @@ L3:  L1_N15_B_R10
 L4:  L2_N15_B_R11
 
 
+Printing Switches: 
+Switch ID:  L1_N0_B_S0_00
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_R_00
+L2:  L1_N1_R_00
+Right Neighbours of the switch:
+L3:  L1_N0_B_S1_00
+L4:  L1_N0_B_S1_10
+
+Switch ID:  L1_N0_B_S0_01
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N2_R_00
+L2:  L1_N3_R_00
+Right Neighbours of the switch:
+L3:  L1_N0_B_S1_01
+L4:  L1_N0_B_S1_11
+
+Switch ID:  L1_N0_B_S0_10
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N4_R_00
+L2:  L1_N5_M_1_011
+Right Neighbours of the switch:
+L3:  L1_N0_B_S1_10
+L4:  L1_N0_B_S1_00
+
+Switch ID:  L1_N0_B_S0_11
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N6_C_011
+L2:  L1_N7_B_R10
+Right Neighbours of the switch:
+L3:  L1_N0_B_S1_11
+L4:  L1_N0_B_S1_01
+
+Switch ID:  L1_N0_B_S1_00
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_B_S0_00
+L2:  L1_N0_B_S0_10
+Right Neighbours of the switch:
+L3:  L1_N0_B_S2_00
+L4:  L1_N0_B_S2_01
+
+Switch ID:  L1_N0_B_S1_01
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_B_S0_01
+L2:  L1_N0_B_S0_11
+Right Neighbours of the switch:
+L3:  L1_N0_B_S2_01
+L4:  L1_N0_B_S2_00
+
+Switch ID:  L1_N0_B_S1_10
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_B_S0_00
+L2:  L1_N0_B_S0_10
+Right Neighbours of the switch:
+L3:  L1_N0_B_S2_10
+L4:  L1_N0_B_S2_11
+
+Switch ID:  L1_N0_B_S1_11
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_B_S0_01
+L2:  L1_N0_B_S0_11
+Right Neighbours of the switch:
+L3:  L1_N0_B_S2_11
+L4:  L1_N0_B_S2_10
+
+Switch ID:  L1_N0_B_S2_00
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_B_S1_00
+L2:  L1_N0_B_S1_01
+Right Neighbours of the switch:
+L3:  L1_N8_R_00
+L4:  L1_N9_R_00
+
+Switch ID:  L1_N0_B_S2_01
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_B_S1_00
+L2:  L1_N0_B_S1_01
+Right Neighbours of the switch:
+L3:  L1_N10_R_00
+L4:  L1_N11_R_00
+
+Switch ID:  L1_N0_B_S2_10
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_B_S1_10
+L2:  L1_N0_B_S1_11
+Right Neighbours of the switch:
+L3:  L1_N12_R_00
+L4:  L1_N13_M_1_011
+
+Switch ID:  L1_N0_B_S2_11
+Links: 4
+Left Neighbours of the switch:
+L1:  L1_N0_B_S1_10
+L2:  L1_N0_B_S1_11
+Right Neighbours of the switch:
+L3:  L1_N14_C_011
+L4:  L1_N15_B_R10
 

@@ -121,15 +121,15 @@ class Butterfly:
         """
         if(not switch_alone):
             for i in self.left_nodes:
-                print(i.print_neighbour())
+                i.print_neighbour()
 
             for i in self.right_nodes:
-                print(i.print_neighbour())
+                i.print_neighbour()
         
         print("\nPrinting Switches: ")        
         for i in self.switches:
             print(i.print_neighbours())
-        print("\n")
+        
 
     def insert_nodes(self, node):
         """
