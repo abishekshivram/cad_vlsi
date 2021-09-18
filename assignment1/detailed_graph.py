@@ -1,3 +1,14 @@
+###########################################################################
+# CS6230:CAD for VLSI Systems - Project 1
+# Name: Two level hierarchical Network on Chip 
+# Team Name: Kilbees
+# Team Members: Abishekshivram AM (EE18B002)
+#               Gayatri Ramanathan Ratnam (EE18B006)
+#               Lloyd K L (CS21M001)
+# Description: Program entry point is defined in this file
+# Last updated on: 18-Sep-2021
+############################################################################
+
 from hypercube import Hypercube
 from butterfly import *
 from ring import Ring
@@ -5,13 +16,48 @@ from chain import Chain
 from mesh import Mesh
 from foldedTorus import FoldedTorus
 
-# Function to check if x is power of 2
+
 def isPowerOfTwo(x):
+	"""
+	Checks if the given number is power of 2 or not
+
+	Parameters:
+	-----------
+	x : Integer
+	The number to be checked for 
+
+	Returns:
+	--------
+	True of the number is power of two
+	"""
     # First x in the below expression
     # is for the case when x is 0
-    return (x and (not(x & (x - 1))) )
+	return (x and (not(x & (x - 1))) )
 
 def network(level,networkType,idx,n,m):
+	"""
+	Reads the input file, performs necessary checks and builds the network
+	
+	Parameters:
+	-----------
+		level : Integer
+			    The level to which the network is to be created (L1 or L2)
+		networkType: Character
+				The type of the network
+				C = Chain
+				R = Ring
+				M = Mesh
+				F = Folded Torus
+				H = Hypercube
+				B = Butterfly
+		idx: Integer
+			Index of the network
+		n: Integer
+			Dimension of the network - n as per the input file
+		m: Integer
+			Dimension of the network - m as per the input file
+	"""
+
 	networkID = level+"_"+networkType+str(idx)+"_"
 	total_head_nodes = 0
 	
