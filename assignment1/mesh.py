@@ -32,7 +32,8 @@ class Mesh:
         else:
             max_column = 0
         
-        assert (max_row < self.rowCount or (max_row == self.rowCount and max_column < self.colCount)),"More than expected rows for Folded Torus network"
+        assert (max_row < self.rowCount or (max_row == self.rowCount and max_column < self.colCount)),\
+            "More than expected rows for Mesh network"
         
         if (max_row == 0 or len(self.rowVertices[-1]) == self.colCount):
             self.rowVertices.append([]) 

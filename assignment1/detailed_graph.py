@@ -52,9 +52,11 @@ L2_network = []
 idx = 0
 with open ("L2Topology.txt", 'r') as f:
 	for line in f:
+		if (line=='\n'):
+			continue
 		L2.append(line.strip().replace(" ", "").split(','))
 		L2_network.append(network('L2',L2[-1][0],idx,int(L2[-1][1]),int(L2[-1][2])))
-		idx += 1 
+		idx += 1
 
 for i in L2_network:
 	L1_network.insert_nodes(i.get_head_node())
