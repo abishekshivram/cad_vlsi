@@ -10,82 +10,7 @@
 ############################################################################
 
 from node import Node
-
-class Switch:
-    """
-    A class to represent the Switch in Butterfly based network topology.
-    """
-
-    def __init__(self, name=""):
-        """
-        Initialises the Switch class.
-
-        Parameters:
-        -----------
-        name : string
-            The name to be assigned to the switch.
-        """
-
-        self.name = name
-        # Each switch has two left edges and two right edges
-        # They connect to either node or another switch
-        self.left_neighbours = []
-        self.right_neighbours = []
-    
-    def rename(self, name):
-        """
-        A function to change the name of the switch
-		
-        Parameters:
-		-----------
-		name : String
-    		The new name to be assigned
-        """
-
-        self.name = name
-
-    def add_left_neighbour(self, node):
-        """
-        Adds left side neighbours to the switch
-		
-        Parameters:
-		-----------
-		node : Object of type node
-    		   The nodes to be added as the left neighbours of the switch
-        """
-
-        if (node not in self.left_neighbours):
-            self.left_neighbours.append(node)
-    
-    def add_right_neighbour(self, node):
-        """
-        Adds right side neighbours to the switch
-		
-        Parameters:
-		-----------
-		node : Object of type node
-    		   The nodes to be added as the right neighbours of the switch
-        """
-
-        if (node not in self.right_neighbours):
-            self.right_neighbours.append(node)
-
-    def print_neighbours(self):
-        """
-        Prints neighbours of the switch
-        Left neighbours are printed first, then right neighbours
-		"""
-
-        #print("Printing SWITCH Neighbours:")
-        print("Name of switch: ", self.name)
-        print("     Printing Left Neighbours of the switch:")
-        for i in(self.left_neighbours):
-            print("     ", i.name,end="\n")
-        print("     Printing Right Neighbours of the switch:")
-        for i in(self.right_neighbours):
-            print("     ", i.name,end="\n")
-        return ""
-
+from switch import Switch
 
 def log(n):
     """
@@ -97,7 +22,7 @@ def log(n):
               The number to which the log to be computed
     Returns:
     --------
-    The log2 of the given number
+    The log2 (rounded off to ceil) of the given number
     """
 
     count = 0
@@ -107,7 +32,7 @@ def log(n):
     return count
 
 
-def dec_to_bin(val, digits=3):
+def dec_to_bin(val, digits):
     """
     Converts the given decimal number to binary with the given width
 
@@ -153,7 +78,7 @@ class Butterfly:
     Head node is used to interconnect the nodes
     """
 
-    def __init__(self, name, num, create=True):
+    def __init__(self, name, num, create=True, identity=0):
         """
         Initialises the Butterfly class.
 
@@ -171,6 +96,7 @@ class Butterfly:
 
         self.name = name
         self.num = num
+        self.id = identity
         self.left_nodes = []
         self.right_nodes = []
         self.switches = []
@@ -180,8 +106,8 @@ class Butterfly:
 
     def create_network(self):
         """
-        Creates the network by connecting switches and nodes
-        The switches are newly created here
+        Switches needed for the network are created
+        The network is formed by connecting switches and nodes
         """        
         self.create_switches()
         self.connect_switches_nodes()
@@ -194,14 +120,14 @@ class Butterfly:
         This function treats intermediate switches also as nodes
         """
 
-        print(f"\nPrinting from Class Butterfly named: {self.name}")
-        print("\nPrinting Left nodes")
+        #print(f"\nPrinting from Class Butterfly named: {self.name}")
+        #print("\nPrinting Left nodes")
         for i in self.left_nodes:
             print(i.print_neighbour())
-        print("\nPrinting Right nodes")
+        #print("\nPrinting Right nodes")
         for i in self.right_nodes:
             print(i.print_neighbour())
-        print("\nPrinting Switches nodes")
+        print("\nPrinting Switches: ")
         for i in self.switches:
             print(i.print_neighbours())
         print("\n")
@@ -231,10 +157,13 @@ class Butterfly:
         This function, creates and assigns unique name to each node
         """
 
-        #no. nodes = num*num
+        #no. nodes = 2*num
+        digits = log(self.num)
         for i in range(self.num):
-            self.left_nodes.append(Node("L_"+dec_to_bin(i)))
-            self.right_nodes.append(Node("R_"+dec_to_bin(i)))
+            #self.left_nodes.append(Node(f"L2_L{self.identity}_B_"+dec_to_bin(i, digits)))
+            self.left_nodes.append(Node(f"{self.name}L"+dec_to_bin(i, digits)))
+            #self.right_nodes.append(Node(f"L2_R{self.identity}_B_"+dec_to_bin(i, digits)))
+            self.right_nodes.append(Node(f"{self.name}R"+dec_to_bin(i, digits)))
     
     def create_switches(self):
         """
@@ -244,17 +173,19 @@ class Butterfly:
 
         layers = int(log(self.num))
         rows_switch = int(self.num/2)
+        digits = log(rows_switch)
         # no_switch = layers*rows_switch
         # BL1 = butterfly switch layer 1 (from left)
         for i in range(layers):
             for j in range(rows_switch):
-                self.switches.append(Switch(f"BL{i}_"+dec_to_bin(j)))
+                #self.switches.append(Switch(f"BL{i}_"+dec_to_bin(j, digits)))
+                self.switches.append(Switch(f"{self.name}"+f"S{i}_"+dec_to_bin(j, digits)))
 
     def connect_switches_nodes(self):
         """
-        A private function to establish connection netween switches and nodes
+        A private function to establish connection between switches and nodes
         The connection is established with switchs and nodes in left,
-        switchs and nodes on the right, switches in the middle
+        switchs and nodes on the right, between switches in the middle
         """
 
         for i in range(len(self.switches)):
@@ -302,5 +233,5 @@ class Butterfly:
         The head node of the topology. 
         """
 
-        self.left_nodes[self.num//2].name = 'L1'+ self.left_nodes[self.num//2].name[2:]
-        return self.left_nodes[self.num//2]
+        self.right_nodes[self.num//2].name = 'L1'+ self.right_nodes[self.num//2].name[2:]
+        return self.right_nodes[self.num//2]

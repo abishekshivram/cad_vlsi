@@ -58,7 +58,7 @@ def network(level,networkType,idx,n,m):
 			Dimension of the network - m as per the input file
 	"""
 
-	networkID = level+"_"+networkType+str(idx)+"_"
+	networkID = level+"_"+"N"+str(idx)+"_"+networkType+"_"
 	total_head_nodes = 0
 	
 	if (networkType == 'B'):

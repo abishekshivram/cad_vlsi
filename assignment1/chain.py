@@ -88,7 +88,7 @@ class Chain:
         Parameters:
         -----------
         id : Integer
-            The idd to be added to the node name
+            The id to be added to the node name
 
         Returns:
         --------
