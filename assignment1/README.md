@@ -1,7 +1,7 @@
 ## Assignment 1 - Team Kilbees
 
 ### Python code to produce network details for the given input 
-### Authors: Abishekshivram A M, Gayatri Ramanathan Ratnam, Llyod K L
+### Authors: Abishekshivram A M, Gayatri Ramanathan Ratnam, Lloyd K L
 ### Roll numbers: EE18B002, EE18B006, CS21M001
 #### For each of the network type, a class has been created in each of the {network}.py file
 #### Class Node and Class Switch has been created for creating nodes and switches respectively.
