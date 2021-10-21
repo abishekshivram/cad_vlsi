@@ -1,14 +1,18 @@
-from re import compile
-FILE_PATH = "../assignment1/output.txt"
+from re import compile,match
+from network import Network
+
+FILE_PATH_INPUT_LVL1 = "../assignment1/L1Topology.txt"
+FILE_PATH_INPUT_LVL2 = "../assignment1/L2Topology.txt"
+FILE_PATH_OUTPUT = "../assignment1/output.txt"
 
 def _parse_line(line):
     """
-    Do a regex search against all defined regexes in rx_dict and
+    Do a regex search against all defined regexes in rx_dict_output and
     return the key and match result of the first matching regex
 
     """
 
-    for key, rx in rx_dict.items():
+    for key, rx in rx_dict_output.items():
         match = rx.search(line)
         if match:
             return key, match
@@ -21,18 +25,28 @@ The python dictionary defining the different attributes of node specification
 and the way in which they are defined in output.txt
 
 """
-rx_dict = {
+rx_dict_output = {
     'NodeID': compile(r'^NodeID: (?P<nodeID>.*)\n'),
     'NumLink': compile(r'^Links: (?P<numLinks>\d+)\n'),
-    'NeighbourLink': compile(r'^L(?P<L_idx>\d+): (?P<neighbourID>.*)\n')
+    'NeighbourLink': compile(r'^L(?P<L_idx>\d+): (?P<neighbourID>.*)\n'),
+    'SwitchID': compile(r'^Switch ID:  (?P<switchID>.*)\n'),
+    'SwitchLink': compile(r'^L(?P<L_idx>\d+):  (?P<switchID>.*)\n'),
+    'LeftNeighbourDeclaration': compile(r'^Left Neighbours of the switch:\n'),
+    'RightNeighbourDeclaration': compile(r'^Right Neighbours of the switch:\n'),
 }
 
 
-def nodeIDInterpreter(nodeID):
+def nodeIDInterpreter(nodeID,nodeName):
     lenNodeID = len(nodeID)
     assert lenNodeID in [4,5],"Please check your nodeID specification"
+    
     level= nodeID[0]
-    lvl2networkNum = nodeID[1]
+    assert level in ['L1','L2'],"Levels can only be 'L1' or 'L2'"
+    
+    networkID = compile("^N(?P<networkIndex>\d+)")
+    assert networkID.match(nodeID[1]) != None,"Network ID should be of type N<id>"
+    networkIndex = int(networkID.match(nodeID[1]).group('networkIndex'))
+    
     lvl2networkType = nodeID[2]
     assert lvl2networkType in ['C','B','F','R','M','H'],"Network Type Specified should be one of 'C','B','F','R','M' or 'H'"
     
@@ -40,6 +54,8 @@ def nodeIDInterpreter(nodeID):
         if (lenNodeID == 4):
             assert nodeID[3][0] in ['L','R'], "Butterfly end nodes can only be of the form 'L' or 'R'"
             if nodeID[3][0] == 'L':
+                if (level == 'L1'):
+                    NOC.lvl1_network.left
                 butterflySide = 'L'
                 nodeIndex = int(nodeID[3][1:])
             else:
@@ -54,7 +70,25 @@ def nodeIDInterpreter(nodeID):
 
 
 # MAIN function equivalent part of the program
-with open (FILE_PATH,'r') as f:
+NOC = Network()
+with open (FILE_PATH_INPUT_LVL1,'r') as f_lvl1:
+    lines = f_lvl1.readlines()
+    lvl1_nodes = NOC.build_network(lines[0],'L1')
+    if (len(lines) > 1):
+        for line in lines[1:]:
+            assert (line.strip() != '\n'), "L1 Topology input file should have only one network"
+
+
+with open (FILE_PATH_INPUT_LVL2,'r') as f_lvl2:
+    for line in f_lvl2:
+        if (line.strip() == '\n'):
+            continue
+        NOC.build_network(line,'L2')
+
+assert (len(NOC.lvl2_networks) == lvl1_nodes), "L2 headnodes do not match number of nodes in L1"  
+
+
+with open (FILE_PATH_OUTPUT,'r') as f:
     for line in f:
         if (line=='\n'):
             continue
@@ -62,13 +96,15 @@ with open (FILE_PATH,'r') as f:
         key,match = _parse_line(line)
         
         if key == 'NodeID':
-            nodeID = match.group('nodeID').strip().split('_')
-            nodeIDInterpreter(nodeID)
+            nodeName = match.group('nodeID').strip()
+            nodeID = nodeName.split('_')
+            nodeIDInterpreter(nodeID,nodeName)
 
         elif key == 'NumLink':
             numLinks = int(match.group('numLinks').strip())
         elif key == 'NeighbourLink':
             neighbourNum = int(match.group('L_idx').strip())
-            neighbourID = match.group('neighbourID').strip().split('_')
-            nodeIDInterpreter(nodeID)
+            neighbourName = match.group('neighbourID').strip()
+            neighbourID = neighbourName.split('_')
+            nodeIDInterpreter(nodeID,neighbourName)
 
