@@ -13,6 +13,9 @@ import sys
 sys.path.insert(1, './../assignment1')
 import re
 from node import Node
+from butterfly import log
+from butterfly import dec_to_bin
+
 
 from chain_router import ChainRouter
 from hypercube_router import HypercubeRouter
@@ -78,12 +81,52 @@ class NetworkLayout:
                                 self.name_node_dict[sid].add_neighbour(node_ref)
                             link_count=link_count-1
 
-            #Just to print and debug the network
-            #for key in self.name_node_dict:
-            #    print("Key is->"+key)
-            #    print(self.name_node_dict[key].print_neighbour())
-            for n_name, n_val in self.name_node_dict.items():
-                match=re.findall('L\d+_N\d+_([a-z,A-Z])+_',n_name) #L1_N6_C_011 To match network name C,R,M etc..
-                match=str(match[0]).strip()
-                if(match=="C"): #Chain Router
-                    n_val.create_virtual_channels()
+        #Count the no. of nodes in chain to compute the head node name
+        # modify to add mesh, folded torus and butterfly
+        with open(self.filename) as file:
+            dic_chain={}
+            dic_hc={}
+            for line in file:
+                match_c=re.findall('NodeID:.*_N(\d+)_C',line)
+                match_h=re.findall('NodeID:.*_N(\d+)_H',line)
+                if(match_c):
+                    if(int(match_c[0]) not in dic_chain):
+                        dic_chain[int(match_c[0])]=1
+                    else:
+                        dic_chain[int(match_c[0])]=dic_chain[int(match_c[0])]+1
+
+                elif(match_h):
+                    if(int(match_h[0]) not in dic_hc):
+                        dic_hc[int(match_h[0])]=1
+                    else:
+                        dic_hc[int(match_h[0])]=dic_hc[int(match_h[0])]+1                        
+
+
+
+        for n_name, n_val in self.name_node_dict.items():
+            match=re.findall('L\d+_N(\d+)_([a-z,A-Z])+_',n_name) #L1_N6_C_011 To match network name C,R,M etc..
+            match_nwid=str(match[0][0]).strip()
+            match_topo=str(match[0][1]).strip()
+            #print(match_nwid+","+match_topo)
+            if(match_topo=="C"): #Chain Router
+                width=log(dic_chain[int(match_nwid)])
+                head_node_id=dec_to_bin(dic_chain[int(match_nwid)]//2,width) # generate head node id (last part of the name)
+                n_val.headnode_name="L1_N"+str(match_nwid)+"_C_"+head_node_id # create headnode name and set it in each node
+                n_val.create_virtual_channels()
+            elif(match_topo=="R"): #Ring Router
+                pass
+            elif(match_topo=="M"): #Ring Router
+                pass
+            elif(match_topo=="F"): #Ring Router
+                pass
+            elif(match_topo=="B"): #Ring Router
+                pass
+            elif(match_topo=="H"): #Hypercube Router
+                width=log(dic_hc[int(match_nwid)])
+                head_node_id=dec_to_bin(0,width) # generate head node id (last part of the name)
+                n_val.headnode_name="L1_N"+str(match_nwid)+"_H_"+head_node_id # create headnode name and set it in each node
+                #n_val.create_virtual_channels()
+
+                print("head node name is->"+n_val.headnode_name)
+
+                pass
