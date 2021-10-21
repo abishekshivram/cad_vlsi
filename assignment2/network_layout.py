@@ -113,6 +113,10 @@ class NetworkLayout:
                 head_node_id=dec_to_bin(dic_chain[int(match_nwid)]//2,width) # generate head node id (last part of the name)
                 n_val.headnode_name="L1_N"+str(match_nwid)+"_C_"+head_node_id # create headnode name and set it in each node
                 n_val.create_virtual_channels()
+
+                #test line
+                n_val.find_next("L2_N0_C_11")
+
             elif(match_topo=="R"): #Ring Router
                 pass
             elif(match_topo=="M"): #Ring Router
@@ -130,3 +134,5 @@ class NetworkLayout:
                 print("head node name is->"+n_val.headnode_name)
 
                 pass
+
+        
