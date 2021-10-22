@@ -32,12 +32,14 @@ def find_next(current_node, dest_node_name):
     '''From the current_node object identifies the next node to reach the destination.
        Returns the next node object 
        This fun. is for routing in the L2 network'''
+
+    print("current_node, dest_node_name->",current_node.name, dest_node_name)
     
     if(same_network(current_node.name,dest_node_name)):
         return l2_find_next(current_node, dest_node_name)
     else:
         if(is_l2(current_node.name)):#Move to head node
-            find_next(current_node,"L2_N2_H_000") # will change the constant with real head node id
+            find_next(current_node,get_head_node_name(current_node.name)) 
         else:#currently in L1
             #Have to check topology and then call the correct algo. Now simply calling Routing algo of H
             return l1_find_next(current_node, dest_node_name)# L1 routing algo depends on L1 topology
@@ -45,6 +47,12 @@ def find_next(current_node, dest_node_name):
 
 
 def l2_find_next(current_node, dest_node_name):
+    '''If both the nodes belong to same network (including head node) finds the next node
+    The current node might belong to L2 and next node may be in L1 (head node)
+    The current node might belong to L1 (head node) and next node may be in L2 
+    If the both the nodes are same None is returned
+    current_node is the Node object, dest_node_name is the name of destination'''
+
     if(current_node==None):
         print("Internal error- l2_find_next - bad call")
         return None
@@ -56,7 +64,7 @@ def l2_find_next(current_node, dest_node_name):
         next_node_name="L2"+next_node_name[2:]
     
     next_node_id=get_node_id_from_name(next_node_name)
-    if(int(next_node_id)==0):#Next node is head node. Chanhe to L1
+    if(int(next_node_id)==0):#Next node is head node. Change to L1
         next_node_name="L1"+next_node_name[2:]
     
     next=is_node_in_neighbour_list(current_node,next_node_name)
@@ -78,7 +86,9 @@ def l1_find_next(current_node, dest_node_name):
     nw_ids=[src_nw_id,dst_nw_id]
     make_equal_len_id(nw_ids)
     next_nw_id=get_lsb_to_msb_next_id(nw_ids[0],nw_ids[1])
-    next=is_nwid_in_neighbour_list(current_node,next_nw_id)
+    if(next_nw_id==src_nw_id):
+        return None
+    next=is_nwid_in_neighbour_list(current_node,str(int(next_nw_id,2)))
     if(next==None):
         print("Internal error: Hypercube-network is not in neighbour list")
         return None
@@ -199,7 +209,7 @@ def make_equal_len_id(in_list):
 
 def is_nwid_in_neighbour_list(current_node,next_nw_id):
     '''Searches the next_nw_id in the neighbours of current_node
-    current_node is a node object, next_nw_id is binary formatted string containing only NW id
+    current_node is a node object, next_nw_id is decimal formatted string containing only NW id
     Returns the matched node on success, None on no match'''
     
     if(current_node==None):
@@ -221,3 +231,15 @@ def is_l2(name):
     if(name[1]=='2'):
         return True
     return False
+
+
+def get_head_node_name(name):
+    '''Gets the headnode of current hypercube network from name
+    name is a well formatted hypercube name (string
+    returns string - head node name'''
+
+    node_id=get_node_id_from_name(name)
+    zeros_node_id=dec_to_bin(0,len(node_id))
+    head_node_name=new_node_name_from_id(name,zeros_node_id)
+    head_node_name="L1"+head_node_name[2:]
+    return head_node_name
