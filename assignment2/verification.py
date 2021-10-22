@@ -33,18 +33,17 @@ rx_dict_output = {
     'NumLink': compile(r'^Links: (?P<numLinks>\d+)\n'),
     'NeighbourLink': compile(r'^L(?P<L_idx>\d+): (?P<neighbourID>.*)\n'),
     'SwitchID': compile(r'^Switch ID:  (?P<switchID>.*)\n'),
-    # 'SwitchLink': compile(r'^L(?P<L_idx>\d+):  (?P<switchID>.*)\n'),
     'LeftNeighbourDeclaration': compile(r'^Left Neighbours of the switch:\n'),
     'RightNeighbourDeclaration': compile(r'^Right Neighbours of the switch:\n'),
 }
 
 
-def addNetworkNode(nodeID,nodeName):
+def addNetworkNode(nodeID,node):
     lenNodeID = len(nodeID)
-    assert lenNodeID in [4,5],f"Please check your nodeID specification for {nodeName}"
+    assert lenNodeID in [4,5],f"Please check your nodeID specification for {node.name}"
     
     level= nodeID[0]
-    assert level in ['L1','L2'],f"Levels can only be 'L1' or 'L2'. Please check {nodeName}"
+    assert level in ['L1','L2'],f"Levels can only be 'L1' or 'L2'. Please check {node.name}"
     
     networkID = compile("^N(?P<networkIndex>\d+)")
     assert networkID.match(nodeID[1]) != None,"Network ID should be of type N<id>. Please check {nodeName}"
@@ -52,16 +51,15 @@ def addNetworkNode(nodeID,nodeName):
     
     lvl2networkType = nodeID[2]
     assert lvl2networkType in ['C','B','F','R','M','H'],"Network Type Specified should be one of 'C','B','F','R','M' or 'H'. Please check {nodeName}"
-    
-    node = create_node(nodeName)
+
     NOC.lvl2_networks[networkIndex].insert_nodes(node)
     if (level == 'L1'):
         NOC.lvl1_network.insert_nodes(node)
 
 
-def addNetworkSwitch(switchID,switchName):
+def addNetworkSwitch(switchID,switch):
     lenSwitchID = len(switchID)
-    assert lenSwitchID == 5,"Please check your switchID specification. Please check {switchName}"
+    assert lenSwitchID == 5,"Please check your switchID specification. Please check {switch.name}"
     
     level= switchID[0]
     assert level in ['L1','L2'],"Levels can only be 'L1' or 'L2'"
@@ -73,7 +71,6 @@ def addNetworkSwitch(switchID,switchName):
     networkType = switchID[2]
     assert networkType == 'B',"Network Type should be 'B' for switches"
     
-    switch = create_node(switchName)
     if (level == 'L1'):
         assert networkIndex == 0,"There can be only one L1 network"
         NOC.lvl1_network.switches.append(switch)
@@ -137,9 +134,9 @@ with open (FILE_PATH_OUTPUT,'r') as f:
                 neighbourName = match.group('neighbourID').strip()
                 neighbourID = neighbourName.split('_')
                 neighbourNode = create_node(neighbourName)
-                node.neighbour.append(neighbourNode)
+                node.add_neighbour(neighbourNode)
             
-            addNetworkNode(nodeID,nodeName)
+            addNetworkNode(nodeID,node)
         
         elif key == 'SwitchID':
             switchName = match.group('switchID').strip()
@@ -162,15 +159,15 @@ with open (FILE_PATH_OUTPUT,'r') as f:
                 # neighbourNum = int(match.group('L_idx').strip())
                 neighbourName = match.group('neighbourID').strip()
                 neighbourID = neighbourName.split('_')
-                if (nodeID[3][0] == 'S'):
+                if (neighbourID[3][0] == 'S'):
                     neighbourNode = create_switch(neighbourName)
                 else:
                     neighbourNode = create_node(neighbourName)
                 
                 if (i<numLinks/2):
-                    switch.left_neighbours.append(neighbourNode)
+                    switch.add_left_neighbour(neighbourNode)
                 else:
-                    switch.right_neighbours.append(neighbourNode)
+                    switch.add_right_neighbour(neighbourNode)
             
-            addNetworkSwitch(switchID,switchName)
+            addNetworkSwitch(switchID,switch)
 
