@@ -25,7 +25,10 @@ def find_next(current_node, dest_node_name):
     if(same_network(current_node.name,dest_node_name)):
         return l2_find_next(current_node, dest_node_name)
     else:
-        return l1_find_next(current_node, dest_node_name)# L1 routing algo depends on L1 topology
+        if(is_l2(current_node.name)):#Move to head node
+            find_next(current_node,"L2_N2_H_000") # will change the constant with real head node id
+        else:#currently in L1
+            return l1_find_next(current_node, dest_node_name)# L1 routing algo depends on L1 topology
 
 
 
@@ -133,6 +136,10 @@ def is_nwid_in_neighbour_list(current_node,next_nw_id):
     Returns the matched node on success, None on no match'''
     pass
 
+def is_l2(name):
+    '''Returns True if the node name belongs to L2
+    '''
+    pass
 
 
 
