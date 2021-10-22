@@ -52,6 +52,13 @@ def l2_find_next(current_node, dest_node_name):
     dst_n_id=get_node_id_from_name(dest_node_name)
     next_node_id=get_lsb_to_msb_next_id(src_n_id,dst_n_id)
     next_node_name=new_node_name_from_id(current_node.name, next_node_id)
+    if(is_l2(current_node.name)==False):#This is a head node
+        next_node_name="L2"+next_node_name[2:]
+    
+    next_node_id=get_node_id_from_name(next_node_name)
+    if(int(next_node_id)==0):#Next node is head node. Chanhe to L1
+        next_node_name="L1"+next_node_name[2:]
+    
     next=is_node_in_neighbour_list(current_node,next_node_name)
     if(next==None):
         print("Internal error: Hypercube-node is not in neighbour list")
