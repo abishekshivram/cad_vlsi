@@ -1,5 +1,8 @@
 from re import compile,match
-from network import Network
+from network import Network,create_node,create_switch
+from sys import path
+path.insert(1, './../assignment1')
+from butterfly import log
 
 FILE_PATH_INPUT_LVL1 = "../assignment1/L1Topology.txt"
 FILE_PATH_INPUT_LVL2 = "../assignment1/L2Topology.txt"
@@ -30,44 +33,61 @@ rx_dict_output = {
     'NumLink': compile(r'^Links: (?P<numLinks>\d+)\n'),
     'NeighbourLink': compile(r'^L(?P<L_idx>\d+): (?P<neighbourID>.*)\n'),
     'SwitchID': compile(r'^Switch ID:  (?P<switchID>.*)\n'),
-    'SwitchLink': compile(r'^L(?P<L_idx>\d+):  (?P<switchID>.*)\n'),
+    # 'SwitchLink': compile(r'^L(?P<L_idx>\d+):  (?P<switchID>.*)\n'),
     'LeftNeighbourDeclaration': compile(r'^Left Neighbours of the switch:\n'),
     'RightNeighbourDeclaration': compile(r'^Right Neighbours of the switch:\n'),
 }
 
 
-def nodeIDInterpreter(nodeID,nodeName):
+def addNetworkNode(nodeID,nodeName):
     lenNodeID = len(nodeID)
-    assert lenNodeID in [4,5],"Please check your nodeID specification"
+    assert lenNodeID in [4,5],f"Please check your nodeID specification for {nodeName}"
     
     level= nodeID[0]
-    assert level in ['L1','L2'],"Levels can only be 'L1' or 'L2'"
+    assert level in ['L1','L2'],f"Levels can only be 'L1' or 'L2'. Please check {nodeName}"
     
     networkID = compile("^N(?P<networkIndex>\d+)")
-    assert networkID.match(nodeID[1]) != None,"Network ID should be of type N<id>"
+    assert networkID.match(nodeID[1]) != None,"Network ID should be of type N<id>. Please check {nodeName}"
     networkIndex = int(networkID.match(nodeID[1]).group('networkIndex'))
     
     lvl2networkType = nodeID[2]
-    assert lvl2networkType in ['C','B','F','R','M','H'],"Network Type Specified should be one of 'C','B','F','R','M' or 'H'"
+    assert lvl2networkType in ['C','B','F','R','M','H'],"Network Type Specified should be one of 'C','B','F','R','M' or 'H'. Please check {nodeName}"
     
-    if lvl2networkType == 'B':
-        if (lenNodeID == 4):
-            assert nodeID[3][0] in ['L','R'], "Butterfly end nodes can only be of the form 'L' or 'R'"
-            if nodeID[3][0] == 'L':
-                if (level == 'L1'):
-                    NOC.lvl1_network.left
-                butterflySide = 'L'
-                nodeIndex = int(nodeID[3][1:])
-            else:
-               butterflySide = 'R'
-               nodeIndex = int(nodeID[3][1:]) 
-        else:
-            assert nodeID[3][0] == 'S', "Switches of a butterfly network should be denoted with 'S'"
-            switchNum = int(nodeID[3][1:])   
-            switchNodeIndex = int(nodeID[4]) 
-    else:
-        nodeIndex = int(nodeID[3])
+    node = create_node(nodeName)
+    NOC.lvl2_networks[networkIndex].insert_nodes(node)
+    if (level == 'L1'):
+        NOC.lvl1_network.insert_nodes(node)
 
+
+def addNetworkSwitch(switchID,switchName):
+    lenSwitchID = len(switchID)
+    assert lenSwitchID == 5,"Please check your switchID specification. Please check {switchName}"
+    
+    level= switchID[0]
+    assert level in ['L1','L2'],"Levels can only be 'L1' or 'L2'"
+    
+    networkID = compile("^N(?P<networkIndex>\d+)")
+    assert networkID.match(switchID[1]) != None,"Network ID should be of type N<id>"
+    networkIndex = int(networkID.match(switchID[1]).group('networkIndex'))
+    
+    networkType = switchID[2]
+    assert networkType == 'B',"Network Type should be 'B' for switches"
+    
+    switch = create_node(switchName)
+    if (level == 'L1'):
+        assert networkIndex == 0,"There can be only one L1 network"
+        NOC.lvl1_network.switches.append(switch)
+    else:
+        NOC.lvl2_networks[networkIndex].switches.append(switch)
+
+def line_parse(file_name):
+    line = file_name.readline()
+    while (line.strip()=='\n'):
+        line = file_name.readline()
+        continue
+    # at each line check for a match with a regex
+    key,match = _parse_line(line)
+    return key,match
 
 # MAIN function equivalent part of the program
 NOC = Network()
@@ -94,17 +114,63 @@ with open (FILE_PATH_OUTPUT,'r') as f:
             continue
         # at each line check for a match with a regex
         key,match = _parse_line(line)
+
+        try:
+            nodeID
+        except:
+            nodeID = None
+        assert key != 'NeighbourLink', "Printing more than expected neighbours for {nodeID}"
         
         if key == 'NodeID':
             nodeName = match.group('nodeID').strip()
             nodeID = nodeName.split('_')
-            nodeIDInterpreter(nodeID,nodeName)
-
-        elif key == 'NumLink':
+            node = create_node(nodeName)
+            
+            key,match = line_parse(f)
+            assert (key == 'NumLink'), f"Need to specify the number of links for {nodeName}"
             numLinks = int(match.group('numLinks').strip())
-        elif key == 'NeighbourLink':
-            neighbourNum = int(match.group('L_idx').strip())
-            neighbourName = match.group('neighbourID').strip()
-            neighbourID = neighbourName.split('_')
-            nodeIDInterpreter(nodeID,neighbourName)
+
+            for i in range(numLinks):
+                key,match = line_parse(f)
+                assert key == 'NeighbourLink', f"Please enter the {i+1}th Neighbour ID of {nodeName}"
+                # neighbourNum = int(match.group('L_idx').strip())
+                neighbourName = match.group('neighbourID').strip()
+                neighbourID = neighbourName.split('_')
+                neighbourNode = create_node(neighbourName)
+                node.neighbour.append(neighbourNode)
+            
+            addNetworkNode(nodeID,nodeName)
+        
+        elif key == 'SwitchID':
+            switchName = match.group('switchID').strip()
+            switchID = switchName.split('_')
+            switch = create_switch(switchName)
+            
+            key,match = line_parse(f)
+            assert (key == 'NumLink'), f"Need to specify the number of links for {switchName}"
+            numLinks = int(match.group('numLinks').strip())
+            assert (numLinks == 2**(log(numLinks)) and (numLinks > 2)), "Number of neighbours for a Butterfly network should be a power of 2"
+            
+            key,match = line_parse(f)
+            assert (key == 'LeftNeighbourDeclaration'), f"Declaration of left nodes for {switchName} not found"
+            for i in range(numLinks+1):
+                key,match = line_parse(f)
+                if (i == numLinks/2):
+                    assert key == 'RightNeighbourDeclaration', f"Declaration of right nodes for {switchName} not found"
+                    continue
+                assert key == 'NeighbourLink', f"Please enter the {i+1}th Neighbour ID of {switchName}"
+                # neighbourNum = int(match.group('L_idx').strip())
+                neighbourName = match.group('neighbourID').strip()
+                neighbourID = neighbourName.split('_')
+                if (nodeID[3][0] == 'S'):
+                    neighbourNode = create_switch(neighbourName)
+                else:
+                    neighbourNode = create_node(neighbourName)
+                
+                if (i<numLinks/2):
+                    switch.left_neighbours.append(neighbourNode)
+                else:
+                    switch.right_neighbours.append(neighbourNode)
+            
+            addNetworkSwitch(switchID,switchName)
 

@@ -6,6 +6,8 @@ from butterfly import Butterfly
 from foldedTorus import FoldedTorus
 from hypercube import Hypercube
 from mesh import Mesh
+from node import Node
+from switch import Switch
 
 class Network:
     def __init__(self):
@@ -56,7 +58,7 @@ class Network:
                 self.lvl2_networks.append(FoldedTorus('',input[2],input[1],False))     
 	
         elif (input[0] == 'H'):
-            assert (input[1] == input[2]),"Please specify the dimension of the Hypercube network properly"
+            assert (input[1] == input[2] and input[1] == 3),"Please specify the dimension of the Hypercube network properly, can only be specified as 'H,3,3'"
             if (lvl == 'L1'):
                 self.lvl1_network = Hypercube('',input[1],False)
             else:
@@ -70,6 +72,8 @@ class Network:
             return self.head_nodes(input)
         else:
             return 0
+
+
 
     def head_nodes(self,input):
         
@@ -93,3 +97,11 @@ class Network:
 
     def add_node(self):
         return
+
+
+def create_node(name):
+    return Node(name)
+
+def create_switch(name):
+    return Switch(name)
+
