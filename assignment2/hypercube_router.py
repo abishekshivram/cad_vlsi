@@ -33,13 +33,20 @@ def find_next(current_node, dest_node_name):
        Returns the next node object 
        This fun. is for routing in the L2 network'''
 
-    print("current_node, dest_node_name->",current_node.name, dest_node_name)
+    #print("current_node, dest_node_name->",current_node.name, dest_node_name)
+
+    if(current_node==None):
+        return None
+
+    if(current_node.name==dest_node_name):
+        print("dest reached... absorb")
+        return None
     
     if(same_network(current_node.name,dest_node_name)):
         return l2_find_next(current_node, dest_node_name)
     else:
         if(is_l2(current_node.name)):#Move to head node
-            find_next(current_node,get_head_node_name(current_node.name)) 
+            return find_next(current_node,get_head_node_name(current_node.name)) 
         else:#currently in L1
             #Have to check topology and then call the correct algo. Now simply calling Routing algo of H
             return l1_find_next(current_node, dest_node_name)# L1 routing algo depends on L1 topology
