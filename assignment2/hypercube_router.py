@@ -45,6 +45,9 @@ def find_next(current_node, dest_node_name):
 
 
 def l2_find_next(current_node, dest_node_name):
+    if(current_node==None):
+        print("Internal error- l2_find_next - bad call")
+        return None
     src_n_id=get_node_id_from_name(current_node.name)
     dst_n_id=get_node_id_from_name(dest_node_name)
     next_node_id=get_lsb_to_msb_next_id(src_n_id,dst_n_id)
@@ -52,20 +55,26 @@ def l2_find_next(current_node, dest_node_name):
     next=is_node_in_neighbour_list(current_node,next_node_name)
     if(next==None):
         print("Internal error: Hypercube-node is not in neighbour list")
+        return None
     else:
         return next
 
 
 def l1_find_next(current_node, dest_node_name):
+    if(current_node==None):
+        print("Internal error- l1_find_next - bad call")
+        return None
     src_nw_id=get_network_id_from_name(current_node.name)
     dst_nw_id=get_network_id_from_name(dest_node_name)
-    src_nw_id=dec_to_bin(src_nw_id)
-    dst_nw_id=dec_to_bin(dst_nw_id)
-    make_equal_len_id(src_nw_id,dst_nw_id)
-    next_nw_id=get_lsb_to_msb_next_id(src_nw_id,src_nw_id)
+    src_nw_id=dec_to_bin(int(src_nw_id))
+    dst_nw_id=dec_to_bin(int(dst_nw_id))
+    nw_ids=[src_nw_id,dst_nw_id]
+    make_equal_len_id(nw_ids)
+    next_nw_id=get_lsb_to_msb_next_id(nw_ids[0],nw_ids[1])
     next=is_nwid_in_neighbour_list(current_node,next_nw_id)
     if(next==None):
         print("Internal error: Hypercube-network is not in neighbour list")
+        return None
     else:
         return next
     
@@ -100,7 +109,7 @@ def get_network_id_from_name(name):
     eg L2_N2_H_100-> 2'''
     
     nw_id=re.findall('_N(\d+)_.*',name)
-    return nw_id[0]
+    return str(nw_id[0])
 
 
 def get_lsb_to_msb_next_id(src,dst):
@@ -145,6 +154,9 @@ def is_node_in_neighbour_list(current_node,node_name):
     current_node is a node object node_name is string well formatted node name
     Returns the matched node on success, None on no match'''
     
+    if(current_node==None):
+        print("Internal error- is_node_in_neighbour_list - bad call")
+        return None
     for neighbour in current_node.neighbour:
         if(neighbour.name==node_name):
             return neighbour
@@ -179,14 +191,16 @@ def make_equal_len_id(in_list):
 
 
 def is_nwid_in_neighbour_list(current_node,next_nw_id):
-    '''Searches the nw_id in the neighbours of current_node
+    '''Searches the next_nw_id in the neighbours of current_node
     current_node is a node object, next_nw_id is binary formatted string containing only NW id
     Returns the matched node on success, None on no match'''
     
-    cur_node_nw_id=get_network_id_from_name(current_node.name)
+    if(current_node==None):
+        print("Internal error- is_nwid_in_neighbour_list - bad call")
+        return None
     for neighbour in current_node.neighbour:
         neightbour_nw_id=get_network_id_from_name(neighbour.name)
-        if(cur_node_nw_id==neightbour_nw_id):
+        if(int(next_nw_id)==int(neightbour_nw_id)):
             return neighbour
     return None
 
