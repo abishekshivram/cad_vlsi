@@ -1,9 +1,58 @@
 import re
 from network_layout import NetworkLayout 
 
-NetworkLayout("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/output.txt")
+from hypercube_router import *
 
-#with open("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/IP-Backup/op/L1C4L2C4.txt") as file:
+name="L1_N22_H_1000"
+name1="L1_N21_H_1000"
+id1="11"
+id2="1"
+
+#l1_find_next
+#l2_find_next
+#find_next
+
+
+
+
+nl=NetworkLayout("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/output.txt")
+
+#nl=NetworkLayout("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/IP-Backup/op/L1H8L2H8.txt")
+
+newnd=nl.name_node_dict["L2_N0_H_111"]
+#newnd=is_node_in_neighbour_list(nd,"L1_N0_C_10")
+
+i=10
+while(i>=0):
+        newnd=find_next(newnd,"L2_N7_H_111")
+        if(newnd!=None):
+                print("hi1->",newnd.name)
+        else:
+                print("no")
+        i=i-1
+
+
+#newnd1=find_next(newnd,"L2_N7_H_111")
+#if(newnd1!=None):
+#        print("hi2->",newnd1.name)
+#else:
+#        print("no")
+#
+#
+#newnd1=find_next(newnd1,"L2_N7_H_111")
+#if(newnd1!=None):
+#        print("hi3->",newnd1.name)
+#else:
+#        print("no")
+#
+#newnd1=find_next(newnd1,"L2_N7_H_111")
+#if(newnd1!=None):
+#        print("hi4->",newnd1.name)
+#else:
+#        print("no")
+
+
+#with open("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/IP-Backup/op/L1H8L2H8.txt.txt") as file:
 #    mydic={}
 #    for line in file:
 #        match=re.findall('NodeID:.*_N(\d+)_C',line)
