@@ -28,6 +28,7 @@ def find_next(current_node, dest_node_name):
         if(is_l2(current_node.name)):#Move to head node
             find_next(current_node,"L2_N2_H_000") # will change the constant with real head node id
         else:#currently in L1
+            #Have to check topology and then call the correct algo. Now simply calling Routing algo of H
             return l1_find_next(current_node, dest_node_name)# L1 routing algo depends on L1 topology
 
 
@@ -36,7 +37,7 @@ def l2_find_next(current_node, dest_node_name):
     src_n_id=get_node_id_from_name(current_node.name)
     dst_n_id=get_node_id_from_name(dest_node_name)
     next_node_id=get_lsb_to_msb_next_id(src_n_id,dst_n_id)
-    next_node_name=node_name_from_id(current_node.name, next_node_id)
+    next_node_name=new_node_name_from_id(current_node.name, next_node_id)
     next=is_node_in_neighbour_list(current_node,next_node_name)
     if(next==None):
         print("Internal error: Hypercube-node is not in neighbour list")
@@ -86,6 +87,7 @@ def get_network_id_from_name(name):
     Name is a well formatted node name
     Returns string name
     eg L2_N2_H_100-> 2'''
+    
     nw_id=re.findall('_N(\d+)_.*',name)
     return nw_id[0]
 
@@ -93,22 +95,47 @@ def get_network_id_from_name(name):
 def get_lsb_to_msb_next_id(src,dst):
     '''From LSB to MSB finds the difference between src and dst
        src and dst are ids in binary formatted string
-       Returns the next possible id'''
-    pass
+       Returns the next possible id
+       eg. 101,110-> 100
+           1110,1000-> 1100
+           1100,1000-> 1000'''
+    
+    length=len(src)
+    if(length!=len(dst)):
+        print ("Internal error:- get_lsb_to_msb_next_id- paramer length is not equal")
+    length=length-1
+    while(length>=0):
+        if(src[length]!=dst[length]):
+            src[length]=dst[length]
+            return src
+        length=length-1
+    print ("Internal error:- get_lsb_to_msb_next_id- could not convert")
+    return ""
 
-def node_name_from_id(current_name, new_id):
+
+def new_node_name_from_id(current_name, new_id):
     '''Creates a new nodename with the given id
-    current_name is a well formatted name, new_id is only the id part (last digit) 
-       Returns string -node name'''
+       current_name is a well formatted name, new_id is only the id part (last digits) 
+       Returns string -node name
+       eg L2_N2_H_100,110-> L2_N2_H_110'''
 
+    nod_id=get_node_id_from_name(current_name)
+    if(len(nod_id)!=len(new_id)):
+        print("Internal error: node_name_from_id, id length not matching")
+        return
+    my_id=current_name[:len(new_id)*-1]+new_id
+    return my_id
 
-    pass
 
 def is_node_in_neighbour_list(current_node,node_name):
     '''Searches the node_name in the neighbours of current_node
     current_node is a node object node_name is string well formatted node name
     Returns the matched node on success, None on no match'''
-    pass
+    
+    for neighbour in current_node.neighbour:
+        if(neighbour.name==node_name):
+            return neighbour
+    return None
 
 def make_equal_len_id(id1,id2):
     '''Adds preceeding zeros to id1 or id2, to make them equal length
@@ -134,33 +161,21 @@ def is_nwid_in_neighbour_list(current_node,next_nw_id):
     '''Searches the nw_id in the neighbours of current_node
     current_node is a node object, next_nw_id is binary formatted string containing only NW id
     Returns the matched node on success, None on no match'''
-    pass
+    
+    cur_node_nw_id=get_network_id_from_name(current_node.name)
+    for neighbour in current_node.neighbour:
+        neightbour_nw_id=get_network_id_from_name(neighbour.name)
+        if(cur_node_nw_id==neightbour_nw_id):
+            return neighbour
+    return None
+
 
 def is_l2(name):
     '''Returns True if the node name belongs to L2
+    name is a well formated node name
+    eg L2_N2_H_100-> True
+    L1_N2_H_100-> False
     '''
-    pass
-
-
-
-#L2_N2_H_100
-
-    #neighbr_nwid_nodid=re.findall('_(N\d+)_.*_(\d+)$',neighbr.name) #L1_N6_C_011 To match network name and node id eg.N6, 011
-    #neighbr_nwid_nodid=neighbr_nwid_nodid[0][0]+"_"+neighbr_nwid_nodid[0][1] #eg. N6_011
-
-
-    #Extract id part from my name and increment it
-    #my_id=re.findall('C_(\d+)',self.name)
-    #my_id=my_id[0]
-    #id_len=len(str(my_id))
-    #my_id=int(my_id, 2)
-    #if(incr_or_decr==True):
-    #    my_id=my_id+1
-    #else:
-    #    my_id=my_id-1
-
-
-    #src_nw_id=re.findall('_(N\d+)_.*',self.name)
-    #dst_nw_id=re.findall('_(N\d+)_.*',dest_name)
-
-    #if(src_nw_id==dst_nw_id): #The destination is in my network
+    if(name[1]=='2'):
+        return True
+    return False
