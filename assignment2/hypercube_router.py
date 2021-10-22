@@ -1,3 +1,14 @@
+###########################################################################
+# CS6230:CAD for VLSI Systems - Project 2
+# Name: Deciding the Route (In a Two level hierarchical Network on Chip)
+# Team Name: Kilbees
+# Team Members: Abishekshivram AM (EE18B002)
+#               Gayatri Ramanathan Ratnam (EE18B006)
+#               Lloyd K L (CS21M001)
+# Description: Routing algorithm for Hypercube
+# Last updated on: 20-Oct-2021
+############################################################################
+
 from router import Router
 from flit import Flit
 from butterfly import dec_to_bin
@@ -99,14 +110,16 @@ def get_lsb_to_msb_next_id(src,dst):
        eg. 101,110-> 100
            1110,1000-> 1100
            1100,1000-> 1000'''
-    
+    if(src==dst):
+        return src
     length=len(src)
     if(length!=len(dst)):
         print ("Internal error:- get_lsb_to_msb_next_id- paramer length is not equal")
+        return ""
     length=length-1
     while(length>=0):
         if(src[length]!=dst[length]):
-            src[length]=dst[length]
+            src = src[:length] + dst[length] + src[length + 1:]
             return src
         length=length-1
     print ("Internal error:- get_lsb_to_msb_next_id- could not convert")
@@ -115,7 +128,7 @@ def get_lsb_to_msb_next_id(src,dst):
 
 def new_node_name_from_id(current_name, new_id):
     '''Creates a new nodename with the given id
-       current_name is a well formatted name, new_id is only the id part (last digits) 
+       current_name is a well formatted name, new_id(string) is only the id part (last digits) 
        Returns string -node name
        eg L2_N2_H_100,110-> L2_N2_H_110'''
 
@@ -137,24 +150,32 @@ def is_node_in_neighbour_list(current_node,node_name):
             return neighbour
     return None
 
-def make_equal_len_id(id1,id2):
-    '''Adds preceeding zeros to id1 or id2, to make them equal length
-    id1 and id2 are binary formatted string
-    modifies id1 or id2
+def make_equal_len_id(in_list):
+    '''Adds preceeding zeros to in_list[0] or in_list[1], to make them equal length
+    in_list is a list containing two binary formatted string
+    modifies in_list[0] or in_list[1]
     eg.11,100->011,100'''
+
+    if(len(in_list)!=2):
+        print("Internal error: make_equal_len_id input error")
+    id1=in_list[0]
+    id2=in_list[1]
     
     if(len(id1)>len(id2)):
         diff=len(id1)-len(id2)
         ret=id2
         while(diff>0):
             ret='0'+ret
-        id2=ret
+            diff=diff-1
+        in_list[1]=ret
     else:
         diff=len(id2)-len(id1)
         ret=id1
         while(diff>0):
             ret='0'+ret
-        id1=ret
+            diff=diff-1
+            print (id1,id2)
+        in_list[0]=ret
 
 
 def is_nwid_in_neighbour_list(current_node,next_nw_id):
