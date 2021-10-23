@@ -37,7 +37,7 @@ class NetworkLayout:
         '''Searches the given node name in the network layout
         Returns Node object on success, None otherwie
         node_name is a well formatted node name'''
-        out=self.name_node_dict[node_name]
+        out=self.name_node_dict.get(node_name)
         return out
 
 
