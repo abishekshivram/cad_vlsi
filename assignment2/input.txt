@@ -1,4 +1,4 @@
-L1Topology-H
+L1Topology: H_3_3
 
 Clock:1, Source:L1_N0_H_111, Destination:L1_N7_H_111
 Clock:2, Source:L1_N0_H_111, Destination:L1_N7_H_111
