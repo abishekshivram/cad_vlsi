@@ -45,9 +45,8 @@ class InputReader:
             output=[]
             for line in file:
                 key_vals=line.split(',')
-                if(key_vals.count()!=3):
+                if(len(key_vals)!=3):
                     continue
-                
                 clk=key_vals[0].partition("Clock:")[2]
                 clk=str(clk).strip()
                 if(clk==""):
@@ -59,5 +58,6 @@ class InputReader:
                 dst=key_vals[2].partition("Destination:")[2]
                 dst=str(dst).strip()
                 src_dst_pair=(src,dst)
-                output.insert(src_dst_pair)
+                output.append(src_dst_pair)
+            return output
  
