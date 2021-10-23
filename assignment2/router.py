@@ -64,10 +64,12 @@ class Router(Node):
                 else:
                     return False
             i=i+1
-        if(self.vc[i]==None):
-            return True
-        else:
-            return False
+        if(self.name==name):    
+            if(self.vc[i]==None):
+                return True
+            else:
+                return False
+        return False
         
     def add_flit_to_vc(self,name,flit):
         '''Adds flits to VC of the given name
@@ -78,7 +80,7 @@ class Router(Node):
         i=0
         for neighbr in self.neighbour:
             if(neighbr.name==name):
-                self.vc[i]=flit
+                self.vc[i]=(1,flit)
                 return True
             i=i+1
         return False
@@ -87,6 +89,8 @@ class Router(Node):
     def add_flits_to_fifo_from_host(self, flit):
         '''Adds host generated Flits to the FIFO - for ready to transfer
         flit is a valid Flit object'''
+
+        print("add_flits_to_fifo_from_host->", self.name,flit.dst_name)
         self.flit_from_host_node.put(flit)
 
 
