@@ -14,6 +14,7 @@ import sys
 from flit import Flit
 sys.path.insert(1, './../assignment1')
 from node import Node
+import queue
 
 
 class Router(Node):
@@ -26,8 +27,10 @@ class Router(Node):
 
         '''A dictionaly ro hold virtual channels. This virtual channel can store only one Flit
         Neighbour 0 allocated with VC 0,Neighbour 1 with VC 1, host node with VC N'''
-        self.vc={}
+        self.vc={} 
 
+        '''A FIFO to store the flits from the host node'''
+        self.flit_from_host_node= queue.Queue()
         return
 
     
@@ -45,6 +48,34 @@ class Router(Node):
             i=i+1
         self.vc[i]=None #None indicates channel is empty
 
+    def is_vc_free(self, name):
+        ''' ***For flow control***
+        As of now for each neighbour only one buffer slot is avaibale per channel
+        Before sending a flit it is the responsibility of the neighbour to ensure the buffer is free
+        This is kind of a credit based flow control
+        name is the well formatted name of the neighbour eg-L2_N2_H_100
+        Returns true if the respective VC is free'''
+
+        i=0
+        for neighbr in self.neighbour:
+            if(neighbr.name==name):
+                if(self.vc[i]==None):
+                    return True
+                else:
+                    return False
+            i=i+1
+        if(self.vc[i]==None):
+            return True
+        else:
+            return False
+
+    def add_flits_to_fifo_from_host(self, flit):
+        '''Adds host generated Flits to the FIFO - for ready to transfer
+        flit is a valid Flit object'''
+        self.flit_from_host_node.put(flit)
+
+
+        
 
     def clock(): #Click signal, What to do on clock, may be this can be moved to a base class to avoid repetition
         #scan through the virtual channels of this node
