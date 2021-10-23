@@ -229,3 +229,5 @@ class Butterfly:
 
         self.right_nodes[self.num//2].name = 'L1'+ self.right_nodes[self.num//2].name[2:]
         return self.right_nodes[self.num//2]
+
+        
