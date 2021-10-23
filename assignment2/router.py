@@ -135,7 +135,9 @@ class Router(Node):
         '''Gets the flit (copy) from the given channel number'''
         if(channel_no>=len(self.vc)):
             return None
-        return self.vc[channel_no]
+        if(self.vc[channel_no]):
+            return self.vc[channel_no][1]
+        return None
 
     def clock(self): 
         self.add_flit_to_vc_from_host_fifo()
