@@ -26,15 +26,23 @@ class NetworkLayout:
     A node can be present in Level2 or in the case head node Level1 and Level2
     A head node is considered to be part of Level1 network
     """
-    def __init__(self, layout_filename): #Build network from project1 output file
+    def __init__(self, layout_filename):
+        '''Build network from project1 output file
+        The layour is stored as dictionary in name_node_dict'''
         self.filename=layout_filename
         self.name_node_dict={}
         self.build_layout()
 
 
-    def build_layout(self): #by creating node objects and respective router objects
+    def build_layout(self):
+        '''Build network from project1 output file
+        The layour is stored as dictionary in name_node_dict'''
 
         with open(self.filename) as file:
+            '''This block reads all the nodes and switches from the input file added to the dictionary
+            In this phase links are not established
+            The respective router is also attached with the Node object
+            eg. for chain node ChainRouter, for Hypercube node HypercubeRouter etc..'''
             for line in file:
                 nid=line.partition("NodeID:")[2]
                 if(nid==""):
@@ -61,6 +69,8 @@ class NetworkLayout:
                     
 
         with open(self.filename) as file:
+            '''This block reads the link information from the inout file and establishes the 
+            link between nodes (Routers)'''
             for line in file:
                 nid=line.partition("NodeID:")[2]
                 sid=line.partition("Switch ID:")[2]
@@ -81,11 +91,11 @@ class NetworkLayout:
                                 self.name_node_dict[sid].add_neighbour(node_ref)
                             link_count=link_count-1
 
-        #Count the no. of nodes in chain to compute the head node name
-        # modify to add mesh, folded torus and butterfly
         with open(self.filename) as file:
-            dic_chain={}
-            dic_hc={}
+            ''' This block computes the no of nodes in each L2 chain network 
+            Identifies the headnode for chain networks'''
+            dic_chain={} # Stores the node count for each L2 chain network
+            dic_hc={} #may not be needed
             for line in file:
                 match_c=re.findall('NodeID:.*_N(\d+)_C',line)
                 match_h=re.findall('NodeID:.*_N(\d+)_H',line)
@@ -95,7 +105,7 @@ class NetworkLayout:
                     else:
                         dic_chain[int(match_c[0])]=dic_chain[int(match_c[0])]+1
 
-                elif(match_h):
+                elif(match_h):# This block may not be needed
                     if(int(match_h[0]) not in dic_hc):
                         dic_hc[int(match_h[0])]=1
                     else:
@@ -104,6 +114,8 @@ class NetworkLayout:
 
 
         for n_name, n_val in self.name_node_dict.items():
+            
+
             match=re.findall('L\d+_N(\d+)_([a-z,A-Z])+_',n_name) #L1_N6_C_011 To match network name C,R,M etc..
             match_nwid=str(match[0][0]).strip()
             match_topo=str(match[0][1]).strip()
@@ -131,8 +143,4 @@ class NetworkLayout:
                 n_val.headnode_name="L1_N"+str(match_nwid)+"_H_"+head_node_id # create headnode name and set it in each node
                 #n_val.create_virtual_channels()
 
-                print("head node name is->"+n_val.headnode_name)
-
-                pass
-
-        
+                #print("head node name is->"+n_val.headnode_name)

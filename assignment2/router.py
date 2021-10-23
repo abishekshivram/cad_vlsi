@@ -75,9 +75,20 @@ class Router(Node):
         self.flit_from_host_node.put(flit)
 
 
+    def increment_flit_priority(self):
+        ''' Increments the priority of flits in all the virtual channels of this router'''
+        pass
         
 
-    def clock(): #Click signal, What to do on clock, may be this can be moved to a base class to avoid repetition
+    def clock(self): 
+        #1) If the VC of host fifo is free read the host fifo and and add flit to it
+        self.increment_flit_priority()
+        #2) Chose the flit with highest priority to send
+        #3) Try to send it (if the channel already used in this clock- cant send), if successful remove from VC and update output channel as used
+        #4) Repeat step2 until all the VC are traversed
+        pass
+        
+
         #scan through the virtual channels of this node
         #find the one with highest priority
         #extarct the Flit
@@ -89,8 +100,3 @@ class Router(Node):
         #next_node.receive_flit(flit)
 
         pass
-
-    def clock(destination_node): #In this case asks the router to generate a flit dor the dest node specified
-
-        pass
-    
