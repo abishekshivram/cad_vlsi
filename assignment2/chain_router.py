@@ -6,20 +6,21 @@ from butterfly import dec_to_bin
 class ChainRouter(Router):
     def __init__(self,name):
         super(ChainRouter, self).__init__(name)
-        self.vc={} #Dictionary for virtual channel. Key vc name and val is flit
-        self.headnode_name=""
+        #### Would have to remove this - use the one is base class
+        self.vc={} #Dictionary for virtual channel. Key vc name and val is flit  ##### can be moved to base class
+        self.headnode_name=""    ##### can be moved to base class
         return
 
     #To be called after the network is fully created
-    def create_virtual_channels(self):
+    #def create_virtual_channels(self):  ##### can be moved to base class
 
-        #print("head node name is->"+self.headnode_name)
+    #    #print("head node name is->"+self.headnode_name)
 
-        #mynw=re.findall('_N(\d+)_.*',self.name) #To find my level -> L1_N6_C_011 To match network level 1 (L1) or 2 (L2)
-        for neighbr in self.neighbour:
-            neighbr_nwid_nodid=re.findall('_(N\d+)_.*_(\d+)$',neighbr.name) #L1_N6_C_011 To match network name and node id eg.N6, 011
-            neighbr_nwid_nodid=neighbr_nwid_nodid[0][0]+"_"+neighbr_nwid_nodid[0][1] #eg. N6_011
-            self.vc[neighbr_nwid_nodid]=None
+    #    #mynw=re.findall('_N(\d+)_.*',self.name) #To find my level -> L1_N6_C_011 To match network level 1 (L1) or 2 (L2)
+    #    for neighbr in self.neighbour:
+    #        neighbr_nwid_nodid=re.findall('_(N\d+)_.*_(\d+)$',neighbr.name) #L1_N6_C_011 To match network name and node id eg.N6, 011
+    #        neighbr_nwid_nodid=neighbr_nwid_nodid[0][0]+"_"+neighbr_nwid_nodid[0][1] #eg. N6_011
+    #        self.vc[neighbr_nwid_nodid]=None
 
     def find_next(self,dest_name):
         
@@ -102,5 +103,5 @@ class ChainRouter(Router):
 
 
 
-    def receive_flit(flit,immediate_Src_name,dest_name): #May be it can store name of nodes it traversed as meta data
+    def receive_flit(flit,immediate_Src_name,dest_name): #May be it can store name of nodes it traversed as meta data   ##### can be moved to base class
         pass

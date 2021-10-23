@@ -33,6 +33,13 @@ class NetworkLayout:
         self.name_node_dict={}
         self.build_layout()
 
+    def node_exists(self,node_name):
+        '''Searches the given node name in the network layout
+        Returns Node object on success, None otherwie
+        node_name is a well formatted node name'''
+        out=self.name_node_dict[node_name]
+        return out
+
 
     def build_layout(self):
         '''Build network from project1 output file

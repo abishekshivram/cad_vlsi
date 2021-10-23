@@ -13,6 +13,7 @@ import re
 from network_layout import NetworkLayout 
 from hypercube_router import *
 from input_reader import InputReader
+from flit import Flit
 
 
 def program_entry():
@@ -42,8 +43,18 @@ def program_entry():
     pass
 
 
-def generate_flit(src_dst):
+def generate_flit(src_dst,network):
     '''Generates Flit for the source-destination pairs given as input
     These flits are added to the FIFO of the source router
-    src_dst is a list containing source-destination pairs'''
-    pass
+    src_dst is a list containing source-destination pairs
+    network is the network layout generated from the Project1 output'''
+
+    for pair in src_dst:
+        src=pair[0]
+        dst=pair[0]
+        src_node=network.node_exists(src)
+        dst_node=network.node_exists(dst)
+        if(src_node!=None and dst_node!=None):
+            src_node.add_flits_to_fifo_from_host(Flit(dst))
+        else:
+            print("Input error ",src,dst)

@@ -68,6 +68,21 @@ class Router(Node):
             return True
         else:
             return False
+        
+    def add_flit_to_vc(self,name,flit):
+        '''Adds flits to VC of the given name
+        Name is the well formatted name of the neighbour who wants to add flit in my vc
+        The assumption is that the VC is free
+        call is_vc_free before calling this function'''
+
+        i=0
+        for neighbr in self.neighbour:
+            if(neighbr.name==name):
+                self.vc[i]=flit
+                return True
+            i=i+1
+        return False
+
 
     def add_flits_to_fifo_from_host(self, flit):
         '''Adds host generated Flits to the FIFO - for ready to transfer
@@ -77,12 +92,62 @@ class Router(Node):
 
     def increment_flit_priority(self):
         ''' Increments the priority of flits in all the virtual channels of this router'''
+        for key,val in self.vc.items():
+            if(val==None):
+                continue
+            pair=self.vc[key]
+            pair[0]=pair[0]+1
+            self.vc[key]=pair
+
+
+    def add_flit_to_vc_from_host_fifo(self):
+        '''If host FIFO contains a Flit and if the Host's VC is free adds the flit to VC
+        Initially flit is added with priority 0'''
+        vc_no=len(self.neighbour)
+        if(self.vc[vc_no]!=None):#VC Free
+            flit=self.flit_from_host_node.get()
+            if(flit):
+                self.vc[vc_no]=(0,flit)
+
+    def get_key_of_flit_from_vc_with_priority(self,priority):
+        '''From virtual channels returns the key which has the given priority
+        priority-int specifies the priority
+        1 indicates the high priority value to extarct
+        2 secnd etc...
+        returns None if the item with the given priority doesnt exist
+        '''
+
+        #for the time being return flit from any channel
+
         pass
-        
+
+    def remove_flit(self, channel_no):
+        '''Removes the flit from the given channel number'''
+        if(channel_no>=len(self.vc)):
+            return
+        self.vc[channel_no]=None
+
+    def get_flit(self, channel_no):
+        '''Gets the flit (copy) from the given channel number'''
+        if(channel_no>=len(self.vc)):
+            return None
+        return self.vc[channel_no]
 
     def clock(self): 
-        #1) If the VC of host fifo is free read the host fifo and and add flit to it
+        self.add_flit_to_vc_from_host_fifo()
         self.increment_flit_priority()
+        
+        i=1
+        while(i<=len(self.vc)):
+            key=self.get_key_of_flit_from_vc_with_priority(i)
+            if(key):
+                flit=self.get_flit(key)
+                next=self.find_next(self, flit.dst_name)
+                if(next.is_vc_free(self.name)):
+                    next.add_flit_to_vc(self.name,flit)
+                    self.remove_flit(key)
+        i=i+1
+
         #2) Chose the flit with highest priority to send
         #3) Try to send it (if the channel already used in this clock- cant send), if successful remove from VC and update output channel as used
         #4) Repeat step2 until all the VC are traversed
@@ -98,5 +163,3 @@ class Router(Node):
         #    print("Internal Error")
         #Append this node name as flit meta data
         #next_node.receive_flit(flit)
-
-        pass
