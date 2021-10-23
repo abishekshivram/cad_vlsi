@@ -32,7 +32,7 @@ def log(n):
     return count
 
 
-def dec_to_bin(val, digits):
+def dec_to_bin(val, digits=3):
     """
     Converts the given decimal number to binary with the given width
 

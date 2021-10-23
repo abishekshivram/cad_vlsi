@@ -99,7 +99,7 @@ def network(level,networkType,idx,n,m):
 			total_head_nodes = m*n
 
 	elif (networkType == 'H'):
-		assert (m==n),"Please specify the dimension of the Hypercube network properly"
+		assert (m==n and m==3),"Please specify the dimension of the Hypercube network properly, can only be specified as 'H,3,3'"
 		network = Hypercube(networkID,n,False if level == 'L1' else True)
 		if level == 'L1':
 			total_head_nodes = 2**n
