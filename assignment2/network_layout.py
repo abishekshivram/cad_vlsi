@@ -26,12 +26,15 @@ class NetworkLayout:
     A node can be present in Level2 or in the case head node Level1 and Level2
     A head node is considered to be part of Level1 network
     """
-    def __init__(self, layout_filename):
+    def __init__(self, layout_filename,l1_topology):
         '''Build network from project1 output file
         The layour is stored as dictionary in name_node_dict'''
         self.filename=layout_filename
         self.name_node_dict={}
+        self.L1_network = None
+        self.L1_dim = None
         self.build_layout()
+        self.L1_topology(l1_topology)
 
     def node_exists(self,node_name):
         '''Searches the given node name in the network layout
@@ -40,6 +43,15 @@ class NetworkLayout:
         out=self.name_node_dict.get(node_name)
         return out
 
+    def L1_topology(self,l1_topology):
+        l1_topology = l1_topology.split("_")
+        if (len(l1_topology)!=3):
+            print("l1 topology specification is wrong")
+        self.L1_network = l1_topology[0]
+        if l1_topology[2] == '1':
+            self.L1_dim = int(l1_topology[1])
+        else:
+            self.L1_dim = (int(l1_topology[2]),int(l1_topology[1]))
 
     def build_layout(self):
         '''Build network from project1 output file
