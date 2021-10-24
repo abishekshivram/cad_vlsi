@@ -20,7 +20,7 @@ from foldedTorus import FoldedTorus
 #         pass
 
 def foldedtorus_route(current_node, dest_node_name):
-    ''' Do all necessary and return - incomplete function '''
+    ''' Runs mesh routing algorithm to find the next node'''    
     return find_next(current_node,dest_node_name)
 
 
@@ -116,7 +116,7 @@ def same_network(name1, name2):
     '''Checks if name1 and name2 are in same network
         Name1 and Name2 are well formatted node names
         Returns True if they are. False otherwise
-        eg L2_N2_H_100, L1_N2_H_200-> True'''
+        eg L2_N2_F_01_100, L1_N2_F_01_110-> True'''
 
     src_nw_id=findall('_(N\d+)_.*',name1)
     dst_nw_id=findall('_(N\d+)_.*',name2)
@@ -128,7 +128,7 @@ def same_network(name1, name2):
 def get_node_id_from_name(name):
     '''Extaracts the node id (last part of the name) from the given name
     Name is a well formatted node name
-    Returns string name'''
+    eg L2_N2_F_01_100-> [1,4]'''
 
     identity=findall('_(\d+)_(\d+)$', name)[0]
     identity=list(identity)
@@ -142,7 +142,7 @@ def get_network_id_from_name(name):
     '''Extracts the network id (integer after _N) from the given name
     Name is a well formatted node name
     Returns string name
-    eg L2_N2_H_100-> 2'''
+    eg L2_N2_F_01_100-> 2'''
     
     nw_id=findall('_N(\d+)_.*',name)
     return nw_id[0]
@@ -152,9 +152,7 @@ def get_next_id(src,dst,rowCount,colCount):
     '''From LSB to MSB finds the difference between src and dst
        src and dst are ids in binary formatted string
        Returns the next possible id
-       eg. 101,110-> 100
-           1110,1000-> 1100
-           1100,1000-> 1000'''
+       eg. [4,5],[5,1]-> [4,6]: If there are 7 columns'''
     if(src==dst):
         return src
         
@@ -240,8 +238,8 @@ def is_nwid_in_neighbour_list(current_node,next_nw_id):
 def is_l2(name):
     '''Returns True if the node name belongs to L2
     name is a well formated node name
-    eg L2_N2_H_100-> True
-    L1_N2_H_100-> False
+    eg L2_N2_F_00_100-> True
+    L1_N2_F_00_110-> False
     '''
     if(name[1]=='2'):
         return True

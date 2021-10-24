@@ -1,5 +1,4 @@
-# from router import Router
-# from flit import Flit
+
 from asgn1 import L1_network, L2_networks
 from re import findall
 
@@ -8,28 +7,15 @@ path.insert(1, './../assignment1')
 from butterfly import dec_to_bin
 from mesh import Mesh
 
-# class MeshRouter(Router):
-#     def __init__(self,name):
-#         super(MeshRouter, self).__init__(name)
-#         return
-
-#     # def find_next(destination_node): #current_node we know from this router
-#     #     return
-    
-#     def receive_flit(flit,destination_node): #May be it can store name of nodes it traversed as meta data
-#         pass
-
 
 def mesh_route(current_node, dest_node_name):
-    ''' do all necessary and return - Incomplete function'''
+    ''' Runs mesh routing algorithm to find the next node'''
     return find_next(current_node, dest_node_name)
 
 def find_next(current_node, dest_node_name):
     '''From the current_node object identifies the next node to reach the destination.
        Returns the next node object 
-       This fun. is for routing in the L2 network'''
-
-    #print("current_node, dest_node_name->",current_node.name, dest_node_name)
+       This func. is for routing in the L2 network'''
 
     if(current_node==None):
         return None
@@ -38,9 +24,11 @@ def find_next(current_node, dest_node_name):
         print("dest reached... absorb")
         return None
     
+    # Same network: Routing inside L2
     if(same_network(current_node.name,dest_node_name)):
         return l2_find_next(current_node, dest_node_name)
     else:
+        # If traversing across networks and if not head node, got to head node
         if(is_l2(current_node.name)):#Move to head node
             return find_next(current_node,get_head_node_name(current_node.name)) 
         else:#currently in L1
@@ -110,7 +98,7 @@ def same_network(name1, name2):
     '''Checks if name1 and name2 are in same network
         Name1 and Name2 are well formatted node names
         Returns True if they are. False otherwise
-        eg L2_N2_H_100, L1_N2_H_200-> True'''
+        eg L2_N2_M_01_100, L1_N2_M_01_110-> True'''
 
     src_nw_id=findall('_(N\d+)_.*',name1)
     dst_nw_id=findall('_(N\d+)_.*',name2)
@@ -122,8 +110,8 @@ def same_network(name1, name2):
 def get_node_id_from_name(name):
     '''Extaracts the node id (last part of the name) from the given name
     Name is a well formatted node name
-    Returns string name
-    eg L2_N2_H_100-> 100'''
+    Returns the row and column index
+    eg L2_N2_M_01_100-> [1,4]'''
 
     identity=findall('_(\d+)_(\d+)$', name)[0]
     identity=list(identity)
@@ -137,19 +125,17 @@ def get_network_id_from_name(name):
     '''Extracts the network id (integer after _N) from the given name
     Name is a well formatted node name
     Returns string name
-    eg L2_N2_H_100-> 2'''
+    eg L2_N2_M_01_100-> 2'''
     
     nw_id=findall('_N(\d+)_.*',name)
     return nw_id[0]
 
 
 def get_next_id(src,dst):
-    '''From LSB to MSB finds the difference between src and dst
+    '''Finds the next node ID between src and dst
        src and dst are ids in binary formatted string
        Returns the next possible id
-       eg. 101,110-> 100
-           1110,1000-> 1100
-           1100,1000-> 1000'''
+       eg. [4,5],[5,1]-> [4,4]'''
     if(src==dst):
         return src
         
@@ -171,7 +157,7 @@ def get_node_name_from_id(current_node_name,new_id):
     '''Creates a new nodename with the given id
        current_name is a well formatted name, new_id(string) is only the id part (last digits) 
        Returns string -node name
-       eg L2_N2_H_100,110-> L2_N2_H_110'''
+       eg L2_N2_M_01_100,[1,2]-> L2_N2_M_01_010'''
 
     nod_id = list(findall('L\d_N(\d+)_(.*)_(\d+)_(\d+)$',current_node_name)[0])
     nw_id_str = nod_id[0]

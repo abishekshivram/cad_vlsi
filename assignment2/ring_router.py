@@ -1,49 +1,35 @@
 import re
-# from router import Router
-# from flit import Flit
+
 from butterfly import dec_to_bin
 
 from asgn1 import L1_network, L2_networks
 
 def ring_route(src_node, dest_name,full_network):
-    ''' Do all necessary and return - incomplete function '''
+    ''' Calls the find next function associated with ring_router'''
     return find_next(src_node, dest_name,full_network)
 
-# class ChainRouter(Router):
-#     def __init__(self,name):
-#         super(ChainRouter, self).__init__(name)
-#         #### Would have to remove this - use the one is base class
-#         self.vc={} #Dictionary for virtual channel. Key vc name and val is flit  ##### can be moved to base class
-#         self.headnode_name=""    ##### can be moved to base class
-#         return
 
-#To be called after the network is fully created
-#def create_virtual_channels(self):  ##### can be moved to base class
 
-#    #print("head node name is->"+self.headnode_name)
-
-#    #mynw=re.findall('_N(\d+)_.*',self.name) #To find my level -> L1_N6_C_011 To match network level 1 (L1) or 2 (L2)
-#    for neighbr in self.neighbour:
-#        neighbr_nwid_nodid=re.findall('_(N\d+)_.*_(\d+)$',neighbr.name) #L1_N6_C_011 To match network name and node id eg.N6, 011
-#        neighbr_nwid_nodid=neighbr_nwid_nodid[0][0]+"_"+neighbr_nwid_nodid[0][1] #eg. N6_011
-#        self.vc[neighbr_nwid_nodid]=None
-
+# Calls for the routing algorithm based on the current node: 
+    # whether within the same network, across two nodes in different networks, 
+    # or from the head node of a network to a different node
 def find_next(src_node,dest_name,full_network):
     src_name = src_node.name
     if(src_name==dest_name):
         ''' Destination already reached - we can consume'''
         return #Routing over, print the route
 
+    # Extracting network ID
     src_nw_id=int(re.findall('_N(\d+)_.*',src_name)[0])
     dst_nw_id=int(re.findall('_N(\d+)_.*',dest_name)[0])
 
-    # Same network
+    # Same network: call routing based on the source and destination
     if(src_nw_id==dst_nw_id): 
         links = L2_networks[src_nw_id].count
         my_id=int(re.findall('R_(\d+)',src_name)[0])
         dest_id=int(re.findall('R_(\d+)',dest_name)[0])
 
-        ''' Move right if dest is higher in number'''
+        ''' Find the shortest path between nodes: Clockwise or anticlockwise'''
         if(abs(my_id-dest_id) > links//2):
             if (my_id > dest_id):
                 name = create_next_node_name(src_name, True,links)
@@ -92,7 +78,7 @@ def find_next(src_node,dest_name,full_network):
             
             links = L1_network.count
 
-            ''' Move left-right based on network id '''
+            ''' Find the shortest path between nodes: Clockwise or anticlockwise'''
             if(abs(src_nw_id-dst_nw_id) > links//2):
                 if (src_nw_id > dst_nw_id):
                     src_nw_id = (src_nw_id+1) % links
