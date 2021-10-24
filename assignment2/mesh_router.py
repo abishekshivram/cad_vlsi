@@ -62,7 +62,7 @@ def l2_find_next(current_node, dest_node_name):
     next_node_id=get_next_id(src_n_id,dst_n_id)
     next_node_name=get_node_name_from_id(current_node.name, next_node_id)
     
-    next=is_node_in_neighbour_list(current_node,next_node_name)
+    next =is_node_in_neighbour_list(current_node,next_node_name)
     if(next==None):
         print("Internal error: Mesh-node is not in neighbour list")
         return None
