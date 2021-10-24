@@ -100,8 +100,10 @@ class Router(Node):
             if(val==None):
                 continue
             pair=self.vc[key]
-            pair[0]=pair[0]+1
-            self.vc[key]=pair
+            print("pair old val->",self.vc[key])
+            new_pair=(pair[0]+1,pair[1])
+            self.vc[key]=new_pair
+            print("pair new val->",self.vc[key])
 
 
     def add_flit_to_vc_from_host_fifo(self):
@@ -120,10 +122,15 @@ class Router(Node):
         2 secnd etc...
         returns None if the item with the given priority doesnt exist
         '''
+        priority_dict = {}
+        for i in self.vc:
+            priority_dict[i] = self.vc[i][0]
 
-        #for the time being return flit from any channel
-
-        pass
+        # Sorting the priorities of self.vc in descending order
+        sorted_priority = sorted(priority_dict.items(), key = lambda kv: kv[1],reverse=True)
+        
+        #Returning the key of the vc dictionary with the given priority
+        return sorted_priority[priority-1][0]
 
     def remove_flit(self, channel_no):
         '''Removes the flit from the given channel number'''
