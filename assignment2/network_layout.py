@@ -16,9 +16,9 @@ from node import Node
 from butterfly import log
 from butterfly import dec_to_bin
 
-
-from chain_router import ChainRouter
-from hypercube_router import HypercubeRouter
+from router import Router
+# from chain_router import ChainRouter
+# from hypercube_router import HypercubeRouter
 
 class NetworkLayout:
     """
@@ -72,17 +72,17 @@ class NetworkLayout:
                     match=re.findall('L\d+_N\d+_([a-z,A-Z])+_',node_name) #L1_N6_C_011 To match network name C,R,M etc..
                     match=str(match[0]).strip()
                     if(match=="C"): #Chain Router
-                        self.name_node_dict[node_name]=ChainRouter(node_name) 
+                        self.name_node_dict[node_name]=Router(node_name) 
                     elif(match=="R"): #Ring Router
-                        self.name_node_dict[node_name]=Node(node_name) #Change
+                        self.name_node_dict[node_name]=Router(node_name) #Change
                     elif(match=="M"): #Mesh Router
-                        self.name_node_dict[node_name]=Node(node_name) #Change
+                        self.name_node_dict[node_name]=Router(node_name) #Change
                     elif(match=="F"): #Folded Torus Router
-                        self.name_node_dict[node_name]=Node(node_name) #Change
+                        self.name_node_dict[node_name]=Router(node_name) #Change
                     elif(match=="B"): #Butterfly Router
-                        self.name_node_dict[node_name]=Node(node_name) #Change
+                        self.name_node_dict[node_name]=Router(node_name) #Change
                     elif(match=="H"): #Hypercube Router
-                        self.name_node_dict[node_name]=HypercubeRouter(node_name)
+                        self.name_node_dict[node_name]=Router(node_name)
                     else:
                         print("Error: Unknown network->"+match)
                     
@@ -109,6 +109,13 @@ class NetworkLayout:
                             if(sid!=""):
                                 self.name_node_dict[sid].add_neighbour(node_ref)
                             link_count=link_count-1
+                            
+        '''This block creates necessary virtual channels in in each node'''
+        for node_name, node in self.name_node_dict.items():
+            node.create_virtual_channels()
+        
+        return #Temporary, remove
+        #head node computation for chain etc are to be done if needed
 
         with open(self.filename) as file:
             ''' This block computes the no of nodes in each L2 chain network 
@@ -146,7 +153,7 @@ class NetworkLayout:
                 n_val.create_virtual_channels()
 
                 #test line
-                n_val.find_next("L2_N0_C_11")
+                #n_val.find_next("L2_N0_C_11")
 
             elif(match_topo=="R"): #Ring Router
                 pass

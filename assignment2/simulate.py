@@ -11,45 +11,34 @@
 import sys
 sys.path.insert(1, './../assignment1')
 
-import re
-from network_layout import NetworkLayout 
-from hypercube_router import *
+# from hypercube_router import *
 from input_reader import InputReader
 from flit import Flit
-from detailed_graph import main 
-
-L1_network = None
-L2_networks = None
-
-L1_network, L2_networks = main(print=False)
-
-def network_as_class_obj():
-    pass
 
 
-def program_entry():
+# from test import full_network
+
+
+
+def program_entry(full_network):
     '''Execution starts from here'''
 
-    input_read=InputReader("../input.txt")
-
-    l1_topology=input_read.get_l1_topology()
-    
-
-    '''Builds the network layout and creates necessary virtual channesl in the node'''
-    network=NetworkLayout("../assignment1/output.txt",l1_topology)
 
     #complete and test the vc creation part
 
     clock_tick=0
     while(1):
         #When nothing to read from input file and all the vc/fifo empty exit the loop
-
+        input_read=InputReader("./input.txt")
         clock_tick=clock_tick+1
         src_dst=input_read.get_src_and_destinations(clock_tick)
-        generate_flit(src_dst)
+        generate_flit(src_dst, full_network)
         
-        for node in network.name_node_dict:
-            node.clock()
+        for node_name, node in full_network.name_node_dict.items():
+            node.clock(full_network)
+
+        if(clock_tick>500):
+            break
         pass
     pass
 

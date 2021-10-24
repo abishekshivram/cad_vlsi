@@ -1,23 +1,23 @@
-from router import Router
-from flit import Flit
-from simulate import L1_network, L2_networks
-from re import compile,findall
+# from router import Router
+# from flit import Flit
+from asgn1 import L1_network, L2_networks
+from re import findall
 
 from sys import path
 path.insert(1, './../assignment1')
 from butterfly import dec_to_bin
 from mesh import Mesh
 
-class MeshRouter(Router):
-    def __init__(self,name):
-        super(MeshRouter, self).__init__(name)
-        return
+# class MeshRouter(Router):
+#     def __init__(self,name):
+#         super(MeshRouter, self).__init__(name)
+#         return
 
-    def find_next(destination_node): #current_node we know from this router
-        return
+#     # def find_next(destination_node): #current_node we know from this router
+#     #     return
     
-    def receive_flit(flit,destination_node): #May be it can store name of nodes it traversed as meta data
-        pass
+#     def receive_flit(flit,destination_node): #May be it can store name of nodes it traversed as meta data
+#         pass
 
 
 def mesh_route(current_node, dest_node_name):
@@ -63,8 +63,7 @@ def l2_find_next(current_node, dest_node_name):
     dst_n_id=get_node_id_from_name(dest_node_name)
     next_node_id=get_next_id(src_n_id,dst_n_id)
     next_node_name=get_node_name_from_id(current_node.name, next_node_id)
-    
-    next_node =is_node_in_neighbour_list(current_node,next_node_name)
+    next_node = is_node_in_neighbour_list(current_node,next_node_name)
     if(next_node==None):
         print("Internal error: Mesh-node is not in neighbour list")
         return None
@@ -126,10 +125,12 @@ def get_node_id_from_name(name):
     Returns string name
     eg L2_N2_H_100-> 100'''
 
-    id=findall('_(\d+)_(\d+)$',name)
+    identity=findall('_(\d+)_(\d+)$', name)[0]
+    identity=list(identity)
     for i in range(2):
-        id[0][i] = int(id[0][i],2)
-    return id[0]
+        temp = int(identity[i], base=2)
+        identity[i] = temp
+    return identity
 
 
 def get_network_id_from_name(name):
@@ -172,8 +173,17 @@ def get_node_name_from_id(current_node_name,new_id):
        Returns string -node name
        eg L2_N2_H_100,110-> L2_N2_H_110'''
 
-    nod_id = findall('(.*_)(\d+)_(\d+)$',current_node_name)
-    new_node_name = nod_id[0] + str(dec_to_bin(new_id[0],len(nod_id[0][1]))) + '_' + str(dec_to_bin(new_id[1],len(nod_id[0][2])))
+    nod_id = list(findall('L\d_N(\d+)_(.*)_(\d+)_(\d+)$',current_node_name)[0])
+    nw_id_str = nod_id[0]
+    row_idx = nod_id[2]
+    col_idx = nod_id[3]
+    new_node_name = 'L2' + '_N' +nw_id_str+ '_'+ nod_id[1] + '_' + str(dec_to_bin(new_id[0],len(row_idx))) + '_' + str(dec_to_bin(new_id[1],len(col_idx)))
+    nw_id = int(nod_id[0])
+    '''Row at centre '''
+    head_node_name = L2_networks[nw_id].get_head_node().name
+    if (get_node_id_from_name(head_node_name) == new_id):
+        new_node_name = head_node_name
+
     return new_node_name
 
 
@@ -210,8 +220,8 @@ def is_nwid_in_neighbour_list(current_node,next_nw_id):
 def is_l2(name):
     '''Returns True if the node name belongs to L2
     name is a well formated node name
-    eg L2_N2_H_100-> True
-    L1_N2_H_100-> False
+    eg L2_N2_M_00_100-> True
+    L1_N2_M_00_110-> False
     '''
     if(name[1]=='2'):
         return True

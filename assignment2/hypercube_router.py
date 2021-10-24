@@ -9,21 +9,21 @@
 # Last updated on: 20-Oct-2021
 ############################################################################
 
-from router import Router
-from flit import Flit
+# from router import Router
+# from flit import Flit
 from butterfly import dec_to_bin
 import re
 
-class HypercubeRouter(Router):
-    def __init__(self,name):
-        super(HypercubeRouter, self).__init__(name)
-        return
+# class HypercubeRouter(Router):
+#     def __init__(self,name):
+#         super(HypercubeRouter, self).__init__(name)
+#         return
 
-    def find_next(destination_node): #current_node we know from this router
-        return
+#     # def find_next(destination_node): #current_node we know from this router
+#     #     return
     
-    def receive_flit(flit,destination_node): #May be it can store name of nodes it traversed as meta data
-        pass
+#     def receive_flit(flit,destination_node): #May be it can store name of nodes it traversed as meta data
+#         pass
 
 def hypercube_route(current_node, dest_node_name):
     ''' Do all necessary and return - incomplete function '''
