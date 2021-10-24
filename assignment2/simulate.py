@@ -38,7 +38,7 @@ def program_entry(full_network):
         for node_name, node in full_network.name_node_dict.items():
             node.clock(full_network)
 
-        if(clock_tick>500):
+        if(clock_tick>2000):
             break
         pass
     pass

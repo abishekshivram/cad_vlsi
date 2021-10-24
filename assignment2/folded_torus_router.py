@@ -21,7 +21,8 @@ from foldedTorus import FoldedTorus
 
 def foldedtorus_route(current_node, dest_node_name):
     ''' Runs mesh routing algorithm to find the next node'''    
-    return find_next(current_node,dest_node_name)
+    a = find_next(current_node,dest_node_name)
+    return a
 
 
 
@@ -155,8 +156,7 @@ def get_next_id(src,dst,rowCount,colCount):
        eg. [4,5],[5,1]-> [4,6]: If there are 7 columns'''
     if(src==dst):
         return src
-        
-    while (src[1] != dst[1]):
+    if (src[1] != dst[1]):
         if (abs(src[1] - dst[1]) > colCount//2):
             if (src[1] > dst[1]):
                 src[1] = (src[1] + 1) % colCount
@@ -164,23 +164,24 @@ def get_next_id(src,dst,rowCount,colCount):
                 src[1] = (src[1] - 1) % colCount
         else:
             if (src[1] > dst[1]):
-                src[1] -= 1
+                src[1] = (src[1] - 1) % colCount
             else:
-                src[1] += 1
+                src[1] = (src[1] + 1) % colCount
 
         return src
     
-    while (src[0] != dst[0]):
-        if (abs(src[0] - dst[0]) > rowCount//2):
-            if (src[0] > dst[0]):
-                src[0] = (src[0] + 1) % rowCount
-            else:
-                src[0] = (src[0] - 1) % rowCount
-        else:
-            if (src[0] > dst[0]):
-                src[0] -= 1
-            else:
-                src[0] += 1
+    # Date line algorithm: Clockwise implementation
+    if (src[0] != dst[0]):
+        # if (abs(src[0] - dst[0]) > rowCount//2):
+        #     if (src[0] > dst[0]):
+        src[0] = (src[0] + 1) % rowCount
+        #     else:
+        #         src[0] = (src[0] - 1) % rowCount
+        # else:
+        #     if (src[0] > dst[0]):
+        #         src[0] -= 1
+        #     else:
+        #         src[0] += 1
         
         return src
 

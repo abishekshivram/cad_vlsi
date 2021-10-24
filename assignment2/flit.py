@@ -19,13 +19,20 @@ class Flit:
         name is the well formatted name of the Destination node to which the Flit to be transferred'''
         self.dst_name=name
         self.route=[] 
+        self.vc_route = []
     
     def add_node_name(self,name):
         '''Adds the node name to the traversed path - This is a meta information
         If needed virtual channel no. can also be appended to the node name'''
         self.route.append(name)
 
+    def add_vc_name(self,vc):
+        '''Adds the vc id to the traversed path - This is a meta information
+        If needed virtual channel no. can also be appended to the node name'''
+        self.vc_route.append(vc)
+
     def print_path(self):
         '''Prints the nodes(Routers) through which this flit has travelled'''
         print(*self.route, sep='->')
+        print(*self.vc_route, sep='->')
 
