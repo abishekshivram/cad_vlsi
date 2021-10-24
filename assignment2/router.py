@@ -100,8 +100,10 @@ class Router(Node):
             if(val==None):
                 continue
             pair=self.vc[key]
-            pair[0]=pair[0]+1
-            self.vc[key]=pair
+            print("pair old val->",self.vc[key])
+            new_pair=(pair[0]+1,pair[1])
+            self.vc[key]=new_pair
+            print("pair new val->",self.vc[key])
 
 
     def add_flit_to_vc_from_host_fifo(self):
