@@ -211,7 +211,7 @@ class Router(Node):
 
             elif(network_topology == "R"):
                 ''' Ring routing '''
-                next_node = ring_route(self, dest_name)
+                next_node = ring_route(self, dest_name, full_network)
 
             elif(network_topology == "H"):
                 ''' Hypercube routing '''
@@ -238,7 +238,7 @@ class Router(Node):
 
                 elif(type(L1_network) == Ring):
                     ''' Ring routing '''
-                    next_node = ring_route(self, dest_name)
+                    next_node = ring_route(self, dest_name, full_network)
 
                 elif(type(L1_network) == Hypercube):
                     ''' Hypercube routing '''

@@ -119,9 +119,9 @@ def create_next_node_name(src_name, incr_or_decr,links):
     id_len=len(str(my_id))
     my_id=int(my_id, 2)
     if(incr_or_decr==True):
-        my_id=my_id+1 % links
+        my_id=(my_id+1) % links
     else:
-        my_id=my_id-1 % links
+        my_id=(my_id-1) % links
 
     src_nw_id=int(re.findall('_N(\d+)_.*',src_name)[0])
     headnode_name = L2_networks[src_nw_id].get_head_node().name

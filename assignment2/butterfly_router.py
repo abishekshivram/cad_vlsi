@@ -2,7 +2,7 @@
 
 import sys
 
-from butterfly import dec_to_bin
+from butterfly import dec_to_bin, Butterfly
 sys.path.insert(1, './../assignment1')
 
 import re
@@ -57,6 +57,7 @@ def butterfly_route(current_node_name, destination_node_name, full_network):
     else:
         next_node = full_network.name_node_dict[next_node_name]
 
+    print(f"from butterfly: {current_node_name}---{next_node_name}, {destination_node_name}--{new_dest_name}")
     return next_node, new_dest_name
 
 def assign_network(current_node_name):
@@ -115,11 +116,11 @@ def l1_next_node(current_node_name, destination_node_name):
         Switch = False
         max_switch_layers = len(start_node_nos[-1])
 
-
-    for i in (L1_network.left_nodes + L1_network.right_nodes):
-        if(i.name == current_node_name):
-            current_node = i
-            break
+    if(type(L1_network) == Butterfly):
+        for i in (L1_network.left_nodes + L1_network.right_nodes):
+            if(i.name == current_node_name):
+                current_node = i
+                break
 
 
     if(not Switch):
@@ -195,9 +196,14 @@ and then do the L1 routing'''
 def find_next_diff_network(current_node_name, destination_node_name):
     global Network
     assign_network(current_node_name)
-    destination_node = Network.get_head_node()
-    destination_node_name = destination_node.name
-    return find_next_same_network(current_node_name, destination_node_name)
+    temp_dest = Network.get_head_node()
+    temp_dest_name = temp_dest.name
+    if(destination_node_name[0] == "S"):
+        temp_dest_name = "S" + temp_dest_name
+    next_node_name, temp_new = find_next_same_network(current_node_name, temp_dest_name)
+    if(temp_new[0]=="S"):
+        destination_node_name = "S"+ destination_node_name
+    return next_node_name, destination_node_name
 
 
 ''' On the originating node of butterfly, we can decide if the dest is in same side,
