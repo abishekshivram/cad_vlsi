@@ -8,17 +8,25 @@
 # Description: Program entry point
 # Last updated on: 20-Oct-2021
 ############################################################################
+sys.path.insert(1, './../assignment1')
 
 import re
 from network_layout import NetworkLayout 
 from hypercube_router import *
 from input_reader import InputReader
 from flit import Flit
+from detailed_graph import main 
+
+L1_network = None
+L2_networks = None
+
+def network_as_class_obj():
+    L1_network, L2_networks = main(print=False)
 
 
 def program_entry():
     '''Execution starts from here'''
-
+    
     input_read=InputReader("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment2/input.txt")
 
     l1_topology=input_read.get_l1_topology()
