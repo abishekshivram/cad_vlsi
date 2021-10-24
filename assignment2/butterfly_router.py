@@ -7,6 +7,7 @@ from node import Node
 from switch import Switch
 
 from butterfly import Butterfly
+from simulate import L1_network, L2_networks
 
 ''' I'm going to use the network we defined in the assignment 1'''
 ''' For butterfly, apart from destination address, we also need a field 

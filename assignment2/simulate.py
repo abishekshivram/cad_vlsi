@@ -8,6 +8,7 @@
 # Description: Program entry point
 # Last updated on: 20-Oct-2021
 ############################################################################
+import sys
 sys.path.insert(1, './../assignment1')
 
 import re
@@ -20,8 +21,10 @@ from detailed_graph import main
 L1_network = None
 L2_networks = None
 
+L1_network, L2_networks = main(print=False)
+
 def network_as_class_obj():
-    L1_network, L2_networks = main(print=False)
+    pass
 
 
 def program_entry():
