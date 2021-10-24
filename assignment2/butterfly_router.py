@@ -17,9 +17,45 @@ This can be called Straight_Field '''
 
 Network = None
 
+def find_level(name):
+    level = re.findall('.*L(\d+)_.*', name)
+    return int(level[0])
+
 def butterfly_route(current_node_name, destination_node_name):
     ''' Incomplete function '''
-    pass
+
+    level_src = find_level(current_node_name)
+    level_dest = find_level(destination_node_name)
+    src_nw_id = re.findall('.*_N(\d+).*', current_node_name)[0]
+    dest_nw_id = re.findall('.*_N(\d+).*', destination_node_name)[0]
+
+    if(level_src == 2):
+        # If destination is in same level and network
+        if(level_dest == 2):
+            if (src_nw_id == dest_nw_id):
+                next_node_name, new_dest_name = find_next_same_network(current_node_name, destination_node_name)
+            else:
+                # Moving between different networks 
+                next_node_name, new_dest_name = find_next_diff_network(current_node_name, destination_node_name)
+        else:
+            if (src_nw_id == dest_nw_id):
+                next_node_name, new_dest_name = find_next_same_network(current_node_name, destination_node_name)
+            else:
+                # Moving between different networks 
+                next_node_name, new_dest_name = find_next_diff_network(current_node_name, destination_node_name)
+
+    elif (level_src == 1):
+        # L2 routing: from head node to destination node
+        if(level_dest == 2):
+            if (src_nw_id == dest_nw_id):
+                next_node_name, new_dest_name = find_next_same_network(current_node_name, destination_node_name)
+            else:
+                # L1 routing must be done to find the head node of destination network
+                next_node_name, new_dest_name = l1_next_node(current_node_name, destination_node_name)
+        else:
+            next_node_name, new_dest_name = l1_next_node(current_node_name, destination_node_name)
+    
+    return next_node_name, new_dest_name
 
 def assign_network(current_node_name):
     global Network
