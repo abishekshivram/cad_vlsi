@@ -160,10 +160,13 @@ def main(print=True):
 		return L1_network, L2_network
 
 	# Printing the nodes in the network
-	print("Nodes of the Two level hierarchical Network on Chip")
+	# 
 	for networks in L2_network:
 		networks.print_nodes()
 
 	# If L1 network is a Butterfly network, then printing its switches here
 	if (L1[0] == 'B'):
 		L1_network.print_nodes(True)
+
+print("Nodes of the Two level hierarchical Network on Chip")
+main(True)
