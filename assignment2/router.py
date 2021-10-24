@@ -12,11 +12,21 @@
 from os import name
 import sys
 from flit import Flit
+
 sys.path.insert(1, './../assignment1')
+
+from hypercube import Hypercube
+from butterfly import Butterfly
+from ring import Ring
+from chain import Chain
+from mesh import Mesh
+from foldedTorus import FoldedTorus
+
 from node import Node
 import queue
 import re
 
+from simulate import L1_network
 from butterfly_router import butterfly_route
 from mesh_router import mesh_route
 from chain_router import chain_route
@@ -188,8 +198,65 @@ class Router(Node):
             elif(network_topology == "F"):
                 ''' Folded Torus routing '''
                 next_node_name = foldedtorus_route(self, dest_name)
+        
+        elif (level_src == 1):
+            src_nw_id = re.findall('.*_N(\d+).*', self.name)[0]
+            dest_nw_id = re.findall('.*_N(\d+).*', dest_name)[0]
 
+            # L2 routing: from head node to destination node
+            if (src_nw_id == dest_nw_id):
 
+                network_topology = re.findall('.*_N\d+_(.)', self.name)
+                
+                if(network_topology == "B"):
+                    '''Butterfly'''
+                    next_node_name, new_dest_name = butterfly_route(self.name, dest_name)
+                
+                elif(network_topology == "M"):
+                    ''' Mesh routing '''
+                    next_node_name = mesh_route(self, dest_name)
+
+                elif(network_topology == "C"):
+                    ''' Chain routing '''
+                    next_node_name = chain_route(self, dest_name)
+                
+                elif(network_topology == "R"):
+                    ''' Ring routing '''
+                    next_node_name = ring_route(self, dest_name)
+                
+                elif(network_topology == "H"):
+                    ''' Hypercube routing '''
+                    next_node_name = hypercube_route(self, dest_name)
+                
+                elif(network_topology == "F"):
+                    ''' Folded Torus routing '''
+                    next_node_name = foldedtorus_route(self, dest_name)
+            
+            else:
+                # L1 routing if src and dest are in diff networks and in L1
+                if(type(L1_network) == Butterfly):
+                    '''Butterfly'''
+                    next_node_name, new_dest_name = butterfly_route(self.name, dest_name)
+                
+                elif(type(L1_network) == Mesh):
+                    ''' Mesh routing '''
+                    next_node_name = mesh_route(self, dest_name)
+
+                elif(type(L1_network) == Chain):
+                    ''' Chain routing '''
+                    next_node_name = chain_route(self, dest_name)
+                
+                elif(type(L1_network) == Ring):
+                    ''' Ring routing '''
+                    next_node_name = ring_route(self, dest_name)
+                
+                elif(type(L1_network) == Hypercube):
+                    ''' Hypercube routing '''
+                    next_node_name = hypercube_route(self, dest_name)
+                
+                elif(type(L1_network) == FoldedTorus):
+                    ''' Folded Torus routing '''
+                    next_node_name = foldedtorus_route(self, dest_name)
 
 
 
