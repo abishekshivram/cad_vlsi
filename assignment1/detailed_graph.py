@@ -110,54 +110,60 @@ def network(level,networkType,idx,n,m):
 	
 	return network, total_head_nodes
 
-# Reading L1 topology text file: 
-# L1: Stores the attributes in L1Topology.txt
-# L1_network: Stores the class associated with L1 network 
-# Currently, we don't create nodes and connections for L1, and merely assign the dimensions for the L1 specification.
-# L1 network nodes are made up of the head-nodes in L2 
-# This file contains how all the head nodes of each network in L2 are interconnected
-with open ("L1Topology.txt",'r') as f:
-	for line in f:
-		if (line=='\n'):
-			continue
-		L1 = line.strip().replace(" ", "").split(',')
-		assert(len(L1) == 3), "Please check your input"
-		L1_network, total_head_nodes = network('L1',L1[0],0,int(L1[1]),int(L1[2]))
 
 
-# Reading L2 topology text file
-# L2: Stores the attributes in L2Topology.txt
-# L2_network: Stores the classes associated with L2 networks
-# idx: Index of the network (1st network in L2: Index 0)
-# This contains details of each of the network
-L2 = []
-L2_network = []
-idx = 0
-with open ("L2Topology.txt", 'r') as f:
-	for line in f:
-		if (line=='\n'):
-			continue
-		L2_input_network = line.strip().replace(" ", "").split(',')
-		assert (len(L2_input_network) == 3), "In L2Topology.txt, line is of invalid format, please check the inputs"
-		L2.append(L2_input_network)
-		L2_network.append(network('L2',L2[-1][0],idx,int(L2[-1][1]),int(L2[-1][2]))[0])
-		idx += 1
+def main(print=True):
+	# Reading L1 topology text file: 
+	# L1: Stores the attributes in L1Topology.txt
+	# L1_network: Stores the class associated with L1 network 
+	# Currently, we don't create nodes and connections for L1, and merely assign the dimensions for the L1 specification.
+	# L1 network nodes are made up of the head-nodes in L2 
+	# This file contains how all the head nodes of each network in L2 are interconnected
+	with open ("/home/abi/cad_vlsi/cad_vlsi/assignment1/L1Topology.txt",'r') as f:
+		for line in f:
+			if (line=='\n'):
+				continue
+			L1 = line.strip().replace(" ", "").split(',')
+			assert(len(L1) == 3), "Please check your input"
+			L1_network, total_head_nodes = network('L1',L1[0],0,int(L1[1]),int(L1[2]))
 
-# If there is an inconsistency in the number of nodes in L1 and the number of head-nodes in L2
-assert (len(L2_network) == total_head_nodes), "Please check your inputs, inconsistency in terms of number of nodes in L1 and networks in L2"
 
-# Based on head-nodes from L2, inserting nodes into the L1 network
-for i in L2_network:
-	L1_network.insert_nodes(i.get_head_node())
+	# Reading L2 topology text file
+	# L2: Stores the attributes in L2Topology.txt
+	# L2_network: Stores the classes associated with L2 networks
+	# idx: Index of the network (1st network in L2: Index 0)
+	# This contains details of each of the network
+	L2 = []
+	L2_network = []
+	idx = 0
+	with open ("/home/abi/cad_vlsi/cad_vlsi/assignment1/L2Topology.txt", 'r') as f:
+		for line in f:
+			if (line=='\n'):
+				continue
+			L2_input_network = line.strip().replace(" ", "").split(',')
+			assert (len(L2_input_network) == 3), "In L2Topology.txt, line is of invalid format, please check the inputs"
+			L2.append(L2_input_network)
+			L2_network.append(network('L2',L2[-1][0],idx,int(L2[-1][1]),int(L2[-1][2]))[0])
+			idx += 1
 
-# Making the L1 network: Connection between the nodes
-L1_network.create_network()
+	# If there is an inconsistency in the number of nodes in L1 and the number of head-nodes in L2
+	assert (len(L2_network) == total_head_nodes), "Please check your inputs, inconsistency in terms of number of nodes in L1 and networks in L2"
 
-# Printing the nodes in the network
-print("Nodes of the Two level hierarchical Network on Chip")
-for networks in L2_network:
-	networks.print_nodes()
+	# Based on head-nodes from L2, inserting nodes into the L1 network
+	for i in L2_network:
+		L1_network.insert_nodes(i.get_head_node())
 
-# If L1 network is a Butterfly network, then printing its switches here
-if (L1[0] == 'B'):
-	L1_network.print_nodes(True)
+	# Making the L1 network: Connection between the nodes
+	L1_network.create_network()
+
+	if(not print):
+		return L1_network, L2_network
+
+	# Printing the nodes in the network
+	print("Nodes of the Two level hierarchical Network on Chip")
+	for networks in L2_network:
+		networks.print_nodes()
+
+	# If L1 network is a Butterfly network, then printing its switches here
+	if (L1[0] == 'B'):
+		L1_network.print_nodes(True)

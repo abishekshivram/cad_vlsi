@@ -7,9 +7,15 @@ from node import Node
 from switch import Switch
 
 from butterfly import Butterfly
+from simulate import L1_network, L2_networks
 
-#Network = Butterfly("but", 8)
-#Network.print_nodes()
+''' I'm going to use the network we defined in the assignment 1'''
+''' For butterfly, apart from destination address, we also need a field 
+that will represent if the flit will go to the other side before returning back
+This can be called Straight_Field '''
+
+Network = Butterfly("but", 8)
+Network.print_nodes()
 
 def next_butterfly_node():
     return
@@ -17,17 +23,66 @@ def next_butterfly_node():
 def next_butterfly_switch():
     return
 
+def get_network_id_from_name(name):
+    '''Extaracts the network id (integer after _N) from the given name
+    Name is a well formatted node name
+    Returns string name
+    eg L2_N2_H_100-> 2'''
+    
+    nw_id=re.findall('_N(\d+)_.*',name)
+    return str(nw_id[0])
 
-def find_next_same_network(current_node, destination_node):
+def l1_check_if_same_side(current_node_name, destination_node_name):
+    source = get_network_id_from_name(current_node_name)
+    destination = get_network_id_from_name(destination_node_name)
+
+    ''' Finding if destination is in left or right side of network'''
+    ''' Going to the straight opposite node on the other side, and turn around'''
+
+    size_of_l1 = Network.num
+    if(source<Network.num):
+        source_side = "Left"
+    else:
+        source_side = "Right"
+        
+    if(destination< Network.num):
+        dest_side = "Left"
+    else:
+        dest_side = "Right"
+
+    if(source_side == dest_side):
+        return True, source_side
+    else:
+        return False, source_side
+
+def l1_next_node(current_node_name, destination_node_name):
+    pass
+
+
+
+
+'''If destination and source are in different network, then we have to move to head node
+and then do the L1 routing'''
+def find_next_diff_network(current_node_name, destination_node_name):
+    destination_node = Network.get_head_node()
+    destination_node_name = destination_node.name
+    return find_next_same_network(current_node_name, destination_node_name)
+
+
+''' On the originating node of butterfly, we can decide if the dest is in same side,
+    then assign the Stright_field there itself.'''
+    
+def find_next_same_network(current_node_name, destination_node_name):
     ''' current_node: Source Node or Source Switch '''
     ''' Assumption: Both nodes are within the same network'''
-    ''' What if both source and destination are on the same side? '''
+    ''' What if both source and destination are on the same side? 
+        In this case, we have to do a round trip'''
 
     ''' Since this is a simulator, we have to find if source is a switch/Node based on name
         In the hardware, we will inherently know if its a switch/Node'''
 
-    start_node_nos = re.findall(r'\d+', current_node.name)
-    end_node_no = re.findall(r'\d+', destination_node.name)[-1]
+    start_node_nos = re.findall(r'\d+', current_node_name)
+    end_node_no = re.findall(r'\d+', destination_node_name)[-1]
     
     # Determining if the current_node is Node or a Switch
     if(len(start_node_nos) == 4):
@@ -37,12 +92,16 @@ def find_next_same_network(current_node, destination_node):
         Switch = False
         max_switch_layers = len(start_node_nos[-1])
     
-    
-    
-    # Check if the destination is to the left or right
+
+    # if(destination_node_name[-max_switch_layers-1] == current_node_name[-max_switch_layers-1]):
+    #     ''' Both source and destination are on the same side
+        # One easy solution: route through head node'''
+
+
+    '''Check if the destination is to the left or right'''
 
     # If the destination is to the right of source node:
-    if(destination_node.name[-max_switch_layers-1] == "R"):
+    if(destination_node_name[-max_switch_layers-1] == "R"):
         if(Switch):
             layer = int(start_node_nos[-2])
             identity = start_node_nos[-1]
