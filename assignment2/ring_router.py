@@ -30,18 +30,17 @@ def find_next(src_node,dest_name,full_network):
         dest_id=int(re.findall('R_(\d+)',dest_name)[0])
 
         ''' Find the shortest path between nodes: Clockwise or anticlockwise'''
-        if(abs(my_id-dest_id) > links//2):
-            if (my_id > dest_id):
-                name = create_next_node_name(src_name, True,links)
-            else:
-                name = create_next_node_name(src_name, False,links)
+        # if(abs(my_id-dest_id) > links//2):
+        #     if (my_id > dest_id):
+        name = create_next_node_name(src_name, True,links)
+        #     else:
+        #         name = create_next_node_name(src_name, False,links)
             
-        else:
-            if (my_id > dest_id):
-                name = create_next_node_name(src_name, False,links)
-            else:
-                name = create_next_node_name(src_name, True,links)
-        
+        # else:
+        #     if (my_id > dest_id):
+        #         name = create_next_node_name(src_name, False,links)
+        #     else:
+        #         name = create_next_node_name(src_name, True,links)
         return full_network.name_node_dict[name]
             
 
@@ -53,18 +52,18 @@ def find_next(src_node,dest_name,full_network):
             headnode_name = L2_networks[src_nw_id].get_head_node().name
             head_id=int(re.findall('R_(\d+)', headnode_name)[0])
                     
-            ''' Move right if dest is higher in number'''
-            if(abs(my_id-head_id) > links//2):
-                if (my_id > head_id):
-                    name = create_next_node_name(src_name, True,links)
-                else:
-                    name = create_next_node_name(src_name, False,links)
+            ''' Move clockwise'''
+            # if(abs(my_id-head_id) > links//2):
+            #     if (my_id > head_id):
+            name = create_next_node_name(src_name, True,links)
+            #     else:
+            #         name = create_next_node_name(src_name, False,links)
                 
-            else:
-                if (my_id > head_id):
-                    name = create_next_node_name(src_name, False,links)
-                else:
-                    name = create_next_node_name(src_name, True,links)
+            # else:
+            #     if (my_id > head_id):
+            #         name = create_next_node_name(src_name, False,links)
+            #     else:
+            #         name = create_next_node_name(src_name, True,links)
             
             return full_network.name_node_dict[name]
 
@@ -78,22 +77,22 @@ def find_next(src_node,dest_name,full_network):
             
             links = L1_network.count
 
-            ''' Find the shortest path between nodes: Clockwise or anticlockwise'''
-            if(abs(src_nw_id-dst_nw_id) > links//2):
-                if (src_nw_id > dst_nw_id):
-                    src_nw_id = (src_nw_id+1) % links
-                    name = L1_network.vertices[src_nw_id].name
-                else:
-                    src_nw_id = (src_nw_id-1) % links
-                    name = L1_network.vertices[src_nw_id].name                    
+            ''' Find the clockwise path between nodes'''
+            # if(abs(src_nw_id-dst_nw_id) > links//2):
+            #     if (src_nw_id > dst_nw_id):
+            src_nw_id = (src_nw_id+1) % links
+            name = L1_network.vertices[src_nw_id].name
+                # else:
+                #     src_nw_id = (src_nw_id-1) % links
+                #     name = L1_network.vertices[src_nw_id].name                    
                 
-            else:
-                if (src_nw_id > dst_nw_id):
-                    src_nw_id = (src_nw_id-1) % links
-                    name = L1_network.vertices[src_nw_id].name
-                else:
-                    src_nw_id = (src_nw_id+1) % links
-                    name = L1_network.vertices[src_nw_id].name
+            # else:
+            #     if (src_nw_id > dst_nw_id):
+            #         src_nw_id = (src_nw_id-1) % links
+            #         name = L1_network.vertices[src_nw_id].name
+            #     else:
+            #         src_nw_id = (src_nw_id+1) % links
+            #         name = L1_network.vertices[src_nw_id].name
             
             return full_network.name_node_dict[name]
 
