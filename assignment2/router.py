@@ -89,8 +89,6 @@ class Router(Node):
     def add_flits_to_fifo_from_host(self, flit):
         '''Adds host generated Flits to the FIFO - for ready to transfer
         flit is a valid Flit object'''
-
-        print("add_flits_to_fifo_from_host->", self.name,flit.dst_name)
         self.flit_from_host_node.put(flit)
 
 
