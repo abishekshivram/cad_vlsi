@@ -19,13 +19,13 @@ from flit import Flit
 def program_entry():
     '''Execution starts from here'''
 
-    input_read=InputReader("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment2/input.txt")
+    input_read=InputReader("input.txt")
 
     l1_topology=input_read.get_l1_topology()
     
 
     '''Builds the network layout and creates necessary virtual channesl in the node'''
-    network=NetworkLayout("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/output.txt")
+    network=NetworkLayout("../assignment1/output.txt",l1_topology)
 
     #complete and test the vc creation part
 

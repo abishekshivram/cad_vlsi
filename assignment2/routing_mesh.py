@@ -70,7 +70,7 @@ def find_next(current_node, dest_node_name):
         return l2_find_next(current_node, dest_node_name)
     else:
         if(is_l2(current_node.name)):#Move to head node
-            return find_next(current_node,get_head_node_name(current_node.name)) 
+            return find_next(current_node,get_head_node_name(current_node)) 
         else:#currently in L1
             #Have to check topology and then call the correct algo. Now simply calling Routing algo of H
             return l1_find_next(current_node, dest_node_name)# L1 routing algo depends on L1 topology
@@ -109,15 +109,24 @@ def l1_find_next(current_node, dest_node_name,l1_dim):
 
     l1_row_dim = l1_dim[0]
     l1_col_dim = l1_dim[1]
+
     src_nw_id= int(dec_to_bin(int(src_nw_id)))
+    src_col_id = src_nw_id % l1_row_dim
+    src_row_id = src_nw_id // l1_row_dim
+    src = (src_row_id,src_col_id)
+
     dst_nw_id= int(dec_to_bin(int(dst_nw_id)))
-    # start from here
-    next_nw_id=get_next_id(nw_ids[0],nw_ids[1])
-    if(next_nw_id==src_nw_id):
+    dst_col_id = dst_nw_id % l1_row_dim
+    dst_row_id = dst_nw_id // l1_row_dim
+    dst = (dst_row_id,dst_col_id)
+
+    # Find the next node in the path
+    next_id =get_next_id(src,dst)
+    if(next_id==src):
         return None
-    next=is_nwid_in_neighbour_list(current_node,str(int(next_nw_id,2)))
+    next=is_nwid_in_neighbour_list(current_node, next_id[0]*l1_col_dim+next_id)
     if(next==None):
-        print("Internal error: Hypercube-network is not in neighbour list")
+        print("Internal error: Mesh-network is not in neighbour list")
         return None
     else:
         return next
@@ -206,32 +215,6 @@ def is_node_in_neighbour_list(current_node,node_name):
             return neighbour
     return None
 
-def make_equal_len_id(in_list):
-    '''Adds preceeding zeros to in_list[0] or in_list[1], to make them equal length
-    in_list is a list containing two binary formatted string
-    modifies in_list[0] or in_list[1]
-    eg.11,100->011,100'''
-
-    if(len(in_list)!=2):
-        print("Internal error: make_equal_len_id input error")
-    id1=in_list[0]
-    id2=in_list[1]
-    
-    if(len(id1)>len(id2)):
-        diff=len(id1)-len(id2)
-        ret=id2
-        while(diff>0):
-            ret='0'+ret
-            diff=diff-1
-        in_list[1]=ret
-    else:
-        diff=len(id2)-len(id1)
-        ret=id1
-        while(diff>0):
-            ret='0'+ret
-            diff=diff-1
-            print (id1,id2)
-        in_list[0]=ret
 
 
 def is_nwid_in_neighbour_list(current_node,next_nw_id):
@@ -260,14 +243,18 @@ def is_l2(name):
     return False
 
 
-def get_head_node_name(name):
+def get_head_node_name(current_node):
     '''Gets the headnode of current hypercube network from name
     name is a well formatted hypercube name (string
     returns string - head node name'''
 
-    node_id=get_node_id_from_name(name)
-    zeros_node_id=dec_to_bin(0,len(node_id))
-    head_node_name=new_node_name_from_id(name,zeros_node_id)
-    head_node_name="L1"+head_node_name[2:]
-    return head_node_name        
+    network_id = get_network_id_from_name(current_node.name)
+    for neighbr in current_node.neighbour:
+        lvl_nid = findall('^L(\d+)_N(\d+)_.*',neighbr.name)[0]
+        if (lvl_nid[1] == network_id):
+            if (lvl_nid[0] == 'L1'):
+                return neighbr.name
+            else:
+                return get_head_node_name(neighbr)
+    
 
