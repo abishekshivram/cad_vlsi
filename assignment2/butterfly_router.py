@@ -2,20 +2,65 @@
 
 import sys
 sys.path.insert(1, './../assignment1')
+
 import re
 from node import Node
 from switch import Switch
 
 from butterfly import Butterfly
-from simulate import L1_network, L2_networks
+from simulate import L1_network, L2_networks, network_as_class_obj
 
 ''' I'm going to use the network we defined in the assignment 1'''
 ''' For butterfly, apart from destination address, we also need a field 
 that will represent if the flit will go to the other side before returning back
 This can be called Straight_Field '''
 
-Network = Butterfly("but", 8)
-Network.print_nodes()
+Network = None
+
+def find_level(name):
+    level = re.findall('.*L(\d+)_.*', name)
+    return int(level[0])
+
+def butterfly_route(current_node_name, destination_node_name):
+    ''' Incomplete function '''
+
+    level_src = find_level(current_node_name)
+    level_dest = find_level(destination_node_name)
+    src_nw_id = re.findall('.*_N(\d+).*', current_node_name)[0]
+    dest_nw_id = re.findall('.*_N(\d+).*', destination_node_name)[0]
+
+    if(level_src == 2):
+        # If destination is in same level and network
+        if(level_dest == 2):
+            if (src_nw_id == dest_nw_id):
+                next_node_name, new_dest_name = find_next_same_network(current_node_name, destination_node_name)
+            else:
+                # Moving between different networks 
+                next_node_name, new_dest_name = find_next_diff_network(current_node_name, destination_node_name)
+        else:
+            if (src_nw_id == dest_nw_id):
+                next_node_name, new_dest_name = find_next_same_network(current_node_name, destination_node_name)
+            else:
+                # Moving between different networks 
+                next_node_name, new_dest_name = find_next_diff_network(current_node_name, destination_node_name)
+
+    elif (level_src == 1):
+        # L2 routing: from head node to destination node
+        if(level_dest == 2):
+            if (src_nw_id == dest_nw_id):
+                next_node_name, new_dest_name = find_next_same_network(current_node_name, destination_node_name)
+            else:
+                # L1 routing must be done to find the head node of destination network
+                next_node_name, new_dest_name = l1_next_node(current_node_name, destination_node_name)
+        else:
+            next_node_name, new_dest_name = l1_next_node(current_node_name, destination_node_name)
+    
+    return next_node_name, new_dest_name
+
+def assign_network(current_node_name):
+    global Network
+    index = get_network_id_from_name(current_node_name)
+    Network = L2_networks[index] 
 
 def next_butterfly_node():
     return
@@ -56,8 +101,90 @@ def l1_check_if_same_side(current_node_name, destination_node_name):
         return False, source_side
 
 def l1_next_node(current_node_name, destination_node_name):
-    pass
 
+    start_node_nos = re.findall(r'\d+', current_node_name)
+    end_node_no = re.findall(r'\d+', destination_node_name)[-1]
+
+    # Determining if the current_node is Node or a Switch
+    if(len(start_node_nos) == 4):
+        Switch = True
+        max_switch_layers = len(start_node_nos[-1]) + 1
+    else:
+        Switch = False
+        max_switch_layers = len(start_node_nos[-1])
+
+
+    for i in (L1_network.left_nodes + L1_network.right_nodes):
+        if(i.name == current_node_name):
+            current_node = i
+            break
+
+
+    if(not Switch):
+        same_side, side = l1_check_if_same_side(current_node_name, destination_node_name)
+        if(same_side):
+            print("adding S1 to destination node name")
+            destination_node_name = "S1" + destination_node_name
+            return current_node.neighbour[0] # Please check if 0 index is correct-we need to return the L1 switch
+        else:
+            if(destination_node_name[:2]=="S1"):
+                destination_node_name = destination_node_name[2:]
+    
+
+    '''Check if the destination is to the left or right'''
+    
+    if(Switch):
+        Straight_global = True if destination_node_name[:2]=="S1" else False
+    
+    
+    # If the destination is to the right of source node:
+    if(destination_node_name[-max_switch_layers-1] == "R"):
+        if(Switch):
+            layer = int(start_node_nos[-2])
+            identity = start_node_nos[-1]
+
+            if(layer == max_switch_layers-1):
+                # Next stop is destination node
+                return destination_node_name
+
+            if(identity[layer] == end_node_no[layer]):
+                # We have to move straight
+                Straight = True
+            else:
+                # We have to move up/down
+                Straight = False
+            
+            if(Straight or Straight_global):
+                return current_node.right_neighbours[0]
+            else:
+                return current_node.right_neighbours[1]
+        else: # If source is a Node
+            return current_node.neighbour[0]
+    
+    else: # Case: If the destination is to the left of source node:
+
+        if(Switch):
+            layer = int(start_node_nos[-2])
+            identity = start_node_nos[-1]
+
+            if(layer == 0):
+                # Next stop is destination Node
+                return destination_node_name
+            else:
+                if(identity[-layer] == end_node_no[-layer]):
+                    # We have to move straight
+                    Straight = True
+                else:
+                    # We have to move up/down
+                    Straight = False
+                
+                if(Straight or Straight_global):
+                    return current_node.left_neighbours[0]
+                else:
+                    return current_node.left_neighbours[1]
+        else:
+            # If source is a Node
+            return current_node.neighbour[0]
 
 
 
@@ -73,6 +200,7 @@ def find_next_diff_network(current_node_name, destination_node_name):
     then assign the Stright_field there itself.'''
     
 def find_next_same_network(current_node_name, destination_node_name):
+    global Network
     ''' current_node: Source Node or Source Switch '''
     ''' Assumption: Both nodes are within the same network'''
     ''' What if both source and destination are on the same side? 
@@ -96,6 +224,22 @@ def find_next_same_network(current_node_name, destination_node_name):
     # if(destination_node_name[-max_switch_layers-1] == current_node_name[-max_switch_layers-1]):
     #     ''' Both source and destination are on the same side
         # One easy solution: route through head node'''
+    assign_network(current_node_name)
+    for i in (Network.left_nodes + Network.right_nodes):
+        if(i.name == current_node_name):
+            current_node = i
+            break
+    # current_node = 
+
+    '''Check if same side routing is done'''
+    if(not Switch):
+        # If both same side
+        if(destination_node_name[-max_switch_layers-1] == current_node_name[-max_switch_layers-1]):
+            print("add S1 to destination node name:")
+            destination_node_name = "S1" + destination_node_name
+        else:# It came to the other side, remove S1 if its present
+            if(destination_node_name[:2]=="S1"):
+                destination_node_name = destination_node_name[2:]
 
 
     '''Check if the destination is to the left or right'''
@@ -108,7 +252,7 @@ def find_next_same_network(current_node_name, destination_node_name):
 
             if(layer == max_switch_layers-1):
                 # Next stop is destination node
-                return destination_node
+                return destination_node_name
 
             if(identity[layer] == end_node_no[layer]):
                 # We have to move straight
@@ -132,7 +276,7 @@ def find_next_same_network(current_node_name, destination_node_name):
 
             if(layer == 0):
                 # Next stop is destination Node
-                return destination_node
+                return destination_node_name
             else:
                 if(identity[-layer] == end_node_no[-layer]):
                     # We have to move straight

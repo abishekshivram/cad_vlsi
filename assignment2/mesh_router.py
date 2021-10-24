@@ -20,7 +20,9 @@ class MeshRouter(Router):
         pass
 
 
-
+def mesh_route(current_node, dest_node_name):
+    ''' do all necessary and return - Incomplete function'''
+    return find_next(current_node, dest_node_name)
 
 def find_next(current_node, dest_node_name):
     '''From the current_node object identifies the next node to reach the destination.

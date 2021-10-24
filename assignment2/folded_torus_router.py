@@ -19,6 +19,9 @@ class FoldedTorusRouter(Router):
     def receive_flit(flit,destination_node): #May be it can store name of nodes it traversed as meta data
         pass
 
+def foldedtorus_route(current_node, dest_node_name):
+    ''' Do all necessary and return - incomplete function '''
+    return find_next(current_node,dest_node_name)
 
 
 
