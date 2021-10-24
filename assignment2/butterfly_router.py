@@ -2,6 +2,7 @@
 
 import sys
 sys.path.insert(1, './../assignment1')
+
 import re
 from node import Node
 from switch import Switch
@@ -15,7 +16,11 @@ that will represent if the flit will go to the other side before returning back
 This can be called Straight_Field '''
 
 Network = Butterfly("but", 8)
-Network.print_nodes()
+
+def assign_network():
+    global Network
+    Network = L2_networks[0] # Incomplete function
+    pass
 
 def next_butterfly_node():
     return
@@ -56,8 +61,90 @@ def l1_check_if_same_side(current_node_name, destination_node_name):
         return False, source_side
 
 def l1_next_node(current_node_name, destination_node_name):
-    pass
 
+    start_node_nos = re.findall(r'\d+', current_node_name)
+    end_node_no = re.findall(r'\d+', destination_node_name)[-1]
+
+    # Determining if the current_node is Node or a Switch
+    if(len(start_node_nos) == 4):
+        Switch = True
+        max_switch_layers = len(start_node_nos[-1]) + 1
+    else:
+        Switch = False
+        max_switch_layers = len(start_node_nos[-1])
+
+
+    for i in (L1_network.left_nodes + L1_network.right_nodes):
+        if(i.name == current_node_name):
+            current_node = i
+            break
+
+
+    if(not Switch):
+        same_side, side = l1_check_if_same_side(current_node_name, destination_node_name)
+        if(same_side):
+            print("adding S1 to destination node name")
+            destination_node_name = "S1" + destination_node_name
+            return current_node.neighbour[0] # Please check if 0 index is correct-we need to return the L1 switch
+        else:
+            if(destination_node_name[:2]=="S1"):
+                destination_node_name = destination_node_name[2:]
+    
+
+    '''Check if the destination is to the left or right'''
+    
+    if(Switch):
+        Straight_global = True if destination_node_name[:2]=="S1" else False
+    
+    
+    # If the destination is to the right of source node:
+    if(destination_node_name[-max_switch_layers-1] == "R"):
+        if(Switch):
+            layer = int(start_node_nos[-2])
+            identity = start_node_nos[-1]
+
+            if(layer == max_switch_layers-1):
+                # Next stop is destination node
+                return destination_node_name
+
+            if(identity[layer] == end_node_no[layer]):
+                # We have to move straight
+                Straight = True
+            else:
+                # We have to move up/down
+                Straight = False
+            
+            if(Straight or Straight_global):
+                return current_node.right_neighbours[0]
+            else:
+                return current_node.right_neighbours[1]
+        else: # If source is a Node
+            return current_node.neighbour[0]
+    
+    else: # Case: If the destination is to the left of source node:
+
+        if(Switch):
+            layer = int(start_node_nos[-2])
+            identity = start_node_nos[-1]
+
+            if(layer == 0):
+                # Next stop is destination Node
+                return destination_node_name
+            else:
+                if(identity[-layer] == end_node_no[-layer]):
+                    # We have to move straight
+                    Straight = True
+                else:
+                    # We have to move up/down
+                    Straight = False
+                
+                if(Straight or Straight_global):
+                    return current_node.left_neighbours[0]
+                else:
+                    return current_node.left_neighbours[1]
+        else:
+            # If source is a Node
+            return current_node.neighbour[0]
 
 
 
@@ -96,6 +183,21 @@ def find_next_same_network(current_node_name, destination_node_name):
     # if(destination_node_name[-max_switch_layers-1] == current_node_name[-max_switch_layers-1]):
     #     ''' Both source and destination are on the same side
         # One easy solution: route through head node'''
+    for i in (Network.left_nodes + Network.right_nodes):
+        if(i.name == current_node_name):
+            current_node = i
+            break
+    # current_node = 
+
+    '''Check if same side routing is done'''
+    if(not Switch):
+        # If both same side
+        if(destination_node_name[-max_switch_layers-1] == current_node_name[-max_switch_layers-1]):
+            print("add S1 to destination node name:")
+            destination_node_name = "S1" + destination_node_name
+        else:# It came to the other side, remove S1 if its present
+            if(destination_node_name[:2]=="S1"):
+                destination_node_name = destination_node_name[2:]
 
 
     '''Check if the destination is to the left or right'''
@@ -108,7 +210,7 @@ def find_next_same_network(current_node_name, destination_node_name):
 
             if(layer == max_switch_layers-1):
                 # Next stop is destination node
-                return destination_node
+                return destination_node_name
 
             if(identity[layer] == end_node_no[layer]):
                 # We have to move straight
@@ -132,7 +234,7 @@ def find_next_same_network(current_node_name, destination_node_name):
 
             if(layer == 0):
                 # Next stop is destination Node
-                return destination_node
+                return destination_node_name
             else:
                 if(identity[-layer] == end_node_no[-layer]):
                     # We have to move straight

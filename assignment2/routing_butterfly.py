@@ -37,6 +37,8 @@ def find_next_same_network(current_node, destination_node):
         Switch = False
         max_switch_layers = len(start_node_nos[-1])
     
+    # Checking if same side routing is done
+    
     
     
     # Check if the destination is to the left or right
