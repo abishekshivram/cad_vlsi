@@ -8,19 +8,19 @@ from node import Node
 from switch import Switch
 
 from butterfly import Butterfly
-from simulate import L1_network, L2_networks
+from simulate import L1_network, L2_networks, network_as_class_obj
 
 ''' I'm going to use the network we defined in the assignment 1'''
 ''' For butterfly, apart from destination address, we also need a field 
 that will represent if the flit will go to the other side before returning back
 This can be called Straight_Field '''
 
-Network = Butterfly("but", 8)
+Network = None
 
-def assign_network():
+def assign_network(current_node_name):
     global Network
-    Network = L2_networks[0] # Incomplete function
-    pass
+    index = get_network_id_from_name(current_node_name)
+    Network = L2_networks[index] 
 
 def next_butterfly_node():
     return
@@ -160,6 +160,7 @@ def find_next_diff_network(current_node_name, destination_node_name):
     then assign the Stright_field there itself.'''
     
 def find_next_same_network(current_node_name, destination_node_name):
+    global Network
     ''' current_node: Source Node or Source Switch '''
     ''' Assumption: Both nodes are within the same network'''
     ''' What if both source and destination are on the same side? 
@@ -183,6 +184,7 @@ def find_next_same_network(current_node_name, destination_node_name):
     # if(destination_node_name[-max_switch_layers-1] == current_node_name[-max_switch_layers-1]):
     #     ''' Both source and destination are on the same side
         # One easy solution: route through head node'''
+    assign_network(current_node_name)
     for i in (Network.left_nodes + Network.right_nodes):
         if(i.name == current_node_name):
             current_node = i
