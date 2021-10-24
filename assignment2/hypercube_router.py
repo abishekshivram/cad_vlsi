@@ -76,12 +76,12 @@ def l2_find_next(current_node, dest_node_name):
     if(int(next_node_id)==0):#Next node is head node. Change to L1
         next_node_name="L1"+next_node_name[2:]
     
-    next=is_node_in_neighbour_list(current_node,next_node_name)
-    if(next==None):
+    next_node=is_node_in_neighbour_list(current_node,next_node_name)
+    if(next_node==None):
         print("Internal error: Hypercube-node is not in neighbour list")
         return None
     else:
-        return next
+        return next_node
 
 
 def l1_find_next(current_node, dest_node_name):
@@ -97,12 +97,12 @@ def l1_find_next(current_node, dest_node_name):
     next_nw_id=get_lsb_to_msb_next_id(nw_ids[0],nw_ids[1])
     if(next_nw_id==src_nw_id):
         return None
-    next=is_nwid_in_neighbour_list(current_node,str(int(next_nw_id,2)))
-    if(next==None):
+    next_node=is_nwid_in_neighbour_list(current_node,str(int(next_nw_id,2)))
+    if(next_node==None):
         print("Internal error: Hypercube-network is not in neighbour list")
         return None
     else:
-        return next
+        return next_node
     
 
 def same_network(name1, name2):

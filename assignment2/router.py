@@ -170,9 +170,12 @@ class Router(Node):
     
     def find_next(self, dest_name):
         level_src = find_level(self.name)
-        level_dest = find_level(dest_name)
+        # level_dest = find_level(dest_name)
+        src_nw_id = re.findall('.*_N(\d+).*', self.name)[0]
+        dest_nw_id = re.findall('.*_N(\d+).*', dest_name)[0]
         
-        if(level_src == 2):
+        if (src_nw_id == dest_nw_id or level_src == 2):
+        # if(level_src == 2):
             # L2 network routing
             network_topology = re.findall('.*_N\d+_(.)', self.name)
             if(network_topology == "B"):
@@ -199,40 +202,40 @@ class Router(Node):
                 ''' Folded Torus routing '''
                 next_node_name = foldedtorus_route(self, dest_name)
         
-        elif (level_src == 1):
-            src_nw_id = re.findall('.*_N(\d+).*', self.name)[0]
-            dest_nw_id = re.findall('.*_N(\d+).*', dest_name)[0]
+        # elif (level_src == 1):
+        #     src_nw_id = re.findall('.*_N(\d+).*', self.name)[0]
+        #     dest_nw_id = re.findall('.*_N(\d+).*', dest_name)[0]
 
-            # L2 routing: from head node to destination node
-            if (src_nw_id == dest_nw_id):
+        #     # L2 routing: from head node to destination node
+        #     if (src_nw_id == dest_nw_id):
 
-                network_topology = re.findall('.*_N\d+_(.)', self.name)
+        #         network_topology = re.findall('.*_N\d+_(.)', self.name)
                 
-                if(network_topology == "B"):
-                    '''Butterfly'''
-                    next_node_name, new_dest_name = butterfly_route(self.name, dest_name)
+        #         if(network_topology == "B"):
+        #             '''Butterfly'''
+        #             next_node_name, new_dest_name = butterfly_route(self.name, dest_name)
                 
-                elif(network_topology == "M"):
-                    ''' Mesh routing '''
-                    next_node_name = mesh_route(self, dest_name)
+        #         elif(network_topology == "M"):
+        #             ''' Mesh routing '''
+        #             next_node_name = mesh_route(self, dest_name)
 
-                elif(network_topology == "C"):
-                    ''' Chain routing '''
-                    next_node_name = chain_route(self, dest_name)
+        #         elif(network_topology == "C"):
+        #             ''' Chain routing '''
+        #             next_node_name = chain_route(self, dest_name)
                 
-                elif(network_topology == "R"):
-                    ''' Ring routing '''
-                    next_node_name = ring_route(self, dest_name)
+        #         elif(network_topology == "R"):
+        #             ''' Ring routing '''
+        #             next_node_name = ring_route(self, dest_name)
                 
-                elif(network_topology == "H"):
-                    ''' Hypercube routing '''
-                    next_node_name = hypercube_route(self, dest_name)
+        #         elif(network_topology == "H"):
+        #             ''' Hypercube routing '''
+        #             next_node_name = hypercube_route(self, dest_name)
                 
-                elif(network_topology == "F"):
-                    ''' Folded Torus routing '''
-                    next_node_name = foldedtorus_route(self, dest_name)
-            
-            else:
+        #         elif(network_topology == "F"):
+        #             ''' Folded Torus routing '''
+        #             next_node_name = foldedtorus_route(self, dest_name)
+        else:    
+            if (level_src == 1):
                 # L1 routing if src and dest are in diff networks and in L1
                 if(type(L1_network) == Butterfly):
                     '''Butterfly'''
@@ -260,7 +263,6 @@ class Router(Node):
 
 
 
-
     def clock(self): 
         self.add_flit_to_vc_from_host_fifo()
         self.increment_flit_priority()
@@ -270,11 +272,11 @@ class Router(Node):
             key=self.get_key_of_flit_from_vc_with_priority(i)
             if(key):
                 flit=self.get_flit(key)
-                next=self.find_next(flit.dst_name)
-                if(next.is_vc_free(self.name)):
-                    next.add_flit_to_vc(self.name,flit)
+                next_node=self.find_next(flit.dst_name)
+                if(next_node.is_vc_free(self.name)):
+                    next_node.add_flit_to_vc(self.name,flit)
                     self.remove_flit(key)
-        i=i+1
+            i=i+1
 
         #2) Chose the flit with highest priority to send
         #3) Try to send it (if the channel already used in this clock- cant send), if successful remove from VC and update output channel as used

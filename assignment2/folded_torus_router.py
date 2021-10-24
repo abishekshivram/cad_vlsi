@@ -69,12 +69,12 @@ def l2_find_next(current_node, dest_node_name):
     next_node_id=get_next_id(src_n_id,dst_n_id,rowCount,colCount)
     next_node_name=get_node_name_from_id(current_node.name, next_node_id)
 
-    next=is_node_in_neighbour_list(current_node,next_node_name)
-    if(next==None):
+    next_node=is_node_in_neighbour_list(current_node,next_node_name)
+    if(next_node==None):
         print("Internal error: folded torus-node is not in neighbour list")
         return None
     else:
-        return next
+        return next_node
 
 
 def l1_find_next(current_node, dest_node_name):
@@ -104,12 +104,12 @@ def l1_find_next(current_node, dest_node_name):
     next_id =get_next_id(src,dst)
     if(next_id==src):
         return None
-    next=is_nwid_in_neighbour_list(current_node, next_id[0]*l1_col_dim+next_id)
-    if(next==None):
+    next_node=is_nwid_in_neighbour_list(current_node, next_id[0]*l1_col_dim+next_id)
+    if(next_node==None):
         print("Internal error: Folded torus-network is not in neighbour list")
         return None
     else:
-        return next
+        return next_node
     
 
 def same_network(name1, name2):
