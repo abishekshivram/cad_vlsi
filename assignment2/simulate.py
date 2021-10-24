@@ -25,7 +25,7 @@ def program_entry():
     
 
     '''Builds the network layout and creates necessary virtual channesl in the node'''
-    network=NetworkLayout("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/output.txt")
+    network=NetworkLayout("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/output.txt",l1_topology)
 
     #complete and test the vc creation part
 
