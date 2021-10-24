@@ -21,7 +21,7 @@ class FoldedTorusRouter(Router):
 
 def foldedtorus_route(current_node, dest_node_name):
     ''' Do all necessary and return - incomplete function '''
-    pass
+    return find_next(current_node,dest_node_name)
 
 
 

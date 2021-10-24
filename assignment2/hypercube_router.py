@@ -27,7 +27,7 @@ class HypercubeRouter(Router):
 
 def hypercube_route(current_node, dest_node_name):
     ''' Do all necessary and return - incomplete function '''
-    pass
+    return find_next(current_node,dest_node_name)
 
 
 def find_next(current_node, dest_node_name):
