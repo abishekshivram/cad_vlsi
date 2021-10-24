@@ -15,6 +15,19 @@ from flit import Flit
 sys.path.insert(1, './../assignment1')
 from node import Node
 import queue
+import re
+
+from butterfly_router import butterfly_route
+from mesh_router import mesh_route
+from chain_router import chain_route
+from ring_router import ring_route
+from folded_torus_router import foldedtorus_route
+from hypercube_router import hypercube_route
+
+def find_level(name):
+    level = re.findall('.*L(\d+)_.*', name)
+    return int(level[0])
+
 
 
 class Router(Node):
@@ -144,6 +157,43 @@ class Router(Node):
             return self.vc[channel_no][1]
         return None
 
+    
+    def find_next(self, dest_name):
+        level_src = find_level(self.name)
+        level_dest = find_level(dest_name)
+        
+        if(level_src == 2):
+            # L2 network routing
+            network_topology = re.findall('.*_N\d+_(.)', self.name)
+            if(network_topology == "B"):
+                '''Butterfly'''
+                next_node_name, new_dest_name = butterfly_route(self.name, dest_name)
+            
+            elif(network_topology == "M"):
+                ''' Mesh routing '''
+                next_node_name = mesh_route(self, dest_name)
+
+            elif(network_topology == "C"):
+                ''' Chain routing '''
+                next_node_name = chain_route(self, dest_name)
+            
+            elif(network_topology == "R"):
+                ''' Ring routing '''
+                next_node_name = ring_route(self, dest_name)
+            
+            elif(network_topology == "H"):
+                ''' Hypercube routing '''
+                next_node_name = hypercube_route(self, dest_name)
+            
+            elif(network_topology == "F"):
+                ''' Folded Torus routing '''
+                next_node_name = foldedtorus_route(self, dest_name)
+
+
+
+
+
+
     def clock(self): 
         self.add_flit_to_vc_from_host_fifo()
         self.increment_flit_priority()
@@ -153,7 +203,7 @@ class Router(Node):
             key=self.get_key_of_flit_from_vc_with_priority(i)
             if(key):
                 flit=self.get_flit(key)
-                next=self.find_next(self, flit.dst_name)
+                next=self.find_next(flit.dst_name)
                 if(next.is_vc_free(self.name)):
                     next.add_flit_to_vc(self.name,flit)
                     self.remove_flit(key)

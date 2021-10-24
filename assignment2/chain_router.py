@@ -7,6 +7,10 @@ from butterfly import dec_to_bin
 
 from simulate import L1_network
 
+def chain_route(src_name, dest_name):
+    ''' Do all necessary and return - incomplete function '''
+    pass
+
 class ChainRouter(Router):
     def __init__(self,name):
         super(ChainRouter, self).__init__(name)

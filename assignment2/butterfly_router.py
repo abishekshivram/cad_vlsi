@@ -17,6 +17,10 @@ This can be called Straight_Field '''
 
 Network = None
 
+def butterfly_route(current_node_name, destination_node_name):
+    ''' Incomplete function '''
+    pass
+
 def assign_network(current_node_name):
     global Network
     index = get_network_id_from_name(current_node_name)
