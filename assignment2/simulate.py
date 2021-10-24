@@ -30,6 +30,7 @@ def program_entry(full_network):
     while(1):
         #When nothing to read from input file and all the vc/fifo empty exit the loop
         input_read=InputReader("./input.txt")
+        
         clock_tick=clock_tick+1
         src_dst=input_read.get_src_and_destinations(clock_tick)
         generate_flit(src_dst, full_network)

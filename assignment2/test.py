@@ -16,5 +16,5 @@ l1_topology=input_read.get_l1_topology()
 full_network=NetworkLayout("../assignment1/output.txt",l1_topology)
 
 program_entry(full_network)
-print("\n\n\nAfter program entry\n\n\n")
+print("\n\n\nEnd of Program\n\n\n")
 quit()
