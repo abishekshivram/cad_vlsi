@@ -17,7 +17,7 @@ class Flit:
     def __init__(self,name):
         '''Stores the name of each node, the flit passed through- This is meta information
         name is the well formatted name of the Destination node to which the Flit to be transferred'''
-        dst_name=name
+        self.dst_name=name
         self.route=[] 
     
     def add_node_name(self,name):
@@ -26,7 +26,6 @@ class Flit:
         self.route.append(name)
 
     def print_path(self):
-        ''''''
-        for i in range(len(self.route)):
-            print(self.route[i], end="->")
+        '''Prints the nodes(Routers) through which this flit has travelled'''
+        print(*self.route, sep='->')
 

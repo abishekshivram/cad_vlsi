@@ -25,7 +25,7 @@ def program_entry():
     
 
     '''Builds the network layout and creates necessary virtual channesl in the node'''
-    network=NetworkLayout("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/output.txt")
+    network=NetworkLayout("/home/lloyd/CAD-Assign/github-a1/cad_vlsi/assignment1/output.txt",l1_topology)
 
     #complete and test the vc creation part
 
@@ -51,7 +51,7 @@ def generate_flit(src_dst,network):
 
     for pair in src_dst:
         src=pair[0]
-        dst=pair[0]
+        dst=pair[1]
         src_node=network.node_exists(src)
         dst_node=network.node_exists(dst)
         if(src_node!=None and dst_node!=None):
