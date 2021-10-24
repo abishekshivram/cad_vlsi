@@ -119,7 +119,7 @@ def main(print=True):
 	# Currently, we don't create nodes and connections for L1, and merely assign the dimensions for the L1 specification.
 	# L1 network nodes are made up of the head-nodes in L2 
 	# This file contains how all the head nodes of each network in L2 are interconnected
-	with open ("/home/abi/cad_vlsi/cad_vlsi/assignment1/L1Topology.txt",'r') as f:
+	with open ("../assignment1/L1Topology.txt",'r') as f:
 		for line in f:
 			if (line=='\n'):
 				continue
@@ -136,7 +136,7 @@ def main(print=True):
 	L2 = []
 	L2_network = []
 	idx = 0
-	with open ("/home/abi/cad_vlsi/cad_vlsi/assignment1/L2Topology.txt", 'r') as f:
+	with open ("../assignment1/L2Topology.txt", 'r') as f:
 		for line in f:
 			if (line=='\n'):
 				continue
@@ -160,10 +160,13 @@ def main(print=True):
 		return L1_network, L2_network
 
 	# Printing the nodes in the network
-	print("Nodes of the Two level hierarchical Network on Chip")
+	# 
 	for networks in L2_network:
 		networks.print_nodes()
 
 	# If L1 network is a Butterfly network, then printing its switches here
 	if (L1[0] == 'B'):
 		L1_network.print_nodes(True)
+
+print("Nodes of the Two level hierarchical Network on Chip")
+main(True)
