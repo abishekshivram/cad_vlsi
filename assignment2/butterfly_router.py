@@ -58,7 +58,7 @@ def butterfly_route(current_node_name, destination_node_name, full_network):
     else:
         next_node = full_network.name_node_dict[next_node_name]
 
-    print(f"BT: curr_node_name={current_node_name} next_node_name={next_node_name}, dst_node_name={destination_node_name} new_dst_name={new_dest_name}")
+    # print(f"BT: curr_node_name={current_node_name} next_node_name={next_node_name}, dst_node_name={destination_node_name} new_dst_name={new_dest_name}")
     return next_node, new_dest_name
 
 def assign_network(current_node_name):
@@ -73,9 +73,7 @@ def next_butterfly_switch():
     return
 
 def get_network_id_from_name(name):
-    # Clock:1, Source:L2_N4_F_0_00, Destination:L1_N2_R_00
-
-    # Clock:3, Source:L2_N13_M_0_100, Destination:L1_N9_H_000
+    
     '''Extaracts the network id (integer after _N) from the given name
     Name is a well formatted node name
     Returns string name
@@ -111,11 +109,11 @@ def l1_next_node(current_node_name, destination_node_name):
 
     start_node_nos = re.findall(r'\d+', current_node_name)
     ifSwitch = re.findall(r'_S\d+_', current_node_name)
-    if(find_level(destination_node_name) == 1):
-        max_digits = log(L1_network.num)
-        end_node_no = dec_to_bin(int(get_network_id_from_name(destination_node_name))%L1_network.num, max_digits)
-    else:
-        end_node_no = re.findall(r'\d+', destination_node_name)[-1]
+    # if(find_level(destination_node_name) == 1):
+    max_digits = log(L1_network.num)
+    end_node_no = dec_to_bin(int(get_network_id_from_name(destination_node_name))%L1_network.num, max_digits)
+    # else:
+    #     end_node_no = re.findall(r'\d+', destination_node_name)[-1]
 
     # Determining if the current_node is Node or a Switch
     if(ifSwitch != []):
@@ -166,8 +164,13 @@ def l1_next_node(current_node_name, destination_node_name):
 
             if(layer == max_switch_layers-1):
                 # Next stop is destination node
-                return destination_node_name, destination_node_name
+                ntid = get_network_id_from_name(destination_node_name)
+                for i in current_node.right_neighbours:
+                    if (get_network_id_from_name(i.name) == ntid):
+                        return i.name, destination_node_name
+                # return destination_node_name, destination_node_name
 
+            # print(f"layer: {layer}, identity:{identity} end_node_no:{end_node_no}")
             if(identity[layer] == end_node_no[layer]):
                 # We have to move straight
                 Straight = True
@@ -187,6 +190,8 @@ def l1_next_node(current_node_name, destination_node_name):
             else:
                 return current_node.right_neighbours[1-straight_index].name, destination_node_name
         else: # If source is a Node
+            if (find_level(current_node_name) == 1):
+                return current_node.neighbour[-1].name, destination_node_name
             return current_node.neighbour[0].name, destination_node_name
     
     else: # Case: If the destination is to the left of source node:
@@ -199,9 +204,12 @@ def l1_next_node(current_node_name, destination_node_name):
                 return current_node.right_neighbours[0].name, destination_node_name
 
             if(layer == 0):
-
+                ntid = get_network_id_from_name(destination_node_name)
+                for i in current_node.left_neighbours:
+                    if (get_network_id_from_name(i.name) == ntid):
+                        return i.name, destination_node_name
                 # Next stop is destination Node
-                return destination_node_name, destination_node_name
+                # return destination_node_name, destination_node_name
             else:
                 index = max_switch_layers - layer
                 # if(identity[-layer] == end_node_no[-layer]):

@@ -170,3 +170,4 @@ def main(print=True):
 
 print("Nodes of the Two level hierarchical Network on Chip")
 main(True)
+print("\n----End of assignment 1 Output----\n\n")
