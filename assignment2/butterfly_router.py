@@ -57,7 +57,7 @@ def butterfly_route(current_node_name, destination_node_name, full_network):
     else:
         next_node = full_network.name_node_dict[next_node_name]
 
-    print(next_node_name)
+    # print(new_dest_name)
     # print(f"BT: curr_node_name={current_node_name} next_node_name={next_node_name}, dst_node_name={destination_node_name} new_dst_name={new_dest_name}")
     return next_node, new_dest_name
 
@@ -132,7 +132,8 @@ def l1_next_node(current_node_name, destination_node_name):
 
     if(not Switch):
         same_side, side = l1_check_if_same_side(current_node_name, destination_node_name)
-        if(same_side):
+        # print(destination_node_name)
+        if(same_side and destination_node_name[0] != "S"):
             destination_node_name = "S" + destination_node_name
             return current_node.neighbour[-1].name, destination_node_name
             '''Please check if 0 index is correct-we need to return the L1 switch'''
@@ -215,16 +216,16 @@ def find_next_diff_network(current_node_name, destination_node_name):
     assign_network(current_node_name)
     temp_dest = Network.get_head_node()
     temp_dest_name = temp_dest.name
-    if(destination_node_name[0] == "S"):
-        temp_dest_name = "S" + temp_dest_name
+    # if(destination_node_name[0] == "S"):
+    #     temp_dest_name = "S" + temp_dest_name
     next_node_name, temp_new = find_next_same_network(current_node_name, temp_dest_name)
     if(destination_node_name[0] == "S" and temp_new[0] == "S"):
         return next_node_name, destination_node_name
     elif(destination_node_name[0] == "S" and temp_new[0] != "S"):
         destination_node_name = destination_node_name[1:]
         return next_node_name, destination_node_name
-    if(temp_new[0] == "S"):
-        destination_node_name = "S"+ destination_node_name
+    # if(temp_new[0] == "S"):
+    #     destination_node_name = "S"+ destination_node_name
     return next_node_name, destination_node_name
 
 
