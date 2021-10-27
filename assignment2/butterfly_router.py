@@ -2,7 +2,7 @@
 
 import sys
 
-from butterfly import dec_to_bin, Butterfly
+from butterfly import dec_to_bin, log, Butterfly
 sys.path.insert(1, './../assignment1')
 
 import re
@@ -21,6 +21,7 @@ def find_level(name):
 
 def butterfly_route(current_node_name, destination_node_name, full_network):
 
+    # print(f"Cur:{current_node_name},dest: {destination_node_name}")
     level_src = find_level(current_node_name)
     level_dest = find_level(destination_node_name)
     src_nw_id = re.findall('.*_N(\d+).*', current_node_name)[0]
@@ -57,8 +58,7 @@ def butterfly_route(current_node_name, destination_node_name, full_network):
     else:
         next_node = full_network.name_node_dict[next_node_name]
 
-    # print(new_dest_name)
-    # print(f"BT: curr_node_name={current_node_name} next_node_name={next_node_name}, dst_node_name={destination_node_name} new_dst_name={new_dest_name}")
+    print(f"BT: curr_node_name={current_node_name} next_node_name={next_node_name}, dst_node_name={destination_node_name} new_dst_name={new_dest_name}")
     return next_node, new_dest_name
 
 def assign_network(current_node_name):
@@ -73,6 +73,9 @@ def next_butterfly_switch():
     return
 
 def get_network_id_from_name(name):
+    # Clock:1, Source:L2_N4_F_0_00, Destination:L1_N2_R_00
+
+    # Clock:3, Source:L2_N13_M_0_100, Destination:L1_N9_H_000
     '''Extaracts the network id (integer after _N) from the given name
     Name is a well formatted node name
     Returns string name
@@ -107,16 +110,20 @@ def l1_check_if_same_side(current_node_name, destination_node_name):
 def l1_next_node(current_node_name, destination_node_name):
 
     start_node_nos = re.findall(r'\d+', current_node_name)
-    ifSwitch = re.findall(r'_[S]\d+_', current_node_name)
-    end_node_no = re.findall(r'\d+', destination_node_name)[-1]
+    ifSwitch = re.findall(r'_S\d+_', current_node_name)
+    if(find_level(destination_node_name) == 1):
+        max_digits = log(L1_network.num)
+        end_node_no = dec_to_bin(int(get_network_id_from_name(destination_node_name))%L1_network.num, max_digits)
+    else:
+        end_node_no = re.findall(r'\d+', destination_node_name)[-1]
 
     # Determining if the current_node is Node or a Switch
     if(ifSwitch != []):
         Switch = True
-        max_switch_layers = len(start_node_nos[-1]) + 1
+        max_switch_layers = int(log(L1_network.num)) # len(start_node_nos[-1]) + 1
     else:
         Switch = False
-        max_switch_layers = len(start_node_nos[-1])
+        max_switch_layers = int(log(L1_network.num)) # len(start_node_nos[-1])
 
     if(type(L1_network) == Butterfly):
         for i in (L1_network.left_nodes + L1_network.right_nodes + L1_network.switches):
@@ -132,8 +139,7 @@ def l1_next_node(current_node_name, destination_node_name):
 
     if(not Switch):
         same_side, side = l1_check_if_same_side(current_node_name, destination_node_name)
-        # print(destination_node_name)
-        if(same_side and destination_node_name[0] != "S"):
+        if(same_side):# and destination_node_name[0] != "S"):
             destination_node_name = "S" + destination_node_name
             return current_node.neighbour[-1].name, destination_node_name
             '''Please check if 0 index is correct-we need to return the L1 switch'''
@@ -149,7 +155,8 @@ def l1_next_node(current_node_name, destination_node_name):
     
     
     # If the destination is to the right of source node:
-    if(destination_node_name[-max_switch_layers-1] == "R"):
+    # if(destination_node_name[-max_switch_layers-1] == "R"):
+    if(int(get_network_id_from_name(destination_node_name)) >= L1_network.num):
         if(Switch):
             layer = int(start_node_nos[-2])
             identity = start_node_nos[-1]
@@ -168,12 +175,17 @@ def l1_next_node(current_node_name, destination_node_name):
                 # We have to move up/down
                 Straight = False
             
-            
+            straight_index = 0
+            idx = re.findall("_(\d+)$",current_node.right_neighbours[0].name)[0]
+            if (identity == idx):
+                straight_index = 0
+            else:
+                straight_index = 1            
 
             if(Straight):
-                return current_node.right_neighbours[0].name, destination_node_name
+                return current_node.right_neighbours[straight_index].name, destination_node_name
             else:
-                return current_node.right_neighbours[1].name, destination_node_name
+                return current_node.right_neighbours[1-straight_index].name, destination_node_name
         else: # If source is a Node
             return current_node.neighbour[0].name, destination_node_name
     
@@ -184,27 +196,37 @@ def l1_next_node(current_node_name, destination_node_name):
             identity = start_node_nos[-1]
 
             if(Straight_global):
-                    return current_node.right_neighbours[0].name, destination_node_name
+                return current_node.right_neighbours[0].name, destination_node_name
 
             if(layer == 0):
+
                 # Next stop is destination Node
                 return destination_node_name, destination_node_name
             else:
-                if(identity[-layer] == end_node_no[-layer]):
+                index = max_switch_layers - layer
+                # if(identity[-layer] == end_node_no[-layer]):
+                if(identity[-index] == end_node_no[-index-1]):
                     # We have to move straight
                     Straight = True
                 else:
                     # We have to move up/down
                     Straight = False
-                
-                
 
-                if(Straight):
-                    return current_node.left_neighbours[0].name, destination_node_name
+                straight_index = 0
+                idx = re.findall("_(\d+)$",current_node.left_neighbours[0].name)[0]
+                if (identity == idx):
+                    straight_index = 0
                 else:
-                    return current_node.left_neighbours[1].name, destination_node_name
+                    straight_index = 1
+                
+                if(Straight):
+                    return current_node.left_neighbours[straight_index].name, destination_node_name
+                else:
+                    return current_node.left_neighbours[1-straight_index].name, destination_node_name
         else:
             # If source is a Node
+            if (find_level(current_node_name) == 1):
+                return current_node.neighbour[-1].name, destination_node_name
             return current_node.neighbour[0].name, destination_node_name
 
 
@@ -216,16 +238,16 @@ def find_next_diff_network(current_node_name, destination_node_name):
     assign_network(current_node_name)
     temp_dest = Network.get_head_node()
     temp_dest_name = temp_dest.name
-    # if(destination_node_name[0] == "S"):
-    #     temp_dest_name = "S" + temp_dest_name
+    if(destination_node_name[0] == "S"):
+        temp_dest_name = "S" + temp_dest_name
     next_node_name, temp_new = find_next_same_network(current_node_name, temp_dest_name)
     if(destination_node_name[0] == "S" and temp_new[0] == "S"):
         return next_node_name, destination_node_name
     elif(destination_node_name[0] == "S" and temp_new[0] != "S"):
         destination_node_name = destination_node_name[1:]
         return next_node_name, destination_node_name
-    # if(temp_new[0] == "S"):
-    #     destination_node_name = "S"+ destination_node_name
+    if(temp_new[0] == "S"):
+        destination_node_name = "S"+ destination_node_name
     return next_node_name, destination_node_name
 
 
@@ -244,7 +266,7 @@ def find_next_same_network(current_node_name, destination_node_name):
         In the hardware, we will inherently know if its a switch/Node'''
 
     start_node_nos = re.findall(r'\d+', current_node_name)
-    ifSwitch = re.findall(r'_[S]\d+_', current_node_name)
+    ifSwitch = re.findall(r'_S\d+_', current_node_name)
     end_node_no = re.findall(r'\d+', destination_node_name)[-1]
     
     # Determining if the current_node is Node or a Switch
@@ -264,6 +286,12 @@ def find_next_same_network(current_node_name, destination_node_name):
         if(i.name == current_node_name):
             current_node = i
             break
+
+    try:
+        current_node
+    except:
+        print(f"Wrong node name {current_node_name} specified. Please check if node names in input.txt and output.txt from assgn1 match.")
+        exit()
 
     '''Check if same side routing is done'''
     if(not Switch):
@@ -304,11 +332,18 @@ def find_next_same_network(current_node_name, destination_node_name):
                 Straight = False
             
             
+            straight_index = 0
+            idx = re.findall("_(\d+)$",current_node.right_neighbours[0].name)[0]
+            if (identity == idx):
+                straight_index = 0
+            else:
+                straight_index = 1
+        
 
             if(Straight):
-                return current_node.right_neighbours[0].name, destination_node_name
+                return current_node.right_neighbours[straight_index].name, destination_node_name
             else:
-                return current_node.right_neighbours[1].name, destination_node_name
+                return current_node.right_neighbours[1-straight_index].name, destination_node_name
         else: # If source is a Node
             return current_node.neighbour[0].name, destination_node_name
     
@@ -325,19 +360,28 @@ def find_next_same_network(current_node_name, destination_node_name):
                 # Next stop is destination Node
                 return destination_node_name, destination_node_name
             else:
-                if(identity[-layer] == end_node_no[-layer]):
+                index = max_switch_layers - layer
+                # if(identity[-layer] == end_node_no[-layer]):
+                if(identity[-index] == end_node_no[-index]):
                     # We have to move straight
                     Straight = True
                 else:
                     # We have to move up/down
                     Straight = False
+                
+                straight_index = 0
+                idx = re.findall("_(\d+)$",current_node.left_neighbours[0].name)[0]
+                if (identity == idx):
+                    straight_index = 0
+                else:
+                    straight_index = 1
 
                 
 
                 if(Straight):
-                    return current_node.left_neighbours[0].name, destination_node_name
+                    return current_node.left_neighbours[straight_index].name, destination_node_name
                 else:
-                    return current_node.left_neighbours[1].name, destination_node_name
+                    return current_node.left_neighbours[1-straight_index].name, destination_node_name
         else:
             # If source is a Node
             return current_node.neighbour[0].name, destination_node_name
