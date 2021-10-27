@@ -103,10 +103,25 @@ class Router(Node):
         call is_vc_free before calling this function'''
 
         i=0
+        networkType = re.findall("_([RF])_",self.name)
+        index = None
+        if networkType != []:
+            if (networkType[0] == 'R'):
+                index = int(re.findall("_(\d+)$", self.name)[0],2)
+            elif (networkType[0] == "F"):
+                index = re.findall("_(\d+)_\d+$", self.name)[0]
+                index = int(index[0],2)
+
+        date_line = True if (index == 0) else False
+
         for neighbr in self.neighbour:
-            if(neighbr.name==name):
+            if(neighbr.name==name and not date_line):
                 self.vc[i]=(1,flit)
                 return True
+            elif date_line == True:
+                if (neighbr.name!=name):
+                    self.vc[i] = (1,flit)
+                    return True
             i=i+1
         return False
 
@@ -260,6 +275,7 @@ class Router(Node):
             if(key!=None):
                 flit=self.get_flit(key)
                 flit.add_node_name(self.name)
+                flit.add_vc_name(key)
                 if(flit.dst_name==self.name):
                     flit.print_path()
                     self.remove_flit(key)
