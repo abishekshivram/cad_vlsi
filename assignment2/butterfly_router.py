@@ -57,6 +57,7 @@ def butterfly_route(current_node_name, destination_node_name, full_network):
     else:
         next_node = full_network.name_node_dict[next_node_name]
 
+    print(next_node_name)
     # print(f"BT: curr_node_name={current_node_name} next_node_name={next_node_name}, dst_node_name={destination_node_name} new_dst_name={new_dest_name}")
     return next_node, new_dest_name
 
@@ -106,10 +107,11 @@ def l1_check_if_same_side(current_node_name, destination_node_name):
 def l1_next_node(current_node_name, destination_node_name):
 
     start_node_nos = re.findall(r'\d+', current_node_name)
+    ifSwitch = re.findall(r'_[S]\d+_', current_node_name)
     end_node_no = re.findall(r'\d+', destination_node_name)[-1]
 
     # Determining if the current_node is Node or a Switch
-    if(len(start_node_nos) == 4):
+    if(ifSwitch != []):
         Switch = True
         max_switch_layers = len(start_node_nos[-1]) + 1
     else:
@@ -117,10 +119,15 @@ def l1_next_node(current_node_name, destination_node_name):
         max_switch_layers = len(start_node_nos[-1])
 
     if(type(L1_network) == Butterfly):
-        for i in (L1_network.left_nodes + L1_network.right_nodes):
+        for i in (L1_network.left_nodes + L1_network.right_nodes + L1_network.switches):
             if(i.name == current_node_name):
                 current_node = i
                 break
+    try:
+        current_node
+    except:
+        print(f"Wrong node name {current_node_name} specified. Please check if node names in input.txt and output.txt from assgn1 match.")
+        exit()
 
 
     if(not Switch):
@@ -236,10 +243,11 @@ def find_next_same_network(current_node_name, destination_node_name):
         In the hardware, we will inherently know if its a switch/Node'''
 
     start_node_nos = re.findall(r'\d+', current_node_name)
+    ifSwitch = re.findall(r'_[S]\d+_', current_node_name)
     end_node_no = re.findall(r'\d+', destination_node_name)[-1]
     
     # Determining if the current_node is Node or a Switch
-    if(len(start_node_nos) == 4):
+    if(ifSwitch != []):
         Switch = True
         max_switch_layers = len(start_node_nos[-1]) + 1
     else:
@@ -255,7 +263,6 @@ def find_next_same_network(current_node_name, destination_node_name):
         if(i.name == current_node_name):
             current_node = i
             break
-    # current_node = 
 
     '''Check if same side routing is done'''
     if(not Switch):

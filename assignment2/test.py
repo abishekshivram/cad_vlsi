@@ -1,9 +1,5 @@
-# import re
 from network_layout import NetworkLayout 
-
-# from hypercube_router import *
 from input_reader import InputReader
-# from flit import Flit
 
 from simulate import program_entry
 

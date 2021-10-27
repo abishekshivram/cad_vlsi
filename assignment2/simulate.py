@@ -11,13 +11,8 @@
 import sys
 sys.path.insert(1, './../assignment1')
 
-# from hypercube_router import *
 from input_reader import InputReader
 from flit import Flit
-
-
-# from test import full_network
-
 
 
 def program_entry(full_network):
