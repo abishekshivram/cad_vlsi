@@ -89,7 +89,8 @@ def l1_find_next(current_node, dest_node_name):
         print("L1 network is not folded torus- invalid call to folded torus routine")
         return None
     l1_row_dim = L1_network.rowCount
-    l1_col_dim = L1_network.colCount
+    l1_col_dim = L1_network.colC
+                    # print(next_node.name)ount
 
     src_nw_id= int(src_nw_id)
     src_col_id = src_nw_id % l1_row_dim
