@@ -94,18 +94,16 @@ def l1_find_next(current_node, dest_node_name):
     src_nw_id= int(src_nw_id)
     src_col_id = src_nw_id % l1_row_dim
     src_row_id = src_nw_id // l1_row_dim
-    src = (src_row_id,src_col_id)
+    src = [src_row_id,src_col_id]
 
     dst_nw_id= int(dst_nw_id)
     dst_col_id = dst_nw_id % l1_row_dim
     dst_row_id = dst_nw_id // l1_row_dim
-    dst = (dst_row_id,dst_col_id)
+    dst = [dst_row_id,dst_col_id]
 
     # Find the next node in the path
-    next_id =get_next_id(src,dst)
-    if(next_id==src):
-        return None
-    next_node=is_nwid_in_neighbour_list(current_node, next_id[0]*l1_col_dim+next_id)
+    next_id =get_next_id(src,dst,l1_row_dim,l1_col_dim)
+    next_node=is_nwid_in_neighbour_list(current_node, next_id[0]*l1_col_dim+next_id[1])
     if(next_node==None):
         print("Internal error: Folded torus-network is not in neighbour list")
         return None
@@ -217,6 +215,7 @@ def is_node_in_neighbour_list(current_node,node_name):
     for neighbour in current_node.neighbour:
         if(neighbour.name==node_name):
             return neighbour
+    print(f"Current node name: {current_node.name} is not connected to {node_name}") 
     return None
 
 
@@ -233,6 +232,7 @@ def is_nwid_in_neighbour_list(current_node,next_nw_id):
         neightbour_nw_id=get_network_id_from_name(neighbour.name)
         if(int(next_nw_id)==int(neightbour_nw_id)):
             return neighbour
+    print(f"Current node name: {current_node.name} is not connected to network: {next_nw_id}")    
     return None
 
 
