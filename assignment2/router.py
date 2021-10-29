@@ -16,7 +16,7 @@ from flit import Flit
 sys.path.insert(1, './../assignment1')
 
 from hypercube import Hypercube
-from butterfly import Butterfly
+from butterfly import Butterfly,dec_to_bin
 from ring import Ring
 from chain import Chain
 from mesh import Mesh
@@ -159,24 +159,24 @@ class Router(Node):
         '''From virtual channels returns the key which has the given priority
         priority-int specifies the priority
         1 indicates the high priority value to extarct
-        2 secnd etc...
+        2 second etc...
         returns None if the item with the given priority doesnt exist
         '''
-        #Code block written for testing- Can be remove whne the next block is stable
-        for key, val in self.vc.items():
-            if(val):
-                return key
-        return None
-
-        # priority_dict = {}
-        # for i in self.vc:
-        #     priority_dict[i] = self.vc[i][0]
+        # Priority dict is used to sort the key of self.vc according to priority
+        priority_dict = {}
+        for i in self.vc:
+            try:
+                priority_dict[i] = self.vc[i][0]
+            except TypeError:
+                priority_dict[i] = -1
 
         # # Sorting the priorities of self.vc in descending order
-        # sorted_priority = sorted(priority_dict.items(), key = lambda kv: kv[1],reverse=True)
-
+        sorted_priority = sorted(priority_dict.items(), key = lambda kv: kv[1],reverse=True)
         # #Returning the key of the vc dictionary with the given priority
-        # return sorted_priority[priority-1][0]
+        if (sorted_priority[priority-1][1] != -1):
+            return sorted_priority[priority-1][0]
+        else:
+            return None
 
     def remove_flit(self, channel_no):
         '''Removes the flit from the given channel number'''
@@ -282,6 +282,7 @@ class Router(Node):
                 else:
                     next_node, new_dst_name = self.find_next(flit.dst_name, full_network)
 
+                    # print(next_node.name)
                     # If butterfly then update flit destination name
                     if(new_dst_name != None):
                         self.update_flit_dst_name(channel_no=key, dst_name=new_dst_name)
