@@ -1,4 +1,4 @@
-package core;
+package Core;
 
 /* We need core to generate random values and consume values sent to it*/
 
@@ -30,14 +30,14 @@ module mkCore(Ifc_Core);
         rndm_valid      <= True;
     endrule
 
-    method put_data(int data);
+    method Action put_data(int data);
         consume_data    <= data;
     endmethod
 
-    method return_data();
+    method int return_data();
         if(rndm_valid) return random_number;
     endmethod
 
 endmodule: mkCore
 
-endpackage: core
+endpackage: Core
