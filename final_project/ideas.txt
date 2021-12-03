@@ -1,0 +1,7 @@
+to construct a packet, we need destination and data
+Let data be 32 bits fixed.
+But destination varies with network size.
+
+So having a struct with two variables might be useful
+- destination whose width is variable (updated in python code)
+- data (int)
