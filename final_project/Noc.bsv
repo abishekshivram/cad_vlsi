@@ -3,28 +3,17 @@ package Noc
 import Core     :: * ;
 import Router   :: * ;
 
-/*
-interface IfcChainRouter ;
-    // Put value is used to insert data to the router
-    // Get Value is used to read the value from the router
-    method Action PutValuefromLeft(int data);
-    method ActionValue#(int) GetValueLeft();
 
-    method Action PutValuefromRight(int data);
-    method ActionValue#(int) GetValueRight();
-    
-endinterface
-*/
 
 module mkNOC(Empty);
 
     // Since 3 bits are used for ID
-    let router_core_1 <- mkChainRouter(3'b000);
-    let router_core_2 <- mkChainRouter(3'b001);
-    let router_core_3 <- mkChainRouter(3'b010);
-    let router_core_4 <- mkChainRouter(3'b011);
-    let router_core_5 <- mkChainRouter(3'b100);
-    let router_core_6 <- mkChainRouter(3'b101);
+    let router_core_1 <- mkChainRouter(3'b000, 0);
+    let router_core_2 <- mkChainRouter(3'b001, 0);
+    let router_core_3 <- mkChainRouter(3'b010, 0);
+    let router_core_4 <- mkChainRouter(3'b011, 0);
+    let router_core_5 <- mkChainRouter(3'b100, 0);
+    let router_core_6 <- mkChainRouter(3'b101, 0);
 
     // We have six routers along with its associated cores (random no generators)
     // Each router has 4 IO (get, put on left, right)

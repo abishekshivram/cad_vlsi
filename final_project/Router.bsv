@@ -18,11 +18,12 @@ interface IfcChainRouter ;
 endinterface
 
 // This router sends both in left right directions
-module mkChainRouter  #(parameter Bit#(3) set_id) (IfcChainRouter);
+module mkChainRouter  #(parameter Bit#(3) set_id, bit level) (IfcChainRouter);
 
+    Reg#(bit)   level       <- mkReg(0); // 0 for low level (L2), 1 for high level (L1)
     Reg#(Bit#(3))   my_id   <- mkReg(set_id); // using python - *insert the id and bits, assumed 3*
     
-    FIFO#(int)  to_left     <- mkSizedFIFO(5);  // to send data to left router
+    FIFO#(int)  to_left     <- mkSizedFIFO(5); // to send data to left router
     FIFO#(int)  from_left   <- mkSizedFIFO(5); // to get data from left router
     FIFO#(int)  to_right    <- mkSizedFIFO(5); // to send data to right router
     FIFO#(int)  from_right  <- mkSizedFIFO(5); // to receive data from right router
