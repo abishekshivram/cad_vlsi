@@ -1,6 +1,4 @@
-package Router;
-// This package contains all the different kinds of 
-// routers as separate modules
+package ChainRouter;
 
 // FIFO used as buffers in routers
 import FIFO :: * ;
@@ -44,20 +42,47 @@ module mkChainRouter  #(parameter Bit#(3) set_id, bit level) (IfcChainRouter);
         from_core.enq(temp2);
     endrule
 
-    rule connect_left_right_buffer;
-        let data_to_send = from_core.first;
+
+    /*Problem: whether these rules will fire without any trouble
+    Because same buffers are used in all three rules*/
+    rule route_packet_from_core;
+        let data_to_send1 = from_core.first;
         from_core.deq;
-        Bit#(3) extracted_id = pack(temp3); //*assumed 3 bits, change it using python*
+        Bit#(3) extracted_id = pack(*variable that contains id from struct*); //*assumed 3 bits, change it using python*
 
         if(extracted_id < my_id){
-            to_left.enq(data_to_send);
+            to_left.enq(data_to_send1);
         }
         else{
-            to_right.enq(data_to_send);
+            to_right.enq(data_to_send1);
         }
-
     endrule
 
+    rule route_packet_from_left;
+        let data_to_send2 = from_left.first;
+        from_left.deq;
+        Bit#(3) extracted_id = pack(*variable that contains id from struct*); //*assumed 3 bits, change it using python*
+
+        if(extracted_id < my_id){
+            to_left.enq(data_to_send1);
+        }
+        else{
+            to_right.enq(data_to_send1);
+        }
+    endrule
+
+    rule route_packet_from_right;
+        let data_to_send2 = from_right.first;
+        from_right.deq;
+        Bit#(3) extracted_id = pack(*variable that contains id from struct*); //*assumed 3 bits, change it using python*
+
+        if(extracted_id < my_id){
+            to_left.enq(data_to_send2);
+        }
+        else{
+            to_right.enq(data_to_send2);
+        }        
+    endrule
 
     method Action PutValuefromLeft(int data);
         // Data that comes from left neighbour router is put into the buffer
@@ -83,4 +108,4 @@ module mkChainRouter  #(parameter Bit#(3) set_id, bit level) (IfcChainRouter);
 
 endmodule
 
-endpackage : Router
+endpackage : ChainRouter
