@@ -1,0 +1,36 @@
+    method ActionValue#(int) GetValueVC1();
+        let temp1 = VC1.first;
+        VC1.deq;
+        return temp1
+    endmethod
+
+    method ActionValue#(int) GetValueVC2();
+        let temp2 = VC2.first;
+        VC2.deq;
+        return temp2
+    endmethod
+
+    method ActionValue#(int) GetValueVC3();
+        let temp3 = VC3.first;
+        VC3.deq;
+        return temp3
+    endmethod
+
+    method ActionValue#(int) GetValueVC4();
+        let temp4 = VC4.first;
+        VC4.deq;
+        return temp4
+    endmethod
+
+    method ActionValue#(int) GetValueVC5();
+        let temp5 = VC5.first;
+        VC5.deq;
+        return temp5
+    endmethod
+
+    method ActionValue#(int) GetValueVC6();
+        let temp6 = VC6.first;
+        VC6.deq;
+        return temp6
+    endmethod
+
