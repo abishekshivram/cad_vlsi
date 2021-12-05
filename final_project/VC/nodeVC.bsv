@@ -15,9 +15,9 @@ interface IfcNode;
 
 endinterface
 
-module mkChainNode #(parameter Bit#(3) set_id, parameter bit level=0) (IfcNode);
+module mkChainNode #(parameter Bit#(3) set_id, parameter bool level) (IfcNode);
 
-    Reg#(bit)   level       <- mkReg(0); // 0 for low level (L2), 1 for high level (L1)
+    Reg#(bit)   level       <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
     Reg#(Bit#(3))   my_id   <- mkReg(set_id); // using python - *insert the id and bits, assumed 3*
     
     let core <- mkCore();

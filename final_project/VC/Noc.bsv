@@ -4,14 +4,14 @@ package Noc;
 
 module mkNoc(Empty);
     // In this example, 6 nodes are linked in a chain fashion
-    let node0   <- mkChainNode(3'b000, 0);
-    let node1   <- mkChainNode(3'b001, 0);
-    let node2   <- mkChainNode(3'b010, 0);
-    let node3   <- mkChainNode(3'b011, 1); // Head node
+    let node0   <- mkChainNode(3'b000, False);
+    let node1   <- mkChainNode(3'b001, False);
+    let node2   <- mkChainNode(3'b010, False);
+    let node3   <- mkChainNode(3'b011, True); // Head node
     // When its a head node, it has more than two links,
     // one set to L2 network, another set for L1 network
-    let node4   <- mkChainNode(3'b100, 0);
-    let node5   <- mkChainNode(3'b101, 0);
+    let node4   <- mkChainNode(3'b100, False);
+    let node5   <- mkChainNode(3'b101, False);
     
     // Connecting nodes - following are the interface of the nodes
     // First (below) all LEFT TO RIGHT connections are made
