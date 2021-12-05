@@ -2,7 +2,7 @@ package: nodeVC
 
 import FIFO :: * ;
 import Core :: * ;
-
+import ChainRouterVC :: *;
 
 interface IfcNode;
     // Put value is used to insert data to the router

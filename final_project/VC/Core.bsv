@@ -1,5 +1,7 @@
 package Core;
 
+import LFSR :: * ;
+
 /* We need core to generate random values and consume values sent to it*/
 
 interface Ifc_Core;
