@@ -1,0 +1,19 @@
+package $PACKAGE_NAME;
+// This package instantiates all the nodes and connects them
+
+
+module mkNoc(Empty);
+    // In this example, 6 nodes are linked in a chain fashion
+
+$nodes_instantiate
+
+    
+    // Connecting nodes - following are the interface of the nodes
+    // First (below) all LEFT TO RIGHT connections are made
+$rule_left_to_right
+
+    // Now (below) all RIGHT TO LEFT connections are made
+$rule_right_to_left
+
+endmodule
+endpackage : Noc
