@@ -8,7 +8,7 @@ import ChainRouterVC :: *;
 interface IfcChainNode;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
-    method Action put_value_from_right(int data_left);
+    method Action put_value_from_left(int data_left);
     method Action put_value_from_right(int data_right);
 
     method ActionValue#(int) get_value_to_left();
