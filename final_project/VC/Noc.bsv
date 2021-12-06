@@ -5,7 +5,7 @@ package Noc;
 import FIFO :: * ;
 import Core :: * ;
 import ChainRouterVC :: *;
-import nodeVC :: *;
+import ChainNodeVC :: *;
 
 (* synthesize *)
 
