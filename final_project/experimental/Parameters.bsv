@@ -14,27 +14,42 @@ Last updated on: 09-Dec-2021
 package Parameters;
 
 //Modify here for changing network address length 
-typedef Int#(16) NetAddressLen;
+typedef UInt#(16) NetAddressLen;
 
 //Modify here for changing node address length 
-typedef Int#(16) NodeAddressLen;
+typedef UInt#(16) NodeAddressLen;
 
 //For payload parameterisation, change the size here
-typedef Int#(16) PayloadLen;
+typedef UInt#(64) PayloadLen;
+
+//A type to represet the clock count
+typedef PayloadLen ClockCount;
+
+//5 indicates the no of networks (L1 node count). This value will change based on the network count
+Integer l1NodeCount=fromInteger(5);
+
+interface MaxAddressInterface;
+    method NodeAddressLen getMaxAddress(NetAddressLen index);
+endinterface: MaxAddressInterface
 
 (* synthesize *)
-module mkMaxAddress(Empty);
+module mkMaxAddress(MaxAddressInterface);
+    
     //An array supporitng the core module genrate valid filt addresses
     //NodeAddressLen represents the maximum value each array element can store
-    //5 indicates the no of networks (L1 node count). This value will change based on the network count
     //Each element of the array contains the maximum address possible in that L2 network
-    NodeAddressLen maxNodeAddress[5];
+    NodeAddressLen maxNodeAddress[l1NodeCount];
+
     //initialise the max address of each network
     maxNodeAddress[0]=fromInteger(6);
     maxNodeAddress[1]=fromInteger(16);
     maxNodeAddress[2]=fromInteger(4);
     maxNodeAddress[3]=fromInteger(8);
     maxNodeAddress[4]=fromInteger(12);
+
+    method NodeAddressLen getMaxAddress(NetAddressLen index);
+        return maxNodeAddress[index];
+    endmethod: getMaxAddress
 
 endmodule: mkMaxAddress
 
