@@ -4,8 +4,9 @@
 ### MODULE: This is the name of the python test bench WITHOUT the (.py) extension
 
 
-TOP_MODULE:=mkChainNode
-TOP_FILE:=nodeVC.bsv
+TOP_MODULE:=mkNoc
+TOP_FILE:=Noc.bsv
 TOP_DIR:=.
-MODULE:=mkChainNode
+MODULE:=testRunner
+BLUESPEC_TOOL:=/home/abi/tools/bsc
 
