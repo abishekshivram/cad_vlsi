@@ -34,7 +34,7 @@ module mkCore #(parameter int id) (Ifc_Core);
 
     method Action put_data(int data);
         consume_data    <= data;
-        //$display("Node %b consuming data: %h", self_id, data);
+        $display("Node %b consuming data: %h", self_id, data);
     endmethod
 
     method int return_data();
