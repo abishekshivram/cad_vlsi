@@ -8,3 +8,4 @@ TOP_MODULE:=mkTest
 TOP_FILE:=NoC.bsv
 TOP_DIR:=.
 MODULE:=testRunner
+BLUESPEC_TOOL:=/home/lloyd/tools/bsc
