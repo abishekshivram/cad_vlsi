@@ -17,9 +17,6 @@ import Core::*;
 import FIFO::*;
 
 
-/*method Action tempCorePushFifo(Flit f);
-    $display("Hello tempCorePushFifo!");
-endmethod:tempCorePushFifo*/
 
 typedef FIFO#(Flit) BufferItem;
 
@@ -41,14 +38,20 @@ module mkNode (Empty);
     for (int i = 0; i < 3; i = i + 1)
         inBuffer[i] <- mkSizedFIFO(5); //NOTE test line
 
+    rule fireOnce;//make this a fireonce rule
+        Address srcAddr;
+        srcAddr.netAddress=fromInteger(15);//To be set properly
+        srcAddr.nodeAddress=fromInteger(17);//To be set properl
+        core.setSourceAddress(srcAddr);
+    endrule: fireOnce
+
     rule fireme;
         //core.tempCorePushFifo(flit);
         let flitReady = core.isFlitGenerated();
         let flit =core.getGeneratedFlit();
-        $display("Hello day!-> %x,%x",flit.srcAddress.netAddress,flit.currentDstAddress.nodeAddress);
         if(flitReady==True)
-            $display("Hello isFlitGenerated!");
-
+            $display("Flit Generated");
+        $display("Flit Values-> %x,%x,%x",flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress,flit.payload);
     endrule:fireme
 
 

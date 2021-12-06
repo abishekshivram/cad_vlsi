@@ -17,64 +17,83 @@ import FIFO::*;
 import LFSR::*;
 
 interface CoreInterface;
+    //Does this core have a valid flit to supply? returns True/False
     method Bool isFlitGenerated();
+    //Returns the generated flit    
     method Flit getGeneratedFlit();
+    //Set the source address for this core    
+    method Action setSourceAddress(Address srcAddr);
 endinterface: CoreInterface
 
 
 (* synthesize *)
 module mkCore(CoreInterface);
-//The core should know its network address and node address
-//declare varibale for source address and set it at the time of each core module creation
-
 
     Reg#(Flit) flitReg <- mkReg(?); //Uninitialised register to store generated flit
-    Reg#(Bool) flitStat <- mkReg(False); //To indicate the content of flitReg is valid or not
+    Reg#(Bool) flitValidStat <- mkReg(False); //To indicate the content of flitReg is valid or not
+    Reg#(Address) srcAddress <- mkReg(?); //Register storing the Address of this Core/Node
 
-    LFSR#(Bit#(8)) lfsr <- mkLFSR_8; //Lnear Feedback Shift Register for generating random patterns
-    Reg#(Bool) fireOnceFlag <- mkReg(True);
+    LFSR#(Bit#(16)) lfsr <- mkLFSR_16; //Lnear Feedback Shift Register for generating random patterns
+    Reg#(Bool) fireOnceFlag <- mkReg(True);  
+    Reg#(PayloadLen) clockCount <- mkReg(0); //A register to store the clock pulse count
+    MaxAddressInterface l2AddressLengths <- mkMaxAddress; //instantiates mkMaxAddress from parameters.bsv
+
 
     //A rule to fire only once to seed the LFSR
     (* preempts = "fireOnce, (generateFlit,resetFlitStat)" *)
     rule fireOnce (fireOnceFlag);
-        $display("####### fireOnce");
         fireOnceFlag <= False;
         lfsr.seed('h11);
     endrule: fireOnce
 
+    //Counts the clock pulse, always fire
+    rule clockCounter(True);
+        clockCount <= clockCount+1;
+    endrule: clockCounter
 
+
+    //This rule fires randomly for different core instantiations (32768=2^16/2)
+    //This is meant for generating valid flits randomly
     (* preempts = "generateFlit, resetFlitStat" *)
-    rule generateFlit(lfsr.value() < 128); //This rule to be fired randomly for different core instantiation
-        $display("####### generateFlit %x",lfsr.value());
+    rule generateFlit(lfsr.value() < 32768); 
+        
         Flit flit;
-        flit.srcAddress.netAddress=fromInteger(5); //To be set properly
-        flit.srcAddress.nodeAddress=fromInteger(6);//To be set properly
+        flit.srcAddress.netAddress=srcAddress.netAddress;
+        flit.srcAddress.nodeAddress=srcAddress.nodeAddress;
 
-        flit.finalDstAddress.netAddress=fromInteger(5);//To be set properly
-        flit.finalDstAddress.nodeAddress=fromInteger(6);//To be set properly
+        let destNetAddress=unpack(lfsr.value()%fromInteger(l1NodeCount));
+        flit.finalDstAddress.netAddress=destNetAddress;
+
+        let destNodeAddress=unpack(lfsr.value()%pack(l2AddressLengths.getMaxAddress(destNetAddress)));
+        flit.finalDstAddress.nodeAddress=destNodeAddress;
 
         flit.currentDstAddress.netAddress=fromInteger(0);
         flit.currentDstAddress.nodeAddress=fromInteger(0);
-        flit.payload=0;//current clock count
+        flit.payload=clockCount;
 
         flitReg <= flit;
-        flitStat <= True;
+        flitValidStat <= True;
         lfsr.next();
     endrule: generateFlit
 
+    //If the generateFlit rule is not fired, this rule sets the flit as invalid one
     rule resetFlitStat;
-        $display("####### resetFlitStat %x",lfsr.value());
-        flitStat <= False;
+        flitValidStat <= False;
         lfsr.next();
     endrule:resetFlitStat
 
     method Bool isFlitGenerated();
-        return flitStat;//To be completed
+        return flitValidStat;
     endmethod:isFlitGenerated
 
     method Flit getGeneratedFlit();
         return flitReg;
     endmethod:getGeneratedFlit
+
+    method Action setSourceAddress(Address srcAddr);
+        srcAddress <= srcAddr;
+    endmethod:setSourceAddress
+
     
 endmodule: mkCore
 

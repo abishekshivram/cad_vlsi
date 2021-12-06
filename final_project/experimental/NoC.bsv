@@ -26,7 +26,7 @@ module mkTest (Empty);
         add.netAddress=fromInteger(5);
         add.nodeAddress=fromInteger(6);
 
-        $display("Hello world!-> %x,%x",add.netAddress,add.nodeAddress);
+        //$display("Hello world!-> %x,%x",add.netAddress,add.nodeAddress);
 
         
 
