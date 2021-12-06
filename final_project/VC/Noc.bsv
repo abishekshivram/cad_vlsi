@@ -15,15 +15,17 @@ module mkNoc(Empty);
     let node0   <- mkChainNode(3'b000, 0);
     let node1   <- mkChainNode(3'b001, 0);
     let node2   <- mkChainNode(3'b010, 0);
+
+    // When its a head node, it should has more than two set of 3 links,
+    // one set to L2 network, another set for L1 network
     let node3   <- mkChainNode(3'b011, 1); // Head node
 
-    // When its a head node, it has more than two links,
-    // one set to L2 network, another set for L1 network
     let node4   <- mkChainNode(3'b100, 0);
     let node5   <- mkChainNode(3'b101, 0);
     
     // Connecting nodes - following are the interface of the nodes
     // First (below) all LEFT TO RIGHT connections are made
+    // (ie) Flit goes from Node 0 to Node 1 (right direction travel, hence L2R(left 2 right)) 
     rule connect_Node0_to_Node1_L2R;
         let data01_L2R <- node0.get_value_to_right();
         node1.put_value_from_left(data01_L2R);
