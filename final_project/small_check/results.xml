@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1638868747" />
+    <testcase classname="testRunner" file="/home/gay3/CAD_For_VLSI/cad_vlsi/final_project/small_check/testRunner.py" lineno="28" name="Simple_test" ratio_time="12.772322830054208" sim_time_ns="0.141" time="0.011039495468139648" />
+  </testsuite>
+</testsuites>
