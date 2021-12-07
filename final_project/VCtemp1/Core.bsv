@@ -35,7 +35,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
 
     Reg#(Flit) flitReg          <- mkReg(?); //Uninitialised register to store generated flit
     Reg#(Bool) flitValidStat    <- mkReg(False); //To indicate the content of flitReg is valid or not
-    Reg#(Address) myAddress    <- mkReg(sourceAddress); //Register storing the Address of this Core/Node
+    Reg#(Address) myAddress     <- mkReg(sourceAddress); //Register storing the Address of this Core/Node
 
     Reg#(Flit) flitConsumeReg   <- mkReg(?); //A register to store the consumed flit
 
@@ -59,7 +59,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
     rule clockCounter;
         clockCount <= clockCount+1;
         if(myAddress.nodeAddress==fromInteger(0)) // To prevent all the cores from printing the same statement
-            $display("Clock Cycle: %d",clockCount);
+            $display("\nClock Cycle: %d",clockCount);
     endrule
 
     //This rule fires randomly for different core instantiations (32768=2^16/2)
@@ -88,7 +88,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
 
                 flitReg         <= flit;
                 flitValidStat   <= True;
-                $display("Flit generated! Source: %d (Network),%d (Node), Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.currentDstAddress.netAddress,flit.currentDstAddress.nodeAddress);
+                $display("Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.currentDstAddress.netAddress,flit.currentDstAddress.nodeAddress);
 
             end
         lfsr.next();
