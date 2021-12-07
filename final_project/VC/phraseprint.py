@@ -81,13 +81,68 @@ method_mesh = """    method Action put_value_from_{string}(Flit data_{string});
     endmethod
 """
 
+hypercube_il_to_vc = """    else if (flit.currentDstAddress.nodeAddress == {count}) begin
+        vir_chnl_{count2}.enq(flit);
+    end"""
+
+hypercube_vc_to_core = """    rule outputLinkCore{count2}0(my_addr == {count2} && counter==2'b00);
+        $display("here flit is put into core from router left vc{count2plus1}; Arbiter count-%d", counter);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC{count2plus1}();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore{count2}1(my_addr == {count2} && counter==2'b01);
+        $display("here flit is put into core from router left vc{count2plus1}; Arbiter count-%d", counter);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC{count2plus1}();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore{count2}2(my_addr == {count2} && counter==2'b10);
+        $display("here flit is put into core from router left vc{count2plus1}; Arbiter count-%d", counter);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC{count2plus1}();
+        core.put_flit(data_core);
+    endrule
+"""
+
+hyper = """    rule send_from_vc{vc}_ie_to_{which} (my_addr == {addr});
+        Flit data_left=defaultValue;
+        data_left <- router_msb.get_valueVC{vc}();
+        output_link_{which}.enq(data_left);
+    endrule
+"""
+# which (lsb, msb, mid)  
+
 zero_one = 0
 
-for i in range(8):
+ways = ["lsb", "mid", "msb"]
+
+which_way = None
+for addr in range(8):
+    for vc in range(1, 1+8):
+        if (addr != (vc-1)):
+            binary_addr = f"{addr:0>3b}"
+            binary_vc = f"{vc-1:0>3b}"
+            for bit in range(3):
+                if(binary_addr[-1-bit] != binary_vc[-1-bit]):
+                    which_way = ways[bit]
+                    break
+            if(addr==5):
+                print(f"DST:{binary_vc}   SRC:{binary_addr}")
+                print(hyper.format(vc=vc, which=which_way, addr=addr))
+                
+
+
+
+# for i in range(8):
+#     print(hypercube_vc_to_core.format(count2=i, count2plus1=i+1))
+
+
+#for i in range(8):
     # print(d.format(element=i, element1=i+1))
     # print(g.format(count=i))
-    one_two = [ "left", "right", "up", "down"]
-    print(method_mesh.format(string=one_two[i%4]))
+    # one_two = [ "left", "right", "up", "down"]
+    # print(method_mesh.format(string=one_two[i%4]))
     # print("method Action put_value_from_{string}(Flit data_{string});".format(string=one_two[i%5]))
     # print("method ActionValue#(Flit) get_value_to_{string}();".format(string=one_two[i%5]))
     # one_two, VC_list = ["right", "up", "down", "core"], [3, 4]

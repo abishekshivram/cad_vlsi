@@ -1,4 +1,4 @@
-package MeshRouterVC;
+package HypercubeRouterVC;
 // This package contains the router - which implements the routing algorithm for the chain topology
 // Routing algorithm works as follows:
 // For each link, two VCs are allocated. For example, in each node in chain topology, we have
@@ -13,13 +13,11 @@ import FIFO :: * ;
 `define MAX_COL_BITS 7
 `define TOTAL_ADDRESS_BITS 15
 
-interface IfcMeshRouterVC ;
+interface IfcHypercubeRouterVC;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
     method Action put_value (Flit flit);
 
-    // Each output link gets two VC channel (for chain, we have: left, right, core)
-    // Hence, we need 6 VCs
     // Each of the following methods will dequeue (ACTION) an element from the VC and return it (VALUE)
     method ActionValue#(Flit) get_valueVC1();
     method ActionValue#(Flit) get_valueVC2();
@@ -28,10 +26,7 @@ interface IfcMeshRouterVC ;
     method ActionValue#(Flit) get_valueVC5();
     method ActionValue#(Flit) get_valueVC6();
     method ActionValue#(Flit) get_valueVC7();
-    method ActionValue#(Flit) get_valueVC8();   
-    method ActionValue#(Flit) get_valueVC9();
-    method ActionValue#(Flit) get_valueVC10();
-        
+    method ActionValue#(Flit) get_valueVC8();
     
 endinterface
 
@@ -40,7 +35,7 @@ endinterface
 
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
+module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
 
     function Action print_flit_details(Flit flit_to_print);
         return action
@@ -57,25 +52,16 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
     // Input link for the router
     FIFO#(Flit)  input_link  <- mkFIFO; // to get data from neighbouring router and core
     
-    // To store the flits that are sent to core
+
     FIFO#(Flit)  vir_chnl_1  <- mkFIFO; // Virtual Channel 1
     FIFO#(Flit)  vir_chnl_2  <- mkFIFO; // Virtual Channel 2
-    
-    // To store the flits that are sent to left
     FIFO#(Flit)  vir_chnl_3  <- mkFIFO; // Virtual Channel 3
     FIFO#(Flit)  vir_chnl_4  <- mkFIFO; // Virtual Channel 4
-    
-    // To store the flits that are sent to right
     FIFO#(Flit)  vir_chnl_5  <- mkFIFO; // Virtual Channel 5
     FIFO#(Flit)  vir_chnl_6  <- mkFIFO; // Virtual Channel 6
-
-    // To store the flits that are sent to up
     FIFO#(Flit)  vir_chnl_7  <- mkFIFO; // Virtual Channel 7
     FIFO#(Flit)  vir_chnl_8  <- mkFIFO; // Virtual Channel 8
-    
-    // To store the flits that are sent to down
-    FIFO#(Flit)  vir_chnl_9  <- mkFIFO; // Virtual Channel 9
-    FIFO#(Flit)  vir_chnl_10  <- mkFIFO; // Virtual Channel 10
+
 
 
     // Since we have TWO VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
@@ -87,95 +73,34 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
 
     // Connect input_link to respective VC
     // This rules fires every alternate cycle, and chooses even named Virtual Channels (VC1, VC3, VC5)
-    rule read_input_link_and_send_to_VC_odd(cycle == 1);
+    rule read_input_link_and_send_to_VC;
 
         let flit = input_link.first();
         input_link.deq();
 
-        
-        // Extracting the X and Y coordinates
-        let current_X_coordinate = pack(my_addr.nodeAddress)[TOTAL_ADDRESS_BITS:MAX_ROW_BITS];
-        let flit_curr_dst_X_coordinate = pack(flit.currentDstAddress.nodeAddress)[TOTAL_ADDRESS_BITS:MAX_ROW_BITS];
-
-        let current_Y_coordinate = pack(my_addr.nodeAddress)[MAX_COL_BITS:0];
-        let flit_curr_dst_Y_coordinate = pack(flit.currentDstAddress.nodeAddress)[MAX_COL_BITS:0];
-
-
-        // First (X then Y) routing algorithm
-        if(flit_curr_dst_X_coordinate == current_X_coordinate)  begin
-
-            // Since X coordinates are same, do Y routing
-            if(flit_curr_dst_X_coordinate == current_Y_coordinate) begin
-                $display("Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
-                vir_chnl_1.enq(flit); // Destination reached
-            end
-            
-            else if(flit_curr_dst_Y_coordinate < current_Y_coordinate) begin
-                // Flit has to move up
-                vir_chnl_7.enq(flit); 
-            end
-
-            else if(flit_curr_dst_Y_coordinate > current_Y_coordinate) begin
-                // Flit has to move down
-                vir_chnl_9.enq(flit); 
-            end
+        if (flit.currentDstAddress.nodeAddress == 0) begin
+            vir_chnl_1.enq(flit);
         end
-        else if (flit_curr_dst_X_coordinate < current_X_coordinate) begin
-            // Flit has to move left
-            vir_chnl_3.enq(flit); 
+        else if (flit.currentDstAddress.nodeAddress == 1) begin
+            vir_chnl_2.enq(flit);
         end
-
-        else if (flit_curr_dst_X_coordinate > current_X_coordinate) begin
-            // Flit has to move right
-            vir_chnl_5.enq(flit); 
+        else if (flit.currentDstAddress.nodeAddress == 2) begin
+            vir_chnl_3.enq(flit);
         end
-    endrule
-
-
-    // Connect input_link to respective VC
-    // This rules fires every alternate cycle, and chooses even named Virtual Channels (VC1, VC3, VC5)
-    rule read_input_link_and_send_to_VC_even(cycle == 0);
-
-        let flit = input_link.first();
-        input_link.deq();
-
-        
-        // Extracting the X and Y coordinates
-        let current_X_coordinate = pack(my_addr.nodeAddress)[TOTAL_ADDRESS_BITS:MAX_ROW_BITS];
-        let flit_curr_dst_X_coordinate = pack(flit.currentDstAddress.nodeAddress)[TOTAL_ADDRESS_BITS:MAX_ROW_BITS];
-
-        let current_Y_coordinate = pack(my_addr.nodeAddress)[MAX_COL_BITS:0];
-        let flit_curr_dst_Y_coordinate = pack(flit.currentDstAddress.nodeAddress)[MAX_COL_BITS:0];
-
-
-        // First (X then Y) routing algorithm
-        // This rules fires every alternate cycle, and chooses odd named Virtual Channels (VC2, VC4, VC6)
-        if(flit_curr_dst_X_coordinate == current_X_coordinate)  begin
-
-            // Since X coordinates are same, do Y routing
-            if(flit_curr_dst_X_coordinate == current_Y_coordinate) begin
-                $display("Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
-                vir_chnl_2.enq(flit); // Destination reached
-            end
-            
-            else if(flit_curr_dst_Y_coordinate < current_Y_coordinate) begin
-                // Flit has to move up
-                vir_chnl_8.enq(flit); 
-            end
-
-            else if(flit_curr_dst_Y_coordinate > current_Y_coordinate) begin
-                // Flit has to move down
-                vir_chnl_10.enq(flit); 
-            end
+        else if (flit.currentDstAddress.nodeAddress == 3) begin
+            vir_chnl_4.enq(flit);
         end
-        else if (flit_curr_dst_X_coordinate < current_X_coordinate) begin
-            // Flit has to move left
-            vir_chnl_4.enq(flit); 
+        else if (flit.currentDstAddress.nodeAddress == 4) begin
+            vir_chnl_5.enq(flit);
         end
-
-        else if (flit_curr_dst_X_coordinate > current_X_coordinate) begin
-            // Flit has to move right
-            vir_chnl_6.enq(flit); 
+        else if (flit.currentDstAddress.nodeAddress == 5) begin
+            vir_chnl_6.enq(flit);
+        end
+        else if (flit.currentDstAddress.nodeAddress == 6) begin
+            vir_chnl_7.enq(flit);
+        end
+        else if (flit.currentDstAddress.nodeAddress == 7) begin
+            vir_chnl_8.enq(flit);
         end
     endrule
 
@@ -256,24 +181,6 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
     endmethod
 
 
-    method ActionValue#(Flit) get_valueVC9();
-        $display("get_valueVC9 method called at Router(Addr: %h)", my_addr);
-         let temp9 = vir_chnl_9.first();
-         vir_chnl_9.deq();
-        return temp9;
-    endmethod
+endmodule: mkHypercubeRouterVC
 
-
-    method ActionValue#(Flit) get_valueVC10();
-        $display("get_valueVC10 method called at Router(Addr: %h)", my_addr);
-         let temp10 = vir_chnl_10.first();
-         vir_chnl_10.deq();
-        return temp10;
-    endmethod
-
-
-
-
-endmodule: mkMeshRouterVC
-
-endpackage : MeshRouterVC
+endpackage : HypercubeRouterVC
