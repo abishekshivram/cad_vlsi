@@ -6,6 +6,8 @@ package ChainRouterVC;
 // VC3,4 allocated to left neighbour, VC5,6 allocated to right neighbour
 // This routing can be seen in line 58: Two rules are written that connects the Input link to the respective VC
 
+import Shared::*;
+
 // FIFO used as buffers in routers
 import FIFO :: * ;
 
@@ -14,17 +16,17 @@ import FIFO :: * ;
 interface IfcChainRouterVC ;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
-    method Action put_value (int data);
+    method Action put_value (Flit flit);
 
     // Each output link gets two VC channel (for chain, we have: left, right, core)
     // Hence, we need 6 VCs
     // Each of the following methods will dequeue (ACTION) an element from the VC and return it (VALUE)
-    method ActionValue#(int) get_valueVC1();
-    method ActionValue#(int) get_valueVC2();
-    method ActionValue#(int) get_valueVC3();
-    method ActionValue#(int) get_valueVC4();
-    method ActionValue#(int) get_valueVC5();
-    method ActionValue#(int) get_valueVC6();
+    method ActionValue#(Flit) get_valueVC1();
+    method ActionValue#(Flit) get_valueVC2();
+    method ActionValue#(Flit) get_valueVC3();
+    method ActionValue#(Flit) get_valueVC4();
+    method ActionValue#(Flit) get_valueVC5();
+    method ActionValue#(Flit) get_valueVC6();
     
 endinterface
 
@@ -41,22 +43,22 @@ module mkChainRouterVC (IfcChainRouterVC);
     
 
     // Input link for the router
-    FIFO#(int)  input_link   <- mkFIFO; // to get data from left router
+    FIFO#(Flit)  input_link   <- mkFIFO; // to get data from left router
 
 
     // To store the flits that are sent to core
-    FIFO#(int)  vir_chnl_1  <- mkFIFO; // Virtual Channel 1
-    FIFO#(int)  vir_chnl_2  <- mkFIFO; // Virtual Channel 2
+    FIFO#(Flit)  vir_chnl_1  <- mkFIFO; // Virtual Channel 1
+    FIFO#(Flit)  vir_chnl_2  <- mkFIFO; // Virtual Channel 2
 
 
     // To store the flits that are sent to left
-    FIFO#(int)  vir_chnl_3  <- mkFIFO; // Virtual Channel 3
-    FIFO#(int)  vir_chnl_4  <- mkFIFO; // Virtual Channel 4
+    FIFO#(Flit)  vir_chnl_3  <- mkFIFO; // Virtual Channel 3
+    FIFO#(Flit)  vir_chnl_4  <- mkFIFO; // Virtual Channel 4
     
 
     // To store the flits that are sent to right
-    FIFO#(int)  vir_chnl_5  <- mkFIFO; // Virtual Channel 5
-    FIFO#(int)  vir_chnl_6  <- mkFIFO; // Virtual Channel 6
+    FIFO#(Flit)  vir_chnl_5  <- mkFIFO; // Virtual Channel 5
+    FIFO#(Flit)  vir_chnl_6  <- mkFIFO; // Virtual Channel 6
 
     // Since we have two VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
     // that chooses one VC in a round robin fashion.
@@ -71,8 +73,8 @@ module mkChainRouterVC (IfcChainRouterVC);
     // This rules fires every alternate cycle, and chooses even named Virtual Channels (VC1, VC3, VC5)
     rule read_input_link_and_send_to_VC_odd(cycle == 1);
         
-        // int flit should be changed to Flit data structure!
-        int flit = input_link.first();
+        // int flit should be changed to Flit data structure! -Lloyd changed
+        let flit = input_link.first();
         input_link.deq();
 
         // Assumption (not correct): Address is 3 bits. We need to change it!
@@ -95,7 +97,7 @@ module mkChainRouterVC (IfcChainRouterVC);
     // This rules fires every alternate cycle, and chooses odd named Virtual Channels (VC2, VC4, VC6)
     rule read_input_link_and_send_to_VC_even(cycle == 0);
 
-        int flit = input_link.first();
+        let flit = input_link.first();
         input_link.deq();
         Bit#(3) extracted_id = pack(flit)[31:29];
         
@@ -114,47 +116,47 @@ module mkChainRouterVC (IfcChainRouterVC);
     endrule
 
     // Method to get the flit into the node
-    method Action put_value(int data);
+    method Action put_value(Flit flit);
         // Data that comes from left/right/core link is put into the input link buffer
-        input_link.enq(data);
+        input_link.enq(flit);
     endmethod
 
 
     // Following are the six methods (corresponding to six available VCs) 
     // These methods return the flit so that it can reach the next node in its path
     // The VC1, VC2 methods will be invoked to send the flits to the core (as we fixed earlier, line:4)
-    method ActionValue#(int) get_valueVC1();
-        int temp1 = vir_chnl_1.first();
+    method ActionValue#(Flit) get_valueVC1();
+        let temp1 = vir_chnl_1.first();
         vir_chnl_1.deq();
         return temp1;
     endmethod
 
-    method ActionValue#(int) get_valueVC2();
-        int temp2 = vir_chnl_2.first();
+    method ActionValue#(Flit) get_valueVC2();
+        let temp2 = vir_chnl_2.first();
         vir_chnl_2.deq();
         return temp2;
     endmethod
 
-    method ActionValue#(int) get_valueVC3();
-        int temp3 = vir_chnl_3.first();
+    method ActionValue#(Flit) get_valueVC3();
+        let temp3 = vir_chnl_3.first();
         vir_chnl_3.deq();
         return temp3;
     endmethod
 
-    method ActionValue#(int) get_valueVC4();
-        int temp4 = vir_chnl_4.first();
+    method ActionValue#(Flit) get_valueVC4();
+        let temp4 = vir_chnl_4.first();
         vir_chnl_4.deq();
         return temp4;
     endmethod
 
-    method ActionValue#(int) get_valueVC5();
-        int temp5 = vir_chnl_5.first();
+    method ActionValue#(Flit) get_valueVC5();
+        let temp5 = vir_chnl_5.first();
         vir_chnl_5.deq();
         return temp5;
     endmethod
 
-    method ActionValue#(int) get_valueVC6();
-        int temp6 = vir_chnl_6.first();
+    method ActionValue#(Flit) get_valueVC6();
+        let temp6 = vir_chnl_6.first();
         vir_chnl_6.deq();
         return temp6;
     endmethod
