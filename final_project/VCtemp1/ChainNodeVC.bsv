@@ -26,7 +26,7 @@ module mkChainNode #(parameter Address my_addr, parameter bit level) (IfcChainNo
     Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 
     // Core and three routers - core, left link, right link instantiation
-    let core <- mkCore(my_addr); 
+    let core            <- mkCore(my_addr); 
     let router_left     <- mkChainRouterVC(my_addr); // takes input from left neighbour and puts in corresponding VC
     let router_right    <- mkChainRouterVC(my_addr);
     let router_core     <- mkChainRouterVC(my_addr);
@@ -50,26 +50,35 @@ module mkChainNode #(parameter Address my_addr, parameter bit level) (IfcChainNo
     // Rule - Output link - connecting to associated core
     // In this rule, we choose VC1 or VC2 from router_left or router_right (router_core cannot send to itself)
     // in a round robin fashion (implemented through 2 bit counter) (2 bit because we have 4 VCs to choose from)
-    rule outputLinkCore(True);
-        $display("outputLinkCore1");
-        // Variable to temporarily store the returned data
+    
+    rule outputLinkCore0(counter == 2'b00);
+        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter);      
         Flit data_core=defaultValue;
-
-        // The data(flit) is taken from the choosen VC
-
-        //NOTE LLOYD This can be improved
-        //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
-        $display("here flit is put into core from vc1; Arbiter count-%d",counter);
-        data_core <- router_left.get_valueVC2();
-        // case(counter) matches 
-        //     2'b00: data_core <- router_left.get_valueVC1();
-        //     2'b01: data_core <- router_right.get_valueVC1();
-        //     2'b10: data_core <- router_left.get_valueVC2();
-        //     2'b11: data_core <- router_right.get_valueVC2();
-        // endcase
-        // The data(flit) is put into the core to be consumed
+        data_core <- router_left.get_valueVC1();
         core.put_flit(data_core);
     endrule
+    
+    rule outputLinkCore1(counter == 2'b01);
+        $display("here flit is put into core from router_right vc1; Arbiter count-%d", counter);      
+        Flit data_core=defaultValue;
+        data_core <- router_right.get_valueVC1();
+        core.put_flit(data_core);
+    endrule
+
+    rule outputLinkCore2(counter == 2'b10);
+        $display("here flit is put into core from router_left vc2; Arbiter count-%d", counter);      
+        Flit data_core=defaultValue;
+        data_core <- router_left.get_valueVC2();
+        core.put_flit(data_core);
+    endrule
+
+    rule outputLinkCore3(counter == 2'b11);
+        $display("here flit is put into core from router_right vc2; Arbiter count-%d", counter);      
+        Flit data_core=defaultValue;
+        data_core <- router_right.get_valueVC2();
+        core.put_flit(data_core);
+    endrule
+
 
     // Without these buffer, there was error compiling 
     // (ie) to send directly from VC to next input link buffer, it showed error (below commented code)
@@ -77,44 +86,73 @@ module mkChainNode #(parameter Address my_addr, parameter bit level) (IfcChainNo
     FIFO#(Flit) output_link_left <- mkFIFO;
     FIFO#(Flit) output_link_right <- mkFIFO;
 
-    rule add_to_link_right;
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);
+    rule add_to_link_right0(counter == 2'b00);
+        $display("add_to_link_right0-> my_addr %d",my_addr.netAddress);    
         Flit data_right=defaultValue;
         data_right <- router_core.get_valueVC5();
         output_link_right.enq(data_right);
+    endrule
 
-        /*$display("Arbiter count right-%d",counter);
-        // case(counter) matches
-        //     2'b00: data_right <- router_core.get_valueVC5();
-        //     2'b01: data_right <- router_left.get_valueVC5();
-        //     2'b10: data_right <- router_core.get_valueVC6();
-        //     2'b11: data_right <- router_left.get_valueVC6();
-        //     default : data_right.srcAddress.netAddress = 0;
-        // endcase
-            //test <=1;
-        output_link_right.enq(data_right);*/
+
+    rule add_to_link_right1(counter == 2'b01);
+        $display("add_to_link_right1-> my_addr %d",my_addr.netAddress);    
+        Flit data_right=defaultValue;
+        data_right <- router_left.get_valueVC5();
+        output_link_right.enq(data_right);
+    endrule
+
+
+    rule add_to_link_right2(counter == 2'b10);
+        $display("add_to_link_right2-> my_addr %d",my_addr.netAddress);    
+        Flit data_right=defaultValue;
+        data_right <- router_core.get_valueVC6();
+        output_link_right.enq(data_right);
+    endrule
+
+
+    rule add_to_link_right3(counter == 2'b11);
+        $display("add_to_link_right3-> my_addr %d",my_addr.netAddress);    
+        Flit data_right=defaultValue;
+        data_right <- router_left.get_valueVC6();
+        output_link_right.enq(data_right);
     endrule
 
     //NOTE LLOYD This can be improved
     //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
     // To send to left neighbour, we have to choose from available VC3s and VC4s
     // The chosen flit is added to the OUTPUT_LINK_LEFT
-    rule add_to_link_left;
-        $display("add_to_link_left");
+    rule add_to_link_left0(counter == 2'b00);
+        $display("add_to_link_left0 -> my_addr %d",my_addr.netAddress);    
         Flit data_left=defaultValue;
-
-        $display("Arbiter count-%d",counter);
-        case(counter) matches
-            2'b00:  data_left <- router_right.get_valueVC3();
-            2'b01:  data_left <- router_core.get_valueVC3();
-            2'b10:  data_left <- router_right.get_valueVC4();
-            2'b11:  data_left <- router_core.get_valueVC4();
-        endcase
+        data_left <- router_right.get_valueVC3();
         output_link_left.enq(data_left);
     endrule
 
 
-    //Reg#(bit) test <- mkReg(0); //NOTE a register for testing. Delete
+    rule add_to_link_left1(counter == 2'b01);
+        $display("add_to_link_left1 -> my_addr %d",my_addr.netAddress);    
+        Flit data_left=defaultValue;
+        data_left <- router_core.get_valueVC3();
+        output_link_left.enq(data_left);
+    endrule
+
+
+    rule add_to_link_left2(counter == 2'b10);
+        $display("add_to_link_left2 -> my_addr %d",my_addr.netAddress);    
+        Flit data_left=defaultValue;
+        data_left <- router_right.get_valueVC4();
+        output_link_left.enq(data_left);
+    endrule
+
+
+    rule add_to_link_left3(counter == 2'b11);
+        $display("add_to_link_left3 -> my_addr %d",my_addr.netAddress);    
+        Flit data_left=defaultValue;
+        data_left <- router_core.get_valueVC4();
+        output_link_left.enq(data_left);
+    endrule
+
+
 
     //NOTE LLOYD This can be improved
     //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
