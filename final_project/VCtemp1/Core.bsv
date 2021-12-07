@@ -33,15 +33,16 @@ endinterface: CoreInterface
 (* synthesize *)
 module mkCore#(parameter Address sourceAddress) (CoreInterface);
 
-    Reg#(Flit) flitReg <- mkReg(?); //Uninitialised register to store generated flit
-    Reg#(Bool) flitValidStat <- mkReg(False); //To indicate the content of flitReg is valid or not
-    Reg#(Address) srcAddress <- mkReg(sourceAddress); //Register storing the Address of this Core/Node
+    Reg#(Flit) flitReg          <- mkReg(?); //Uninitialised register to store generated flit
+    Reg#(Bool) flitValidStat    <- mkReg(False); //To indicate the content of flitReg is valid or not
+    Reg#(Address) myAddress    <- mkReg(sourceAddress); //Register storing the Address of this Core/Node
 
-    Reg#(Flit) flitConsumeReg <- mkReg(?); //A register to store the consumed flit
+    Reg#(Flit) flitConsumeReg   <- mkReg(?); //A register to store the consumed flit
 
-    LFSR#(Bit#(16)) lfsr <- mkLFSR_16; //Lnear Feedback Shift Register for generating random patterns
-    Reg#(Bool) fireOnceFlag <- mkReg(True);  
+    LFSR#(Bit#(16)) lfsr        <- mkLFSR_16; //Lnear Feedback Shift Register for generating random patterns
+    Reg#(Bool) fireOnceFlag     <- mkReg(True);  
     Reg#(PayloadLen) clockCount <- mkReg(0); //A register to store the clock pulse count
+    
     MaxAddressInterface l2AddressLengths <- mkMaxAddress; //instantiates mkMaxAddress from parameters.bsv
 
 
@@ -49,75 +50,69 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
     (* preempts = "fireOnce, (generateFlit,resetFlitStat)" *)
     rule fireOnce (fireOnceFlag);
         fireOnceFlag <= False;
-
-        //*****NOTE Each core to be seeded differently, otherwise all the cores will be generating flits in a synchronised fashin (same clock generate)
+        // *NOTE* Each core to be seeded differently, otherwise all the cores will 
+        // be generating flits in a synchronised fashin (same clock generate)
         lfsr.seed('h11);
-    endrule: fireOnce
+    endrule
 
     //Counts the clock pulse, always fire
-    rule clockCounter(True);
+    rule clockCounter;
         clockCount <= clockCount+1;
-        if(srcAddress.nodeAddress==fromInteger(0)) //NOTE Test line
-            $display("Clock tick %d",clockCount);
-    endrule: clockCounter
-
+        if(myAddress.nodeAddress==fromInteger(0)) // To prevent all the cores from printing the same statement
+            $display("Clock Cycle: %d",clockCount);
+    endrule
 
     //This rule fires randomly for different core instantiations (32768=2^16/2)
     //This is meant for generating valid flits randomly
     (* preempts = "generateFlit, resetFlitStat" *)
     //rule generateFlit(lfsr.value() < 32768); 
-    rule generateFlit(clockCount==3); //NOTE for testing. Generate only 1 flit
+    rule generateFlit(clockCount==3 || clockCount==5); //NOTE for testing. Generate only 1 flit
         
-        if(srcAddress.nodeAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
-        //NOTE The test traffic is from node 2 node 4
+        if(myAddress.nodeAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
+        //NOTE The test traffic is from node 0 to node 1
             begin
                 
                 Flit flit;
-                flit.srcAddress.netAddress=srcAddress.netAddress;
-                flit.srcAddress.nodeAddress=srcAddress.nodeAddress;
+                flit.srcAddress.netAddress  = myAddress.netAddress;
+                flit.srcAddress.nodeAddress = myAddress.nodeAddress;
 
-                let destNetAddress=unpack(lfsr.value()%fromInteger(l1NodeCount));
-                flit.finalDstAddress.netAddress=destNetAddress;
+                let destNetAddress  = unpack(lfsr.value()%fromInteger(l1NodeCount));
+                flit.finalDstAddress.netAddress     = destNetAddress;
 
-                let destNodeAddress=unpack(lfsr.value()%pack(l2AddressLengths.getMaxAddress(destNetAddress)));
-                flit.finalDstAddress.nodeAddress=destNodeAddress;
+                let destNodeAddress = unpack(lfsr.value()%pack(l2AddressLengths.getMaxAddress(destNetAddress)));
+                flit.finalDstAddress.nodeAddress    = destNodeAddress;
 
-                flit.currentDstAddress.netAddress=fromInteger(0);
-                flit.currentDstAddress.nodeAddress=fromInteger(1);
-                flit.payload=clockCount;
+                flit.currentDstAddress.netAddress   = fromInteger(0);
+                flit.currentDstAddress.nodeAddress  = fromInteger(2);
+                flit.payload                        = clockCount;
 
-                flitReg <= flit;
-                flitValidStat <= True;
-                $display("Flit generated src->%d,%d, dst->%d,%d",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.currentDstAddress.netAddress,flit.currentDstAddress.nodeAddress);
+                flitReg         <= flit;
+                flitValidStat   <= True;
+                $display("Flit generated! Source: %d (Network),%d (Node), Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.currentDstAddress.netAddress,flit.currentDstAddress.nodeAddress);
 
             end
         lfsr.next();
-
-    endrule: generateFlit
+    endrule
 
     //If the generateFlit rule is not fired, this rule sets the flit as invalid one
     rule resetFlitStat;
         flitValidStat <= False;
         lfsr.next();
-    endrule:resetFlitStat
+    endrule
 
     method Bool is_flit_generated();
         return flitValidStat;
-    endmethod:is_flit_generated
+    endmethod
 
     method Flit get_generated_flit();
         return flitReg;
-    endmethod:get_generated_flit
+    endmethod
 
     method Action put_flit(Flit flit);
-        flitConsumeReg <=flit; //flitConsumeReg needed?
+        flitConsumeReg <=flit; //flitConsumeReg needed? 
         //$display("Transmission delay from-%x,%x- to-%x,%x is -%x- cycles");
-        $display("--->Flit received");
-    endmethod:put_flit
-
-    /*method Action setSourceAddress(Address srcAddr);
-        srcAddress <= srcAddr;
-    endmethod:setSourceAddress*/
+        $display("---> Flit received with payload: %h", flit.payload);
+    endmethod
 
     
 endmodule: mkCore
