@@ -33,11 +33,8 @@ def Simple_test(dut):  #14
     yield clkedge
     clkedge = RisingEdge(dut.CLK)
     dut.RST_N <= 1
-    yield clkedge #Step 0
-    yield clkedge #Step 1
-    yield clkedge #Step 2
-    yield clkedge #Step 3
-    yield clkedge #Step 4
-    yield clkedge #Step 5
-    yield clkedge #Step 6
-    yield clkedge #Step 7
+    
+    i = 1
+    while i < 1000:
+        yield clkedge #Step 0,1,2...1000
+        i += 1

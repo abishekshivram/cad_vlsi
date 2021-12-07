@@ -21,17 +21,12 @@ endinterface
 
 (* synthesize *)
 
-module mkChainNode #(parameter Bit#(3) set_id, parameter bit level) (IfcChainNode);
+module mkChainNode #(parameter Address src_addr, parameter bit level) (IfcChainNode);
 
-    Reg#(bit)       lvl     <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
-    Reg#(Bit#(3))   my_id   <- mkReg(set_id); // register to contain the name of the node
+    Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 
-    //NOTE LLOYD: would have to change this. int_id to be assigned with node address?
-    let int_id = unpack({'0, (set_id)}); // converting three bits name to an int variable
+    let core <- mkCore(src_addr); // core instantiation
 
-
-    // A node contains three routers and one core (L2 level only)
-    let core <- mkCore(int_id); // core instantiation
     // Three routers - core, left link, right link
     let router_left     <- mkChainRouterVC(); // takes input from left neighbour and puts in corresponding VC
     let router_right    <- mkChainRouterVC();

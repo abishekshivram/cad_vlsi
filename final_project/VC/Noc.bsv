@@ -1,6 +1,7 @@
 package Noc;
 // This package instantiates all the nodes and connects them
 
+import Shared::*;
 
 import FIFO :: * ;
 import Core :: * ;
@@ -12,16 +13,23 @@ import ChainNodeVC :: *;
 module mkNoc(Empty);
 
     // In this example, 6 nodes are linked in a chain fashion
-    let node0   <- mkChainNode(3'b000, 0);
-    let node1   <- mkChainNode(3'b001, 0);
-    let node2   <- mkChainNode(3'b010, 0);
+    
+    Address node0_address;  node0_address.netAddress=0;  node0_address.nodeAddress=0;
+    let node0   <- mkChainNode(node0_address, 0);
+    Address node1_address;  node1_address.netAddress=0;  node1_address.nodeAddress=1;
+    let node1   <- mkChainNode(node1_address, 0);
+    Address node2_address;  node2_address.netAddress=0;  node2_address.nodeAddress=2;
+    let node2   <- mkChainNode(node2_address, 0);
 
     // When its a head node, it should has more than two set of 3 links,
     // one set to L2 network, another set for L1 network
-    let node3   <- mkChainNode(3'b011, 1); // Head node
+    Address node3_address;  node3_address.netAddress=0;  node3_address.nodeAddress=3;
+    let node3   <- mkChainNode(node3_address, 1); // Head node
 
-    let node4   <- mkChainNode(3'b100, 0);
-    let node5   <- mkChainNode(3'b101, 0);
+    Address node4_address;  node4_address.netAddress=0;  node4_address.nodeAddress=4;
+    let node4   <- mkChainNode(node4_address, 0);
+    Address node5_address;  node5_address.netAddress=0;  node5_address.nodeAddress=5;
+    let node5   <- mkChainNode(node5_address, 0);
     
     // Connecting nodes - following are the interface of the nodes
     // First (below) all LEFT TO RIGHT connections are made
