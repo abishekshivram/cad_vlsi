@@ -108,7 +108,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
     method Action put_value(Flit flit);
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
-        $display("Router(Addr: %h) received the flit into its Input Link", my_addr);
+        $display("Router(Addr: %h) received the flit into its Input Link", my_addr.nodeAddress);
         print_flit_details(flit);
     endmethod
 
@@ -118,7 +118,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
     // The VC1, VC2 methods will be invoked to send the flits to the core (as we fixed earlier, line:4)
 
     method ActionValue#(Flit) get_valueVC1();
-        $display("get_valueVC1 method called at Router(Addr: %h)", my_addr);
+        $display("get_valueVC1 method called at Router(Addr: %h)", my_addr.nodeAddress);
          let temp1 = vir_chnl_1.first();
          vir_chnl_1.deq();
         return temp1;
@@ -126,7 +126,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC2();
-        $display("get_valueVC2 method called at Router(Addr: %h)", my_addr);
+        $display("get_valueVC2 method called at Router(Addr: %h)", my_addr.nodeAddress);
          let temp2 = vir_chnl_2.first();
          vir_chnl_2.deq();
         return temp2;
@@ -134,7 +134,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC3();
-        $display("get_valueVC3 method called at Router(Addr: %h)", my_addr);
+        $display("get_valueVC3 method called at Router(Addr: %h)", my_addr.nodeAddress);
          let temp3 = vir_chnl_3.first();
          vir_chnl_3.deq();
         return temp3;
@@ -142,7 +142,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC4();
-        $display("get_valueVC4 method called at Router(Addr: %h)", my_addr);
+        $display("get_valueVC4 method called at Router(Addr: %h)", my_addr.nodeAddress);
          let temp4 = vir_chnl_4.first();
          vir_chnl_4.deq();
         return temp4;
@@ -150,7 +150,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC5();
-        $display("get_valueVC5 method called at Router(Addr: %h)", my_addr);
+        $display("get_valueVC5 method called at Router(Addr: %h)", my_addr.nodeAddress);
          let temp5 = vir_chnl_5.first();
          vir_chnl_5.deq();
         return temp5;
@@ -158,7 +158,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC6();
-        $display("get_valueVC6 method called at Router(Addr: %h)", my_addr);
+        $display("get_valueVC6 method called at Router(Addr: %h)", my_addr.nodeAddress);
          let temp6 = vir_chnl_6.first();
          vir_chnl_6.deq();
         return temp6;
@@ -166,7 +166,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC7();
-        $display("get_valueVC7 method called at Router(Addr: %h)", my_addr);
+        $display("get_valueVC7 method called at Router(Addr: %h)", my_addr.nodeAddress);
          let temp7 = vir_chnl_7.first();
          vir_chnl_7.deq();
         return temp7;
@@ -174,7 +174,7 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC8();
-        $display("get_valueVC8 method called at Router(Addr: %h)", my_addr);
+        $display("get_valueVC8 method called at Router(Addr: %h)", my_addr.nodeAddress);
          let temp8 = vir_chnl_8.first();
          vir_chnl_8.deq();
         return temp8;

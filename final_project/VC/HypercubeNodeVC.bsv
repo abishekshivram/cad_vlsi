@@ -4,7 +4,7 @@ import Shared::*;
 
 import FIFO :: * ;
 import Core :: * ;
-import ChainRouterVC :: *;
+import HypercubeRouterVC :: *;
 
 
 interface IfcHypercubeNode;
@@ -29,16 +29,17 @@ module mkHypercubeNode #(parameter Address my_addr, parameter bit level) (IfcHyp
 
     // Core and three routers - core, left link, right link instantiation
     let core        <- mkCore(my_addr); 
+    let router_core <- mkHypercubeRouterVC(my_addr); 
     let router_lsb  <- mkHypercubeRouterVC(my_addr); 
     let router_mid  <- mkHypercubeRouterVC(my_addr); 
     let router_msb  <- mkHypercubeRouterVC(my_addr);
 
-    Reg#(Bit#(2)) counter   <- mkReg(0);
+    Reg#(Bit#(2)) counter_router   <- mkReg(0);
 
-    // This counter is used by arbiters to choose VC to send out data
+    // This counter_router is used by arbiters to choose VC to send out data
     rule count_every_cycle;
-        if(counter == 2) counter <= 0;
-        else counter <= counter + 1;
+        if(counter_router == 2) counter_router <= 0;
+        else counter_router <= counter_router + 1;
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -52,156 +53,159 @@ module mkHypercubeNode #(parameter Address my_addr, parameter bit level) (IfcHyp
     // VC1 and VC2 are used to send data to the core (as decided earlier)
     // Rule - Output link - connecting to associated core
     // In this rule, we choose VC1 or VC2 from router_left or router_right (router_core cannot send to itself)
-    // in a round robin fashion (implemented through 2 bit counter) (2 bit because we have 4 VCs to choose from)
+    // in a round robin fashion (implemented through 2 bit counter_router) (2 bit because we have 4 VCs to choose from)
 
-    // Most of the below rules will go to "NEVER_FIRE" because of my_addr condition
-    rule outputLinkCore00(my_addr == 0 && counter==2'b00);
-        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter);      
+    // Most of the below rules will go to "NEVER_FIRE" because of my_addr.nodeAddress condition
+    `ifdef (my_addr.nodeAddress==0)
+    rule outputLinkCore00(my_addr.nodeAddress == 0 && counter_router==2'b00);
+        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC1();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore01(my_addr == 0 && counter==2'b01);
-        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter);      
+    `endif
+    
+    rule outputLinkCore01(my_addr.nodeAddress == 0 && counter_router==2'b01);
+        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC1();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore02(my_addr == 0 && counter==2'b10);
-        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter);      
+    rule outputLinkCore02(my_addr.nodeAddress == 0 && counter_router==2'b10);
+        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC1();
         core.put_flit(data_core);
     endrule
 
-    rule outputLinkCore10(my_addr == 1 && counter==2'b00);
-        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter);      
+    rule outputLinkCore10(my_addr.nodeAddress == 1 && counter_router==2'b00);
+        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC2();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore11(my_addr == 1 && counter==2'b01);
-        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter);      
+    rule outputLinkCore11(my_addr.nodeAddress == 1 && counter_router==2'b01);
+        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC2();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore12(my_addr == 1 && counter==2'b10);
-        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter);      
+    rule outputLinkCore12(my_addr.nodeAddress == 1 && counter_router==2'b10);
+        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC2();
         core.put_flit(data_core);
     endrule
-    my_addr
-    rule outputLinkCore20(my_addr == 2 && counter==2'b00);
-        $display("here flit is put into core from router left vc3; Arbiter count-%d", counter);      
+    
+    rule outputLinkCore20(my_addr.nodeAddress == 2 && counter_router==2'b00);
+        $display("here flit is put into core from router left vc3; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC3();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore21(my_addr == 2 && counter==2'b01);
-        $display("here flit is put into core frommy_addr router left vc3; Arbiter count-%d", counter);      
+    rule outputLinkCore21(my_addr.nodeAddress == 2 && counter_router==2'b01);
+        $display("here flit is put into core frommy_addr router left vc3; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC3();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore22(my_addr == 2 && counter==2'b10);
-        $display("here flit is put into core from router left vc3; Arbiter count-%d", counter);      
+    rule outputLinkCore22(my_addr.nodeAddress == 2 && counter_router==2'b10);
+        $display("here flit is put into core from router left vc3; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC3();
         core.put_flit(data_core);
     endrule
 
-    rule outputLinkCore30(my_addr == 3 && counter==2'b00);
-        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter);      
+    rule outputLinkCore30(my_addr.nodeAddress == 3 && counter_router==2'b00);
+        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC4();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore31(my_addr == 3 && counter==2'b01);
-        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter);      
+    rule outputLinkCore31(my_addr.nodeAddress == 3 && counter_router==2'b01);
+        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC4();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore32(my_addr == 3 && counter==2'b10);
-        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter);      
+    rule outputLinkCore32(my_addr.nodeAddress == 3 && counter_router==2'b10);
+        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC4();
         core.put_flit(data_core);
     endrule
 
-    rule outputLinkCore40(my_addr == 4 && counter==2'b00);
-        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter);      
+    rule outputLinkCore40(my_addr.nodeAddress == 4 && counter_router==2'b00);
+        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC5();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore41(my_addr == 4 && counter==2'b01);
-        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter);      
+    rule outputLinkCore41(my_addr.nodeAddress == 4 && counter_router==2'b01);
+        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC5();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore42(my_addr == 4 && counter==2'b10);
-        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter);      
+    rule outputLinkCore42(my_addr.nodeAddress == 4 && counter_router==2'b10);
+        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC5();
         core.put_flit(data_core);
     endrule
 
-    rule outputLinkCore50(my_addr == 5 && counter==2'b00);
-        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter);      
+    rule outputLinkCore50(my_addr.nodeAddress == 5 && counter_router==2'b00);
+        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC6();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore51(my_addr == 5 && counter==2'b01);
-        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter);      
+    rule outputLinkCore51(my_addr.nodeAddress == 5 && counter_router==2'b01);
+        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC6();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore52(my_addr == 5 && counter==2'b10);
-        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter);      
+    rule outputLinkCore52(my_addr.nodeAddress == 5 && counter_router==2'b10);
+        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC6();
         core.put_flit(data_core);
     endrule
 
-    rule outputLinkCore60(my_addr == 6 && counter==2'b00);
-        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter);      
+    rule outputLinkCore60(my_addr.nodeAddress == 6 && counter_router==2'b00);
+        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC7();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore61(my_addr == 6 && counter==2'b01);
-        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter);      
+    rule outputLinkCore61(my_addr.nodeAddress == 6 && counter_router==2'b01);
+        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC7();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore62(my_addr == 6 && counter==2'b10);
-        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter);      
+    rule outputLinkCore62(my_addr.nodeAddress == 6 && counter_router==2'b10);
+        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC7();
         core.put_flit(data_core);
     endrule
 
-    rule outputLinkCore70(my_addr == 7 && counter==2'b00);
-        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter);      
+    rule outputLinkCore70(my_addr.nodeAddress == 7 && counter_router==2'b00);
+        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC8();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore71(my_addr == 7 && counter==2'b01);
-        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter);      
+    rule outputLinkCore71(my_addr.nodeAddress == 7 && counter_router==2'b01);
+        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC8();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore72(my_addr == 7 && counter==2'b10);
-        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter);      
+    rule outputLinkCore72(my_addr.nodeAddress == 7 && counter_router==2'b10);
+        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC8();
         core.put_flit(data_core);
@@ -222,30 +226,16 @@ module mkHypercubeNode #(parameter Address my_addr, parameter bit level) (IfcHyp
     FIFO#(Flit) output_link_mid     <- mkFIFO;
     FIFO#(Flit) output_link_msb     <- mkFIFO;
     
-
-
-
-
-    // Sending to LSB neighbour
-    rule send_from_vc1_ie_to_lsb (my_addr == 5);
-        Flit data_left=defaultValue;
-        data_left <- router_msb.get_valueVC1();
-        output_link_lsb.enq(data_left);
+    Reg#(Bit#(2)) counter_lsb  <- mkReg(0);
+    // This counter_lsb is used by arbiters to choose VC to send out data
+    rule count_lsb;
+        counter_lsb <= counter_lsb + 1;
     endrule
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    rule add_to_link_left0(counter == 3'b000);
-        $display("add_to_link_left0 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_right.get_valueVC3();
-        output_link_left.enq(data_left);
+
+    Reg#(Bit#(1)) counter_mid  <- mkReg(0);
+    // This counter_lsb is used by arbiters to choose VC to send out data
+    rule count_mid;
+        counter_mid <= counter_mid + 1;
     endrule
 
 
@@ -253,315 +243,1050 @@ module mkHypercubeNode #(parameter Address my_addr, parameter bit level) (IfcHyp
 
 
 
+    rule send_from_vc2_ie_to_lsblsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b00 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
 
-    // Sending to left neighbour
-    rule add_to_link_left0(counter == 3'b000);
-        $display("add_to_link_left0 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_right.get_valueVC3();
-        output_link_left.enq(data_left);
+    rule send_from_vc3_ie_to_midlsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b00 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC3();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsblsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b00 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_msblsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b00 );
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC5();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsblsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b00 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_midlsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b00 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC7();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsblsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b00 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsbmid0 (my_addr.nodeAddress == 0 && counter_router == 2'b01 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_midmid0 (my_addr.nodeAddress == 0 && counter_router == 2'b01 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC3();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsbmid0 (my_addr.nodeAddress == 0 && counter_router == 2'b01 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_msbmid0 (my_addr.nodeAddress == 0 && counter_router == 2'b01 );
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC5();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsbmid0 (my_addr.nodeAddress == 0 && counter_router == 2'b01 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_midmid0 (my_addr.nodeAddress == 0 && counter_router == 2'b01 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC7();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsbmid0 (my_addr.nodeAddress == 0 && counter_router == 2'b01 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsbmsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b10 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_midmsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b10 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC3();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsbmsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b10 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_msbmsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b10 );
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC5();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsbmsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b10 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_midmsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b10 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC7();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsbmsb0 (my_addr.nodeAddress == 0 && counter_router == 2'b10 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsblsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b00 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsblsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b00 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_midlsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b00 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC4();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsblsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b00 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_msblsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b00 );
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC6();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsblsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b00 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_midlsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b00 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC8();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsbmid1 (my_addr.nodeAddress == 1 && counter_router == 2'b01 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsbmid1 (my_addr.nodeAddress == 1 && counter_router == 2'b01 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_midmid1 (my_addr.nodeAddress == 1 && counter_router == 2'b01 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC4();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsbmid1 (my_addr.nodeAddress == 1 && counter_router == 2'b01 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_msbmid1 (my_addr.nodeAddress == 1 && counter_router == 2'b01 );
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC6();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsbmid1 (my_addr.nodeAddress == 1 && counter_router == 2'b01 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_midmid1 (my_addr.nodeAddress == 1 && counter_router == 2'b01 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC8();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsbmsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b10 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsbmsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b10 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_midmsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b10 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC4();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsbmsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b10 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_msbmsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b10 );
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC6();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsbmsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b10 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_midmsb1 (my_addr.nodeAddress == 1 && counter_router == 2'b10 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC8();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_midlsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b00 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC1();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsblsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b00 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsblsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b00 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_midlsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b00 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC5();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsblsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b00 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_msblsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b00 );
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC7();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsblsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b00 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_midmid2 (my_addr.nodeAddress == 2 && counter_router == 2'b01 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC1();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsbmid2 (my_addr.nodeAddress == 2 && counter_router == 2'b01 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsbmid2 (my_addr.nodeAddress == 2 && counter_router == 2'b01 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_midmid2 (my_addr.nodeAddress == 2 && counter_router == 2'b01 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC5();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsbmid2 (my_addr.nodeAddress == 2 && counter_router == 2'b01 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_msbmid2 (my_addr.nodeAddress == 2 && counter_router == 2'b01 );
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC7();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsbmid2 (my_addr.nodeAddress == 2 && counter_router == 2'b01 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_midmsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b10 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC1();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsbmsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b10 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsbmsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b10 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_midmsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b10 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC5();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsbmsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b10 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_msbmsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b10 );
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC7();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsbmsb2 (my_addr.nodeAddress == 2 && counter_router == 2'b10 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsblsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b00 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_midlsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b00 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC2();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsblsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b00 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsblsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b00 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_midlsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b00 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC6();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsblsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b00 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_msblsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b00 );
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC8();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsbmid3 (my_addr.nodeAddress == 3 && counter_router == 2'b01 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_midmid3 (my_addr.nodeAddress == 3 && counter_router == 2'b01 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC2();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsbmid3 (my_addr.nodeAddress == 3 && counter_router == 2'b01 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsbmid3 (my_addr.nodeAddress == 3 && counter_router == 2'b01 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_midmid3 (my_addr.nodeAddress == 3 && counter_router == 2'b01 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC6();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsbmid3 (my_addr.nodeAddress == 3 && counter_router == 2'b01 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_msbmid3 (my_addr.nodeAddress == 3 && counter_router == 2'b01 );
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC8();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsbmsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b10 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_midmsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b10 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC2();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsbmsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b10 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsbmsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b10 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_midmsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b10 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC6();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsbmsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b10 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_msbmsb3 (my_addr.nodeAddress == 3 && counter_router == 2'b10 );
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC8();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_msblsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b00 );
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC1();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsblsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b00 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_midlsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b00 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC3();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsblsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b00 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsblsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b00 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_midlsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b00 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC7();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsblsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b00 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_msbmid4 (my_addr.nodeAddress == 4 && counter_router == 2'b01 );
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC1();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsbmid4 (my_addr.nodeAddress == 4 && counter_router == 2'b01 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_midmid4 (my_addr.nodeAddress == 4 && counter_router == 2'b01 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC3();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsbmid4 (my_addr.nodeAddress == 4 && counter_router == 2'b01 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsbmid4 (my_addr.nodeAddress == 4 && counter_router == 2'b01 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_midmid4 (my_addr.nodeAddress == 4 && counter_router == 2'b01 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC7();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsbmid4 (my_addr.nodeAddress == 4 && counter_router == 2'b01 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_msbmsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b10 );
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC1();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsbmsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b10 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_midmsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b10 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC3();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsbmsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b10 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsbmsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b10 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_midmsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b10 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC7();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsbmsb4 (my_addr.nodeAddress == 4 && counter_router == 2'b10 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsblsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b00 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_msblsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b00 );
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC2();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsblsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b00 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_midlsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b00 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC4();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsblsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b00 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsblsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b00 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_midlsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b00 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC8();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsbmid5 (my_addr.nodeAddress == 5 && counter_router == 2'b01 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_msbmid5 (my_addr.nodeAddress == 5 && counter_router == 2'b01 );
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC2();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsbmid5 (my_addr.nodeAddress == 5 && counter_router == 2'b01 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_midmid5 (my_addr.nodeAddress == 5 && counter_router == 2'b01 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC4();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsbmid5 (my_addr.nodeAddress == 5 && counter_router == 2'b01 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsbmid5 (my_addr.nodeAddress == 5 && counter_router == 2'b01 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_midmid5 (my_addr.nodeAddress == 5 && counter_router == 2'b01 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC8();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsbmsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b10 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_msbmsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b10 );
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC2();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsbmsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b10 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_midmsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b10 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC4();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsbmsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b10 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsbmsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b10 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_midmsb5 (my_addr.nodeAddress == 5 && counter_router == 2'b10 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC8();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_midlsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b00 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC1();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsblsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b00 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_msblsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b00 );
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC3();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsblsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b00 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_midlsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b00 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC5();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsblsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b00 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsblsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b00 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_midmid6 (my_addr.nodeAddress == 6 && counter_router == 2'b01 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC1();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsbmid6 (my_addr.nodeAddress == 6 && counter_router == 2'b01 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_msbmid6 (my_addr.nodeAddress == 6 && counter_router == 2'b01 );
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC3();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsbmid6 (my_addr.nodeAddress == 6 && counter_router == 2'b01 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_midmid6 (my_addr.nodeAddress == 6 && counter_router == 2'b01 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC5();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsbmid6 (my_addr.nodeAddress == 6 && counter_router == 2'b01 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsbmid6 (my_addr.nodeAddress == 6 && counter_router == 2'b01 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_midmsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b10 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC1();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_lsbmsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b10 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_msbmsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b10 );
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC3();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_lsbmsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b10 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_midmsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b10 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC5();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_lsbmsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b10 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc8_ie_to_lsbmsb6 (my_addr.nodeAddress == 6 && counter_router == 2'b10 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsblsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b00 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_midlsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b00 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC2();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsblsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b00 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_msblsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b00 );
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC4();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsblsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b00 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_midlsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b00 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC6();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsblsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b00 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_lsb.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsbmid7 (my_addr.nodeAddress == 7 && counter_router == 2'b01 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_midmid7 (my_addr.nodeAddress == 7 && counter_router == 2'b01 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC2();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsbmid7 (my_addr.nodeAddress == 7 && counter_router == 2'b01 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_msbmid7 (my_addr.nodeAddress == 7 && counter_router == 2'b01 );
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC4();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsbmid7 (my_addr.nodeAddress == 7 && counter_router == 2'b01 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_midmid7 (my_addr.nodeAddress == 7 && counter_router == 2'b01 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC6();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsbmid7 (my_addr.nodeAddress == 7 && counter_router == 2'b01 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_mid.get_valueVC7();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc1_ie_to_lsbmsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b10 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC1();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc2_ie_to_midmsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b10 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC2();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc3_ie_to_lsbmsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b10 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC3();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc4_ie_to_msbmsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b10 );
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC4();
+        output_link_msb.enq(data);
+    endrule
+
+    rule send_from_vc5_ie_to_lsbmsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b10 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC5();
+        output_link_lsb.enq(data);
+    endrule
+
+    rule send_from_vc6_ie_to_midmsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b10 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC6();
+        output_link_mid.enq(data);
+    endrule
+
+    rule send_from_vc7_ie_to_lsbmsb7 (my_addr.nodeAddress == 7 && counter_router == 2'b10 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_msb.get_valueVC7();
+        output_link_lsb.enq(data);
     endrule
 
 
-    rule add_to_link_left1(counter == 3'b001);
-        $display("add_to_link_left1 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_up.get_valueVC3();
-        output_link_left.enq(data_left);
-    endrule
 
-
-    rule add_to_link_left2(counter == 3'b010);
-        $display("add_to_link_left2 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_down.get_valueVC3();
-        output_link_left.enq(data_left);
-    endrule
-
-
-    rule add_to_link_left3(counter == 3'b011);
-        $display("add_to_link_left3 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_core.get_valueVC3();
-        output_link_left.enq(data_left);
-    endrule
-
-
-    rule add_to_link_left4(counter == 3'b100);
-        $display("add_to_link_left4 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_right.get_valueVC4();
-        output_link_left.enq(data_left);
-    endrule
-
-
-    rule add_to_link_left5(counter == 3'b101);
-        $display("add_to_link_left5 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_up.get_valueVC4();
-        output_link_left.enq(data_left);
-    endrule
-
-
-    rule add_to_link_left6(counter == 3'b110);
-        $display("add_to_link_left6 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_down.get_valueVC4();
-        output_link_left.enq(data_left);
-    endrule
-
-
-    rule add_to_link_left7(counter == 3'b111);
-        $display("add_to_link_left7 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_core.get_valueVC4();
-        output_link_left.enq(data_left);
-    endrule
-
-
-
-    // Sending to right neighbour
-    rule add_to_link_right0(counter == 3'b000);
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_up.get_valueVC5();
-        output_link_right.enq(data_right);
-    endrule
-
-
-    rule add_to_link_right1(counter == 3'b001);
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_down.get_valueVC5();
-        output_link_right.enq(data_right);
-    endrule
-
-
-    rule add_to_link_right2(counter == 3'b010);
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_core.get_valueVC5();
-        output_link_right.enq(data_right);
-    endrule
-
-
-    rule add_to_link_right3(counter == 3'b011);
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_left.get_valueVC5();
-        output_link_right.enq(data_right);
-    endrule
-
-
-    rule add_to_link_right4(counter == 3'b100);
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_up.get_valueVC6();
-        output_link_right.enq(data_right);
-    endrule
-
-
-    rule add_to_link_right5(counter == 3'b101);
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_down.get_valueVC6();
-        output_link_right.enq(data_right);
-    endrule
-
-
-    rule add_to_link_right6(counter == 3'b110);
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_core.get_valueVC6();
-        output_link_right.enq(data_right);
-    endrule
-
-
-    rule add_to_link_right7(counter == 3'b111);
-        $display("add_to_link_right-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_left.get_valueVC6();
-        output_link_right.enq(data_right);
-    endrule
-
-
-    // Sending to up neighbour
-    rule add_to_link_up0(counter == 3'b000);
-        $display("add_to_link_up-> my_addr %d",my_addr.netAddress);    
-        Flit data_up = defaultValue;
-        data_up <- router_down.get_valueVC7();
-        output_link_up.enq(data_up);
-    endrule
-
-
-    rule add_to_link_up1(counter == 3'b001);
-        $display("add_to_link_up-> my_addr %d",my_addr.netAddress);    
-        Flit data_up = defaultValue;
-        data_up <- router_core.get_valueVC7();
-        output_link_up.enq(data_up);
-    endrule
-
-
-    rule add_to_link_up2(counter == 3'b010);
-        $display("add_to_link_up-> my_addr %d",my_addr.netAddress);    
-        Flit data_up = defaultValue;
-        data_up <- router_left.get_valueVC7();
-        output_link_up.enq(data_up);
-    endrule
-
-
-    rule add_to_link_up3(counter == 3'b011);
-        $display("add_to_link_up-> my_addr %d",my_addr.netAddress);    
-        Flit data_up = defaultValue;
-        data_up <- router_right.get_valueVC7();
-        output_link_up.enq(data_up);
-    endrule
-
-
-    rule add_to_link_up4(counter == 3'b100);
-        $display("add_to_link_up-> my_addr %d",my_addr.netAddress);    
-        Flit data_up = defaultValue;
-        data_up <- router_down.get_valueVC8();
-        output_link_up.enq(data_up);
-    endrule
-
-
-    rule add_to_link_up5(counter == 3'b101);
-        $display("add_to_link_up-> my_addr %d",my_addr.netAddress);    
-        Flit data_up = defaultValue;
-        data_up <- router_core.get_valueVC8();
-        output_link_up.enq(data_up);
-    endrule
-
-
-    rule add_to_link_up6(counter == 3'b110);
-        $display("add_to_link_up-> my_addr %d",my_addr.netAddress);    
-        Flit data_up = defaultValue;
-        data_up <- router_left.get_valueVC8();
-        output_link_up.enq(data_up);
-    endrule
-
-
-    rule add_to_link_up7(counter == 3'b111);
-        $display("add_to_link_up-> my_addr %d",my_addr.netAddress);    
-        Flit data_up = defaultValue;
-        data_up <- router_right.get_valueVC8();
-        output_link_up.enq(data_up);
-    endrule
-
-
-
-    // Sending to down neighbour
-    rule add_to_link_down0(counter == 3'b000);
-        $display("add_to_link_down-> my_addr %d",my_addr.netAddress);    
-        Flit data_down = defaultValue;
-        data_down <- router_down.get_valueVC7();
-        output_link_down.enq(data_down);
-    endrule
-
-
-    rule add_to_link_down1(counter == 3'b001);
-        $display("add_to_link_down-> my_addr %d",my_addr.netAddress);    
-        Flit data_down = defaultValue;
-        data_down <- router_core.get_valueVC7();
-        output_link_down.enq(data_down);
-    endrule
-
-
-    rule add_to_link_down2(counter == 3'b010);
-        $display("add_to_link_down-> my_addr %d",my_addr.netAddress);    
-        Flit data_down = defaultValue;
-        data_down <- router_left.get_valueVC7();
-        output_link_down.enq(data_down);
-    endrule
-
-
-    rule add_to_link_down3(counter == 3'b011);
-        $display("add_to_link_down-> my_addr %d",my_addr.netAddress);    
-        Flit data_down = defaultValue;
-        data_down <- router_right.get_valueVC7();
-        output_link_down.enq(data_down);
-    endrule
-
-
-    rule add_to_link_down4(counter == 3'b100);
-        $display("add_to_link_down-> my_addr %d",my_addr.netAddress);    
-        Flit data_down = defaultValue;
-        data_down <- router_down.get_valueVC8();
-        output_link_down.enq(data_down);
-    endrule
-
-
-    rule add_to_link_down5(counter == 3'b101);
-        $display("add_to_link_down-> my_addr %d",my_addr.netAddress);    
-        Flit data_down = defaultValue;
-        data_down <- router_core.get_valueVC8();
-        output_link_down.enq(data_down);
-    endrule
-
-
-    rule add_to_link_down6(counter == 3'b110);
-        $display("add_to_link_down-> my_addr %d",my_addr.netAddress);    
-        Flit data_down = defaultValue;
-        data_down <- router_left.get_valueVC8();
-        output_link_down.enq(data_down);
-    endrule
-
-
-    rule add_to_link_down7(counter == 3'b111);
-        $display("add_to_link_down-> my_addr %d",my_addr.netAddress);    
-        Flit data_down = defaultValue;
-        data_down <- router_right.get_valueVC8();
-        output_link_down.enq(data_down);
-    endrule
 
 
     // Method to take the flit from OUTPUT_LINK_LEFT and return 
     // This is invoked in NOC.bsv where final connections are made
-    method ActionValue#(Flit) get_value_to_left();
-        let data_to_left = output_link_left.first();
-        output_link_left.deq();
-        return data_to_left;
+    method ActionValue#(Flit) get_value_to_lsb();
+        let data_to_lsb = output_link_lsb.first();
+        output_link_lsb.deq();
+        return data_to_lsb;
+    endmethod
+     method ActionValue#(Flit) get_value_to_mid();
+        let data_to_mid = output_link_mid.first();
+        output_link_mid.deq();
+        return data_to_mid;
+    endmethod
+     method ActionValue#(Flit) get_value_to_msb();
+        let data_to_msb = output_link_msb.first();
+        output_link_msb.deq();
+        return data_to_msb;
     endmethod
 
-
-    method ActionValue#(Flit) get_value_to_right();
-        let data_to_right = output_link_right.first();
-        output_link_right.deq();
-        return data_to_right;
-    endmethod
-
-
-    method ActionValue#(Flit) get_value_to_up();
-        let data_to_up = output_link_up.first();
-        output_link_up.deq();
-        return data_to_up;
-    endmethod
-
-
-    method ActionValue#(Flit) get_value_to_down();
-        let data_to_down = output_link_down.first();
-        output_link_down.deq();
-        return data_to_down;
-    endmethod
 
     // Methods to take care of input links 
     // (ie) the flits that come from left neighbour are inserted to the router_left's input link buffer
-    method Action put_value_from_left(Flit data_left);
-        router_left.put_value(data_left);
+    method Action put_value_from_lsb(Flit data_lsb);
+        router_lsb.put_value(data_lsb);
     endmethod
 
-    method Action put_value_from_right(Flit data_right);
-        router_right.put_value(data_right);
+    method Action put_value_from_mid(Flit data_mid);
+        router_mid.put_value(data_mid);
     endmethod
 
-    method Action put_value_from_up(Flit data_up);
-        router_up.put_value(data_up);
+    method Action put_value_from_msb(Flit data_msb);
+        router_msb.put_value(data_msb);
     endmethod
-
-    method Action put_value_from_down(Flit data_down);
-        router_down.put_value(data_down);
-    endmethod 
 
 endmodule
 

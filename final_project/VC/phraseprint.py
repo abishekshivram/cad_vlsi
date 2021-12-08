@@ -31,8 +31,8 @@ d1 = """    rule connect_Node{element1}_to_Node{element}_R2L_dateline;
         node{element}.put_value_from_right_dateline(data{element1}{element}_R2L);
     endrule"""
 
-for element in range(6):
-    print(c1.format(element = element, element1 = element+1))
+# for element in range(6):
+#     print(c1.format(element = element, element1 = element+1))
 
 g = """    method ActionValue#(Flit) get_valueVC{count}();
         $display("get_valueVC{count} method called at Router(Addr: %h)", my_addr);
@@ -118,33 +118,54 @@ hypercube_vc_to_core = """    rule outputLinkCore{count2}0(my_addr == {count2} &
     endrule
 """
 
-hyper = """    rule send_from_vc{vc}_ie_to_{which} (my_addr == {addr});
-        Flit data_left=defaultValue;
-        data_left <- router_msb.get_valueVC{vc}();
-        output_link_{which}.enq(data_left);
+hyper = """    rule send_from_vc{vc}_ie_to_{which}{router}{addr} (my_addr.nodeAddress == {addr} && counter_router == 2'b{binary_route} {sentence});
+        Flit data=defaultValue;
+        data <- router_{router}.get_valueVC{vc}();
+        output_link_{which}.enq(data);
     endrule
 """
 # which (lsb, msb, mid)  
 
-# zero_one = 0
+zero_one = 0
 
-# ways = ["lsb", "mid", "msb"]
+address_wise = [[]]*8
 
-# which_way = None
-# for addr in range(8):
-#     for vc in range(1, 1+8):
-#         if (addr != (vc-1)):
-#             binary_addr = f"{addr:0>3b}"
-#             binary_vc = f"{vc-1:0>3b}"
-#             for bit in range(3):
-#                 if(binary_addr[-1-bit] != binary_vc[-1-bit]):
-#                     which_way = ways[bit]
-#                     break
-#             if(addr==5):
-#                 print(f"DST:{binary_vc}   SRC:{binary_addr}")
-#                 print(hyper.format(vc=vc, which=which_way, addr=addr))
-                
+ways = ["lsb", "mid", "msb"]
+router = ["lsb", "mid", "msb"]
+print_count = 0
+which_way = None
+for addr in range(8):
+    for rout in range(3):
+    
+        count_of_ways = [0,0,0]
+        for vc in range(1, 1+8):
+            if (addr != (vc-1)):
+                binary_addr = f"{addr:0>3b}"
+                binary_vc = f"{vc-1:0>3b}"
+                binary_route = f"{rout:0>2b}"
+                for bit in range(3):
+                    if(binary_addr[-1-bit] != binary_vc[-1-bit]):
+                        which_way = ways[bit]
+                        count_of_ways[bit] += 1
+                        break
+                if(bit == 0):
+                    count2val = (count_of_ways[bit] - 1) % 4
+                    sentenceval = "&& counter_{which}==2'b{count2:0>2b}".format(which=which_way, count2=count2val)
+                elif(bit == 1):
+                    count2val = (count_of_ways[bit] - 1) % 2
+                    sentenceval = "&& counter_{which}==1'b{count2:0>1b}".format(which=which_way, count2=count2val)
+                else:
+                    sentenceval = ""
+                # print_count +=1
+                # print(print_count)
+                # address_wise[addr].append(addr)
+                print(hyper.format(vc=vc, which=which_way, addr=addr,router=router[rout],binary_route=binary_route, sentence=sentenceval))
 
+# for  i in (address_wise)    :
+#     print(i)
+# for i in address_wise:
+#     for j in i:
+#         print(j)
 
 
 # for i in range(8):
@@ -165,3 +186,15 @@ hyper = """    rule send_from_vc{vc}_ie_to_{which} (my_addr == {addr});
     #zero_one = 1 if zero_one==0 else 0
     # print()
     
+g ="""     method ActionValue#(Flit) get_value_to_{which}();
+        let data_to_{which} = output_link_{which}.first();
+        output_link_{which}.deq();
+        return data_to_{which};
+    endmethod"""
+gg = """    method Action put_value_from_{which}(Flit data_{which});
+        router_{which}.put_value(data_{which});
+    endmethod
+"""
+# which = ["lsb","mid","msb"]
+# for i in range(3):
+#     print(gg.format(which=which[i]))
