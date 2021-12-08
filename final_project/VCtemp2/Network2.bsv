@@ -14,12 +14,12 @@ module mkNetwork2(Empty);
 
     // In this example, 6 nodes are linked in a chain fashion
 
-    Address node0_address;  node0_address.netAddress=0;  node0_address.nodeAddress=0;
-    Address node1_address;  node1_address.netAddress=0;  node1_address.nodeAddress=1;
-    Address node2_address;  node2_address.netAddress=0;  node2_address.nodeAddress=2;
-    Address node3_address;  node3_address.netAddress=0;  node3_address.nodeAddress=3;
-    Address node4_address;  node4_address.netAddress=0;  node4_address.nodeAddress=4;
-    Address node5_address;  node5_address.netAddress=0;  node5_address.nodeAddress=5;
+    Address node0_address;  node0_address.netAddress=1;  node0_address.nodeAddress=0;
+    Address node1_address;  node1_address.netAddress=1;  node1_address.nodeAddress=1;
+    Address node2_address;  node2_address.netAddress=1;  node2_address.nodeAddress=2;
+    Address node3_address;  node3_address.netAddress=1;  node3_address.nodeAddress=3;
+    Address node4_address;  node4_address.netAddress=1;  node4_address.nodeAddress=4;
+    Address node5_address;  node5_address.netAddress=1;  node5_address.nodeAddress=5;
     Address head_node_address=node3_address;
     let node0   <- mkChainNode(node0_address, head_node_address,False);
     let node1   <- mkChainNode(node1_address, head_node_address,False);
