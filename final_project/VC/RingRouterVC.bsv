@@ -7,6 +7,8 @@ package RingRouterVC;
 // This routing can be seen in line 58: Two rules are written that connects the Input link to the respective VC
 
 import Shared::*;
+import Core :: * ;
+import Parameters::*;
 
 // FIFO used as buffers in routers
 import FIFO :: * ;
@@ -18,6 +20,7 @@ interface IfcRingRouterVC ;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
     method Action put_value (Flit flit);
+    method Action put_value_dateline (Flit flit);
 
     // Each output link gets two VC channel (for Ring, we have: left, right, core)
     // Hence, we need 6 VCs
@@ -36,7 +39,7 @@ endinterface
 
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkRingRouterVC #(parameter Address my_addr) (IfcRingRouterVC);
+module mkRingRouterVC #(parameter Address my_addr, parameter NodeAddressLen maxNodeAddress) (IfcRingRouterVC);
 
     function Action print_flit_details(Flit flit_to_print);
         return action
@@ -51,7 +54,8 @@ module mkRingRouterVC #(parameter Address my_addr) (IfcRingRouterVC);
     //Reg#(bit)   level       <- mkReg(0); // 0 for low level (L2), 1 for high level (L1)
     
     // Input link for the router
-    FIFO#(Flit)  input_link  <- mkFIFO; // to get data from left router
+    FIFO#(Flit)  input_link             <- mkFIFO; // to get data from left router
+    FIFOF#(Flit)  input_link_dateline    <- mkFIFOF; // to get data from left router
     
     // To store the flits that are sent to core
     FIFO#(Flit)  vir_chnl_1  <- mkFIFO; // Virtual Channel 1
@@ -77,24 +81,67 @@ module mkRingRouterVC #(parameter Address my_addr) (IfcRingRouterVC);
     // This rules fires every cycle, and chooses odd named Virtual Channels (VC1, VC3, VC5) 
     // unless the flit passes the date-line: the link connecting the node with max-index and node 0.
     // In this case, the Virtua Channels used will be (VC2,VC4,VC6)
-    rule read_input_link_and_send_to_VC_odd;
+
+    rule read_input_link_dateline_and_send_to_VC( input_link_dateline.notEmpty() && (  my_addr.nodeAddress != 0 && my_addr.nodeAddress != maxNodeAddress || (cycle==1 && (my_addr.nodeAddress == 0 || my_addr.nodeAddress == maxNodeAddress))));
+    // rule read_input_link_dateline_and_send_to_VC( input_link_dateline.notEmpty());
+        let flit = input_link_dateline.first();
+        input_link_dateline.deq();
+
+        // Reached the destination - core will consume
+        if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
+            $display("vir_chnl_2.enq at addr:%h", my_addr);
+            vir_chnl_2.enq(flit);
+        end
+
+        // The current flit has to go to left 
+        // else if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
+        else if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+            $display("vir_chnl_4.enq at addr:%h", my_addr);
+            vir_chnl_4.enq(flit);
+        end
+        else begin
+            $display("vir_chnl_6.enq at addr:%h", my_addr);
+            vir_chnl_6.enq(flit);
+        end
+        // // end
+        // // The current flit has to go to right
+        // else  begin
+        //     if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+        //         if (my_addr.nodeAddress == maxNodeAddress) begin
+        //             $display("vir_chnl_6.enq at addr:%h", my_addr);
+        //             vir_chnl_6.enq(flit);
+        //         end
+        //         else begin
+        //             $display("vir_chnl_5.enq at addr:%h", my_addr);
+        //             vir_chnl_5.enq(flit);                
+        //         end
+        //     end
+        //     else begin
+        //         if (my_addr.nodeAddress == 0) begin
+        //             $display("vir_chnl_4.enq at addr:%h", my_addr);
+        //             vir_chnl_4.enq(flit);
+        //         end
+        //         else begin
+        //             $display("vir_chnl_3.enq at addr:%h", my_addr);
+        //             vir_chnl_3.enq(flit);                
+        //         end
+        //     end
+        // end
+    endrule
+
+    rule read_input_link_and_send_to_VC(my_addr.nodeAddress != 0 && my_addr.nodeAddress != maxNodeAddress);
 
         let flit = input_link.first();
         input_link.deq();
 
         // Reached the destination - core will consume
         if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
-            if (cycle == 0) begin
-                $display("vir_chnl_2.enq at addr:%h", my_addr);
-                vir_chnl_2.enq(flit);
-            end
-            else begin
-                $display("vir_chnl_1.enq at addr:%h", my_addr);
-                vir_chnl_1.enq(flit);
-            end
+            $display("vir_chnl_1.enq at addr:%h", my_addr);
+            vir_chnl_1.enq(flit);
         end
+
         // The current flit has to go to left 
-        else if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= my_addr.maxNodeAddress/2)  begin
+        else if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
             if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
                 $display("vir_chnl_3.enq at addr:%h", my_addr);
                 vir_chnl_3.enq(flit);
@@ -107,7 +154,54 @@ module mkRingRouterVC #(parameter Address my_addr) (IfcRingRouterVC);
         // The current flit has to go to right
         else  begin
             if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
-                if (my_addr.nodeAddress == my_addr.maxNodeAddress) begin
+                // if (my_addr.nodeAddress == maxNodeAddress) begin
+                //     $display("vir_chnl_6.enq at addr:%h", my_addr);
+                //     vir_chnl_6.enq(flit);
+                // end
+                // else begin
+                    $display("vir_chnl_5.enq at addr:%h", my_addr);
+                    vir_chnl_5.enq(flit);                
+                // end
+            end
+            else begin
+                // if (my_addr.nodeAddress == 0) begin
+                //     $display("vir_chnl_4.enq at addr:%h", my_addr);
+                //     vir_chnl_4.enq(flit);
+                // end
+                // else begin
+                    $display("vir_chnl_3.enq at addr:%h", my_addr);
+                    vir_chnl_3.enq(flit);                
+                // end
+            end
+        end
+    endrule
+
+    rule read_input_link_and_send_to_VC_extreme( (!input_link_dateline.notEmpty())  || (cycle==0 && (my_addr.nodeAddress == 0 || my_addr.nodeAddress == maxNodeAddress)));
+    // rule read_input_link_and_send_to_VC_extreme( (!input_link_dateline.notEmpty()) && (my_addr.nodeAddress == 0 || my_addr.nodeAddress == maxNodeAddress)));
+        let flit = input_link.first();
+        input_link.deq();
+
+        // Reached the destination - core will consume
+        if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
+            $display("vir_chnl_1.enq at addr:%h", my_addr);
+            vir_chnl_1.enq(flit);
+        end
+
+        // The current flit has to go to left 
+        else if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
+            if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                $display("vir_chnl_3.enq at addr:%h", my_addr);
+                vir_chnl_3.enq(flit);
+            end
+            else begin
+                $display("vir_chnl_5.enq at addr:%h", my_addr);
+                vir_chnl_5.enq(flit);
+            end
+        end
+        // The current flit has to go to right
+        else  begin
+            if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                if (my_addr.nodeAddress == maxNodeAddress) begin
                     $display("vir_chnl_6.enq at addr:%h", my_addr);
                     vir_chnl_6.enq(flit);
                 end
@@ -129,36 +223,20 @@ module mkRingRouterVC #(parameter Address my_addr) (IfcRingRouterVC);
         end
     endrule
 
-    // // This rules fires every alternate cycle, and chooses odd named Virtual Channels (VC2, VC4, VC6)
-    // rule read_input_link_and_send_to_VC_even(cycle == 0);
-    //     //NOTE This logic would need change when L1 is introduced
-    //     //NOTE network address is not considered now
-    //     let flit = input_link.first();
-    //     input_link.deq();
-                
-    //     // Reached the destination - core will consume
-    //     if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
-    //         $display("Even cycle: vir_chnl_2.enq at addr:%h", my_addr);
-    //         vir_chnl_2.enq(flit);
-    //     end
-    //     // The current flit has to go to left 
-    //     else if(flit.currentDstAddress.nodeAddress < my_addr.nodeAddress)  begin
-    //         $display("Even cycle: vir_chnl_4.enq at addr:%h", my_addr);
-    //         vir_chnl_4.enq(flit);
-    //     end
-    //     // The current flit has to go to right
-    //     else  begin
-    //         $display("Even cycle: vir_chnl_6.enq at addr:%h", my_addr);
-    //         vir_chnl_6.enq(flit);
-    //     end
-    // endrule
 
     // Method to get the flit into the node
     method Action put_value(Flit flit);
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
         print_flit_details(flit);
-        $display("Core router (Addr: %h) received the flit into Input Link", my_addr);
+        $display("Router (Addr: %h) received the flit into its Input Link", my_addr);
+    endmethod
+
+    method Action put_value_dateline(Flit flit);
+        // Data that comes from left/right/core link is put into the input link buffer
+        input_link_dateline.enq(flit);
+        print_flit_details(flit);
+        $display("Router (Addr: %h) received the flit into its Input Link Dateline", my_addr);
     endmethod
 
 

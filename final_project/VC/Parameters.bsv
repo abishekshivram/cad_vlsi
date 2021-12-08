@@ -14,10 +14,10 @@ Last updated on: 09-Dec-2021
 package Parameters;
 
 //Modify here for changing network address length 
-typedef UInt#(16) NetAddressLen;
+typedef Int#(16) NetAddressLen;
 
 //Modify here for changing node address length 
-typedef UInt#(16) NodeAddressLen;
+typedef Int#(16) NodeAddressLen;
 
 //For payload parameterisation, change the size here
 typedef UInt#(64) PayloadLen;

@@ -12,14 +12,27 @@ a = """    method ActionValue#(int) GetValueVC{element}();
 b = "let node{element}   <- mkChainNode(3'b{element1:0>3b});"
 
 c = """    rule connect_Node{element}_to_Node{element1}_L2R;
-        let data{element}{element1}_L2R <- node{element}.GetValuetoRight();
-        node{element1}.PutValuefromLeft(data{element}{element1}_L2R);
+        let data{element}{element1}_L2R <- node{element}.get_value_to_right();
+        node{element1}.put_value_from_left(data{element}{element1}_L2R);
+    endrule"""
+
+c1 = """    rule connect_Node{element}_to_Node{element1}_L2R_dateline;
+        let data{element}{element1}_L2R <- node{element}.get_value_to_right_dateline();
+        node{element1}.put_value_from_left_dateline(data{element}{element1}_L2R);
     endrule"""
 
 d = """    rule connect_Node{element1}_to_Node{element}_R2L;
-        let data{element1}{element}_R2L <- node{element1}.GetValuetoLeft();
-        node{element}.PutValuefromRight(data{element1}{element}_R2L);
+        let data{element1}{element}_R2L <- node{element1}.get_value_to_left();
+        node{element}.put_value_from_right(data{element1}{element}_R2L);
     endrule"""
+
+d1 = """    rule connect_Node{element1}_to_Node{element}_R2L_dateline;
+        let data{element1}{element}_R2L <- node{element1}.get_value_to_left_dateline();
+        node{element}.put_value_from_right_dateline(data{element1}{element}_R2L);
+    endrule"""
+
+for element in range(6):
+    print(c1.format(element = element, element1 = element+1))
 
 g = """    method ActionValue#(Flit) get_valueVC{count}();
         $display("get_valueVC{count} method called at Router(Addr: %h)", my_addr);
@@ -113,23 +126,23 @@ hyper = """    rule send_from_vc{vc}_ie_to_{which} (my_addr == {addr});
 """
 # which (lsb, msb, mid)  
 
-zero_one = 0
+# zero_one = 0
 
-ways = ["lsb", "mid", "msb"]
+# ways = ["lsb", "mid", "msb"]
 
-which_way = None
-for addr in range(8):
-    for vc in range(1, 1+8):
-        if (addr != (vc-1)):
-            binary_addr = f"{addr:0>3b}"
-            binary_vc = f"{vc-1:0>3b}"
-            for bit in range(3):
-                if(binary_addr[-1-bit] != binary_vc[-1-bit]):
-                    which_way = ways[bit]
-                    break
-            if(addr==5):
-                print(f"DST:{binary_vc}   SRC:{binary_addr}")
-                print(hyper.format(vc=vc, which=which_way, addr=addr))
+# which_way = None
+# for addr in range(8):
+#     for vc in range(1, 1+8):
+#         if (addr != (vc-1)):
+#             binary_addr = f"{addr:0>3b}"
+#             binary_vc = f"{vc-1:0>3b}"
+#             for bit in range(3):
+#                 if(binary_addr[-1-bit] != binary_vc[-1-bit]):
+#                     which_way = ways[bit]
+#                     break
+#             if(addr==5):
+#                 print(f"DST:{binary_vc}   SRC:{binary_addr}")
+#                 print(hyper.format(vc=vc, which=which_way, addr=addr))
                 
 
 

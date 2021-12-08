@@ -66,7 +66,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
     //This is meant for generating valid flits randomly
     (* preempts = "generateFlit, resetFlitStat" *)
     //rule generateFlit(lfsr.value() < 32768); 
-    rule generateFlit(clockCount==3 || clockCount==5); //NOTE for testing. Generate only 1 flit
+    rule generateFlit(clockCount==3); //NOTE for testing. Generate only 1 flit
         
         if(myAddress.nodeAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
         //NOTE The test traffic is from node 0 to node 1
