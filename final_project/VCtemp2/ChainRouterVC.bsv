@@ -49,7 +49,6 @@ module mkChainRouterVC #(parameter Address my_addr,parameter Bool is_head_nod) (
         endaction;
     endfunction
 
-    // Right now, it has been commented, we may need it for L1, L2 routing
     Reg#(Bool)  is_head_node <- mkReg(is_head_nod); // True indicates head node, False other nodes
     
     // Input link for the router

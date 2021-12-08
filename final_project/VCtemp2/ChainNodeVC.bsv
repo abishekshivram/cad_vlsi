@@ -31,14 +31,17 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
     let router_right    <- mkChainRouterVC(my_addr,is_head_node);
     let router_core     <- mkChainRouterVC(my_addr,is_head_node);
 
-    Reg#(Bit#(2)) counter   <- mkReg(0);
+    // These output link buffers were added to store the flit from VC in FIFO order and send them to next INPUT LINK
+    FIFO#(Flit) output_link_left <- mkFIFO;
+    FIFO#(Flit) output_link_right <- mkFIFO;
 
     // This counter is used by arbiters to choose VC to send out data
+    Reg#(Bit#(2)) counter   <- mkReg(0);
     rule count_every_cycle;
         counter <= counter + 1;
     endrule
 
-    // Arbiter - connecting Output links to VC
+    //If core generated a flit, move it to core router
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
         if(core.is_flit_generated()==True)
@@ -50,6 +53,39 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
     // Rule - Output link - connecting to associated core
     // In this rule, we choose VC1 or VC2 from router_left or router_right (router_core cannot send to itself)
     // in a round robin fashion (implemented through 2 bit counter) (2 bit because we have 4 VCs to choose from)
+
+    /*rule arbiter_left_link;//VC3,VC4 of router_left,router_right and router_core
+        Flit data_left=defaultValue;
+        data_left<-router_left.get_valueVC3();
+        data_left<-router_left.get_valueVC4();
+        data_left<-router_right.get_valueVC3();
+        data_left<-router_right.get_valueVC4();
+        data_left<-router_core.get_valueVC3();
+        data_left<-router_core.get_valueVC4();
+        output_link_left.enq(data_left);
+    endrule:arbiter_left_link*/
+
+    /*rule arbiter_right_link;//VC5,VC6 of router_left,router_right and router_core
+        Flit data_right=defaultValue;
+        data_right<-router_left.get_valueVC5();
+        data_right<-router_left.get_valueVC6();
+        data_right<-router_right.get_valueVC5();
+        data_right<-router_right.get_valueVC6();
+        data_right<-router_core.get_valueVC5();
+        data_right<-router_core.get_valueVC6();
+        output_link_right.enq(data_right);
+    endrule:arbiter_right_link
+
+    rule arbiter_router_core;//VC5,VC6 of router_left,router_right and router_core
+        Flit data_core=defaultValue;
+        data_core<-router_left.get_valueVC1();
+        data_core<-router_left.get_valueVC2();
+        data_core<-router_right.get_valueVC1();
+        data_core<-router_right.get_valueVC2();
+        data_core<-router_core.get_valueVC1();
+        data_core<-router_core.get_valueVC2();
+        core.put_flit(data_core);
+    endrule:arbiter_router_core*/
     
     rule outputLinkCore0(counter == 2'b00);
         $display("here flit is put into core from router left vc1; Arbiter count-%d", counter);      
@@ -79,12 +115,6 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
         core.put_flit(data_core);
     endrule
 
-
-    // Without these buffer, there was error compiling 
-    // (ie) to send directly from VC to next input link buffer, it showed error (below commented code)
-    // These output link buffers were added to store the flit from VC in FIFO order and send them to next INPUT LINK
-    FIFO#(Flit) output_link_left <- mkFIFO;
-    FIFO#(Flit) output_link_right <- mkFIFO;
 
     rule add_to_link_right0(counter == 2'b00);
         $display("add_to_link_right0-> my_addr %d",my_addr.netAddress);    

@@ -59,8 +59,11 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
     //Counts the clock pulse, always fire
     rule clockCounter;
         clockCount <= clockCount+1;
-        if(myAddress.nodeAddress==fromInteger(0)) // To prevent all the cores from printing the same statement
-            $display("\nClock Cycle: %d",clockCount);
+        if(myAddress.netAddress==fromInteger(0)) begin // To prevent all the cores from printing the same statement
+            if(myAddress.nodeAddress==fromInteger(0)) begin
+                $display("\nClock Cycle: %d",clockCount);
+            end
+        end    
     endrule
 
     //This rule fires randomly for different core instantiations (32768=2^16/2)
@@ -68,19 +71,20 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
     (* preempts = "generateFlit, resetFlitStat" *)
     //rule generateFlit(lfsr.value() < 32768); 
     rule generateFlit(clockCount==3 || clockCount==5); //NOTE for testing. Generate only 1 flit
-        
-        if(myAddress.nodeAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
-            begin
-                
+        //if(myAddress.netAddress==fromInteger(0)) begin //NOTE Test line: Generate flit from Net 0, Node 0 only.
+            //if(myAddress.nodeAddress==fromInteger(0)) begin 
+            
                 Flit flit;
                 flit.srcAddress.netAddress          = myAddress.netAddress;
                 flit.srcAddress.nodeAddress         = myAddress.nodeAddress;
 
                 let destNetAddress                  = unpack(lfsr.value()%fromInteger(l1NodeCount));
                 flit.finalDstAddress.netAddress     = destNetAddress;
+                //flit.finalDstAddress.netAddress     = fromInteger(2);//NOTE- for testing
 
                 let destNodeAddress                 = unpack(lfsr.value()%pack(l2AddressLengths.getMaxAddress(destNetAddress)));
                 flit.finalDstAddress.nodeAddress    = destNodeAddress;
+                //flit.finalDstAddress.nodeAddress    = fromInteger(5);//NOTE- for testing
 
                 if(flit.srcAddress.netAddress==flit.finalDstAddress.netAddress) begin
                     flit.currentDstAddress.netAddress   = flit.finalDstAddress.netAddress;
@@ -97,7 +101,8 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 flitValidStat                       <= True;
                 $display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress);
 
-            end
+            //end
+        //end    
         lfsr.next();
     endrule
 
@@ -118,8 +123,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
     method Action put_flit(Flit flit);
         flitConsumeReg <=flit; //flitConsumeReg needed? 
         //$display("Transmission delay from-%x,%x- to-%x,%x is -%x- cycles");
-        //$display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.currentDstAddress.netAddress,flit.currentDstAddress.nodeAddress);
-        $display(">>>>>>>>>>>>>>> Flit received with payload: %h  | MyAddress: -> %d (Network),%d (Node)", flit.payload,myAddress.netAddress,myAddress.nodeAddress);
+        $display(">>>>>>>>>>>>>>> Flit received with payload: %h  | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node) | MyAddress: -> %d (Network),%d (Node)", flit.payload,flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress,myAddress.netAddress,myAddress.nodeAddress);
     endmethod
 
     
