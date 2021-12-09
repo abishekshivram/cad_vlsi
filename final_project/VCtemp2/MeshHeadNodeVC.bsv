@@ -4,7 +4,7 @@ import Shared::*;
 
 import FIFO :: * ;
 import Core :: * ;
-import ChainRouterVC :: *;
+import MeshRouterVC :: *;
 
 
 interface IfcMeshHeadNode;
@@ -39,16 +39,16 @@ module mkMeshHeadNode #(parameter Address my_addr, parameter Address head_node_a
     // Core and three routers - core, left link, right link instantiation
     let core                <- mkCore(my_addr,head_node_addr); 
     //Left, right routers
-    let router_left         <- mkChainRouterVC(my_addr,is_head_node); // takes input from left neighbour and puts in corresponding VC
-    let router_right        <- mkChainRouterVC(my_addr,is_head_node);
-    let router_up           <- mkChainRouterVC(my_addr,is_head_node);
-    let router_down         <- mkChainRouterVC(my_addr,is_head_node);
+    let router_left         <- mkMeshRouterVC(my_addr,is_head_node); // takes input from left neighbour and puts in corresponding VC
+    let router_right        <- mkMeshRouterVC(my_addr,is_head_node);
+    let router_up           <- mkMeshRouterVC(my_addr,is_head_node);
+    let router_down         <- mkMeshRouterVC(my_addr,is_head_node);
     //HeadLeft, HeadRight routers
-    let router_head_left    <- mkChainRouterVC(my_addr,is_head_node); // takes input from L1 left neighbour and puts in corresponding VC
-    let router_head_right   <- mkChainRouterVC(my_addr,is_head_node);
-    let router_head_up      <- mkChainRouterVC(my_addr,is_head_node); 
-    let router_head_down    <- mkChainRouterVC(my_addr,is_head_node);
-    let router_core         <- mkChainRouterVC(my_addr,is_head_node);
+    let router_head_left    <- mkMeshRouterVC(my_addr,is_head_node); // takes input from L1 left neighbour and puts in corresponding VC
+    let router_head_right   <- mkMeshRouterVC(my_addr,is_head_node);
+    let router_head_up      <- mkMeshRouterVC(my_addr,is_head_node); 
+    let router_head_down    <- mkMeshRouterVC(my_addr,is_head_node);
+    let router_core         <- mkMeshRouterVC(my_addr,is_head_node);
 
     // These output link buffers were added to store the flit from VC in FIFO order and send them to next INPUT LINK
     FIFO#(Flit) output_link_left <- mkFIFO;
