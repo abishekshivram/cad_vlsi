@@ -15,13 +15,16 @@ package Parameters;
 
 //Modify here for changing network address length 
 //Assumption - All the network topologies share the same network address length and node address length
-typedef UInt#(16) NetAddress; //Represents the network address in NoC.
-typedef UInt#(8) NetAddressX; //Represents the network address split to X dimensions
-typedef UInt#(8) NetAddressY; //Represents the network address split to Y dimensions
+typedef Bit#(16) NetAddress; //Represents the network address in NoC.
 
-typedef UInt#(16) NodeAddress; //Represents the node address in NoC.
-typedef UInt#(8) NodeAddressX; //Represents the node address split to X dimensions
-typedef UInt#(8) NodeAddressY; //Represents the node address split to Y dimensions
+//NOTE Most significant byte is X and LSByte is Y
+
+typedef Bit#(8) NetAddressX; //Represents the network address split to X dimensions
+typedef Bit#(8) NetAddressY; //Represents the network address split to Y dimensions
+
+typedef Bit#(16) NodeAddress; //Represents the node address in NoC.
+typedef Bit#(8) NodeAddressX; //Represents the node address split to X dimensions
+typedef Bit#(8) NodeAddressY; //Represents the node address split to Y dimensions
 
 typedef SizeOf#(NetAddress) NetAddressLen; //Length of Net address
 typedef SizeOf#(NodeAddress) NodeAddressLen; //Length of Node address
@@ -32,7 +35,7 @@ typedef SizeOf#(NodeAddressY) NodeAddressYLen; //Length of Node address Y length
 
 //For payload parameterisation, change the size here
 //Represents the payload in a Flit
-typedef UInt#(64) FlitPayload;
+typedef Bit#(64) FlitPayload;
 
 
 //A type to represet the clock count
