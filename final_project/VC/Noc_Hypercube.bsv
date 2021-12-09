@@ -159,8 +159,5 @@ module mkNoc(Empty);
     endrule
 
 
-
-
-
 endmodule
 endpackage : Noc_Hypercube

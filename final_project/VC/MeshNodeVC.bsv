@@ -4,7 +4,7 @@ import Shared::*;
 
 import FIFO :: * ;
 import Core :: * ;
-import ChainRouterVC :: *;
+import MeshRouterVC :: *;
 
 
 interface IfcMeshNode;
