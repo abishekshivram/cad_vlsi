@@ -42,7 +42,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
 
     LFSR#(Bit#(16)) lfsr            <- mkLFSR_16; //Lnear Feedback Shift Register for generating random patterns
     Reg#(Bool) fireOnceFlag         <- mkReg(True);  
-    Reg#(PayloadLen) clockCount     <- mkReg(0); //A register to store the clock pulse count
+    Reg#(ClockCount) clockCount     <- mkReg(0); //A register to store the clock pulse count
     
     MaxAddressInterface l2AddressLengths <- mkMaxAddress; //instantiates mkMaxAddress from parameters.bsv
 
