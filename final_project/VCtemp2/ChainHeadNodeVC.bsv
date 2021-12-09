@@ -52,8 +52,10 @@ module mkChainHeadNode #(parameter Address my_addr, parameter Address head_node_
     //If core generated a flit, move it to core router    
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
-        if(core.is_flit_generated()==True)
+        if(core.is_flit_generated()==True) begin
             router_core.put_value(flit_generated);
+            $display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit_generated.srcAddress.netAddress,flit_generated.srcAddress.nodeAddress,flit_generated.finalDstAddress.netAddress,flit_generated.finalDstAddress.nodeAddress);
+        end
     endrule
 
       
@@ -259,14 +261,14 @@ module mkChainHeadNode #(parameter Address my_addr, parameter Address head_node_
     rule add_to_link_head_right2(counter == 3'b010);
         $display("add_to_head_link_right2-> my_addr %d",my_addr.netAddress);    
         Flit data_right=defaultValue;
-        data_right <- router_head_left.get_valueVC9();
+        data_right <- router_right.get_valueVC9();
         output_link_head_right.enq(data_right);
     endrule
 
     rule add_to_link_head_right3(counter == 3'b011);
         $display("add_to_head_link_right3-> my_addr %d",my_addr.netAddress);    
         Flit data_right=defaultValue;
-        data_right <- router_head_right.get_valueVC9();
+        data_right <- router_head_left.get_valueVC9();
         output_link_head_right.enq(data_right);
     endrule
 
@@ -287,14 +289,14 @@ module mkChainHeadNode #(parameter Address my_addr, parameter Address head_node_
     rule add_to_link_head_right6(counter == 3'b110);
         $display("add_to_head_link_right6-> my_addr %d",my_addr.netAddress);    
         Flit data_right=defaultValue;
-        data_right <- router_head_left.get_valueVC10();
+        data_right <- router_right.get_valueVC10();
         output_link_head_right.enq(data_right);
     endrule
 
     rule add_to_link_head_right7(counter == 3'b111);
         $display("add_to_head_link_right7-> my_addr %d",my_addr.netAddress);    
         Flit data_right=defaultValue;
-        data_right <- router_head_right.get_valueVC10();
+        data_right <- router_head_left.get_valueVC10();
         output_link_head_right.enq(data_right);
     endrule
 
@@ -318,7 +320,7 @@ module mkChainHeadNode #(parameter Address my_addr, parameter Address head_node_
     rule add_to_head_link_left2(counter == 3'b010);
         $display("add_to_head_link_left2 -> my_addr %d",my_addr.netAddress);    
         Flit data_left=defaultValue;
-        data_left <- router_head_left.get_valueVC7();
+        data_left <- router_left.get_valueVC7();
         output_link_head_left.enq(data_left);
     endrule
 
@@ -346,7 +348,7 @@ module mkChainHeadNode #(parameter Address my_addr, parameter Address head_node_
     rule add_to_head_link_left6(counter == 3'b110);
         $display("add_to_head_link_left6 -> my_addr %d",my_addr.netAddress);    
         Flit data_left=defaultValue;
-        data_left <- router_head_left.get_valueVC8();
+        data_left <- router_left.get_valueVC8();
         output_link_head_left.enq(data_left);
     endrule
 

@@ -44,8 +44,10 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
     //If core generated a flit, move it to core router
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
-        if(core.is_flit_generated()==True)
+        if(core.is_flit_generated()==True) begin
             router_core.put_value(flit_generated);
+            $display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit_generated.srcAddress.netAddress,flit_generated.srcAddress.nodeAddress,flit_generated.finalDstAddress.netAddress,flit_generated.finalDstAddress.nodeAddress);
+        end    
     endrule
 
     //NOTE LLOYD This (Round robin arbiter) can be improved

@@ -98,8 +98,10 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 flit.payload                        = clockCount;
 
                 flitReg                             <= flit;
-                flitValidStat                       <= True;
-                $display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress);
+                if(myAddress!=flit.finalDstAddress) begin //Generate only the flits which are not self destined 
+                    flitValidStat <= True;
+                    //$display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress);
+                end
 
             //end
         //end    
