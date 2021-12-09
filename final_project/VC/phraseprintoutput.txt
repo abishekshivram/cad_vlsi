@@ -1,30 +1,152 @@
-    rule connect_Node1_to_Node0_R2L;
-        let data10_R2L <- node1.GetValuetoLeft();
-        node0.PutValuefromRight(data10_R2L);
+    rule outputLinkCore00(my_addr.nodeAddress == 0 && counter_router==3'b000);
+        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC1();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore01(my_addr.nodeAddress == 0 && counter_router==3'b001);
+        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC1();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore02(my_addr.nodeAddress == 0 && counter_router==3'b010);
+        $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC1();
+        core.put_flit(data_core);
     endrule
 
-    rule connect_Node2_to_Node1_R2L;
-        let data21_R2L <- node2.GetValuetoLeft();
-        node1.PutValuefromRight(data21_R2L);
+    rule outputLinkCore10(my_addr.nodeAddress == 1 && counter_router==3'b000);
+        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC2();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore11(my_addr.nodeAddress == 1 && counter_router==3'b001);
+        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC2();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore12(my_addr.nodeAddress == 1 && counter_router==3'b010);
+        $display("here flit is put into core from router left vc2; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC2();
+        core.put_flit(data_core);
     endrule
 
-    rule connect_Node3_to_Node2_R2L;
-        let data32_R2L <- node3.GetValuetoLeft();
-        node2.PutValuefromRight(data32_R2L);
+    rule outputLinkCore20(my_addr.nodeAddress == 2 && counter_router==3'b000);
+        $display("here flit is put into core from router left vc3; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC3();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore21(my_addr.nodeAddress == 2 && counter_router==3'b001);
+        $display("here flit is put into core from router left vc3; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC3();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore22(my_addr.nodeAddress == 2 && counter_router==3'b010);
+        $display("here flit is put into core from router left vc3; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC3();
+        core.put_flit(data_core);
     endrule
 
-    rule connect_Node4_to_Node3_R2L;
-        let data43_R2L <- node4.GetValuetoLeft();
-        node3.PutValuefromRight(data43_R2L);
+    rule outputLinkCore30(my_addr.nodeAddress == 3 && counter_router==3'b000);
+        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC4();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore31(my_addr.nodeAddress == 3 && counter_router==3'b001);
+        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC4();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore32(my_addr.nodeAddress == 3 && counter_router==3'b010);
+        $display("here flit is put into core from router left vc4; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC4();
+        core.put_flit(data_core);
     endrule
 
-    rule connect_Node5_to_Node4_R2L;
-        let data54_R2L <- node5.GetValuetoLeft();
-        node4.PutValuefromRight(data54_R2L);
+    rule outputLinkCore40(my_addr.nodeAddress == 4 && counter_router==3'b000);
+        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC5();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore41(my_addr.nodeAddress == 4 && counter_router==3'b001);
+        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC5();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore42(my_addr.nodeAddress == 4 && counter_router==3'b010);
+        $display("here flit is put into core from router left vc5; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC5();
+        core.put_flit(data_core);
     endrule
 
-    rule connect_Node6_to_Node5_R2L;
-        let data65_R2L <- node6.GetValuetoLeft();
-        node5.PutValuefromRight(data65_R2L);
+    rule outputLinkCore50(my_addr.nodeAddress == 5 && counter_router==3'b000);
+        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC6();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore51(my_addr.nodeAddress == 5 && counter_router==3'b001);
+        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC6();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore52(my_addr.nodeAddress == 5 && counter_router==3'b010);
+        $display("here flit is put into core from router left vc6; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC6();
+        core.put_flit(data_core);
+    endrule
+
+    rule outputLinkCore60(my_addr.nodeAddress == 6 && counter_router==3'b000);
+        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC7();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore61(my_addr.nodeAddress == 6 && counter_router==3'b001);
+        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC7();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore62(my_addr.nodeAddress == 6 && counter_router==3'b010);
+        $display("here flit is put into core from router left vc7; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC7();
+        core.put_flit(data_core);
+    endrule
+
+    rule outputLinkCore70(my_addr.nodeAddress == 7 && counter_router==3'b000);
+        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_lsb.get_valueVC8();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore71(my_addr.nodeAddress == 7 && counter_router==3'b001);
+        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_mid.get_valueVC8();
+        core.put_flit(data_core);
+    endrule
+    rule outputLinkCore72(my_addr.nodeAddress == 7 && counter_router==3'b010);
+        $display("here flit is put into core from router left vc8; Arbiter count-%d", counter_router);      
+        Flit data_core=defaultValue;
+        data_core <- router_msb.get_valueVC8();
+        core.put_flit(data_core);
     endrule
 
