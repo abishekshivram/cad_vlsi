@@ -35,6 +35,6 @@ def Simple_test(dut):  #14
     dut.RST_N <= 1
     
     i = 1
-    while i < 50:
+    while i < 25:
         yield clkedge #Step 0,1,2...1000
         i += 1

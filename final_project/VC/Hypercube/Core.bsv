@@ -68,7 +68,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
     //rule generateFlit(lfsr.value() < 32768); 
     rule generateFlit(clockCount==3); //NOTE for testing. Generate only 1 flit
         
-        if(myAddress.nodeAddress==fromInteger(13)) //NOTE Test line: Generate flit from Node 0 only.
+        if(myAddress.nodeAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
         //NOTE The test traffic is from node 0 to node 1
             begin
                 
@@ -83,7 +83,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
                 flit.finalDstAddress.nodeAddress    = destNodeAddress;
 
                 flit.currentDstAddress.netAddress   = fromInteger(0);
-                flit.currentDstAddress.nodeAddress  = fromInteger(0);
+                flit.currentDstAddress.nodeAddress  = fromInteger(2);
                 flit.payload                        = clockCount;
 
                 flitReg                             <= flit;
@@ -111,7 +111,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
     method Action put_flit(Flit flit);
         flitConsumeReg <=flit; //flitConsumeReg needed? 
         //$display("Transmission delay from-%x,%x- to-%x,%x is -%x- cycles");
-        $display("---> Flit received at myAddress:%d with payload: %h", myAddress, flit.payload);
+        $display("---> Flit received with payload: %h", flit.payload);
     endmethod
 
     

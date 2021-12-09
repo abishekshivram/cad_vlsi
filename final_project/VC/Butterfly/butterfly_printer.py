@@ -20,24 +20,40 @@ left_nodes_to_switches = """    rule node{node_id}_to_switch_L{layer}_{id};
         switch_L{layer}_{id}.put_value_from_left_{up_down}(data);
     endrule
 """
-up_down = "down"
+switches_to_left_nodes = """   rule to_switch_L{layer}_{id}_node{node_id};
+        let data <- switch_L{layer}_{id}.get_value_to_left_{up_down}();
+        node{node_id:0>4b}.put_value();
+    endrule
+"""
+
 
 right_nodes_to_switches = """    rule node{node_id}_to_switch_L{layer}_{id};
         let data <- node{node_id:0>4b}.get_value();
         switch_L{layer}_{id}.put_value_from_right_{up_down}(data);
     endrule
 """
+
+
+switches_to_right_nodes = """    rule to_switch_L{layer}_{id}_node{node_id};
+        let data <- switch_L{layer}_{id}.get_value_to_right_{up_down}();
+        node{node_id:0>4b}.put_value();
+    endrule
+"""
+
 up_down = "down"
+
 for i in range(16):
-    print(node_instantiate.format(id=i))
+    # print(node_instantiate.format(id=i))
     # if(i<12):
         # print(switches_inst.format(layer=i//4, id=i%4))
-# #     if(i<8):
-#         up_down = "down" if up_down=="up" else "up"
-#         # print(left_nodes_to_switches.format(layer=(i//2)//4, id=(i//2)%4, node_id=i, up_down=up_down))
-#     else:
-#         up_down = "down" if up_down=="up" else "up"
-#         print(right_nodes_to_switches.format(layer=1+(i//2)//4, id=(i//2)%4, node_id=i, up_down=up_down))
+    if(i<8):
+        up_down = "down" if up_down=="up" else "up"
+        # print(left_nodes_to_switches.format(layer=(i//2)//4, id=(i//2)%4, node_id=i, up_down=up_down))
+        print(switches_to_left_nodes.format(layer=(i//2)//4, id=(i//2)%4, node_id=i, up_down=up_down))
+    else:
+        up_down = "down" if up_down=="up" else "up"
+        # print(right_nodes_to_switches.format(layer=1+(i//2)//4, id=(i//2)%4, node_id=i, up_down=up_down))
+        # print(switches_to_right_nodes.format(layer=1+(i//2)//4, id=(i//2)%4, node_id=i, up_down=up_down))
 
     
 # CONNECT SWITCHES (UP==STRAIGHT) (DOWN==CROSS)

@@ -4,8 +4,8 @@
 ### MODULE: This is the name of the python test bench WITHOUT the (.py) extension
 
 
-TOP_MODULE:=mkButterflyNoc
-TOP_FILE:=Noc_butterfly.bsv
+TOP_MODULE:=mkNoc
+TOP_FILE:=Noc_Hypercube.bsv
 TOP_DIR:=.
 MODULE:=testRunner
 BLUESPEC_TOOL:=/home/abi/tools/bsc

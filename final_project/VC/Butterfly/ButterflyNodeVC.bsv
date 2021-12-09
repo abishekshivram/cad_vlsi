@@ -4,7 +4,6 @@ import Shared::*;
 
 import FIFO :: * ;
 import Core :: * ;
-import ChainRouterVC :: *;
 
 
 interface IfcButterflyNode;
@@ -25,7 +24,7 @@ module mkButterflyNode #(parameter Address my_addr) (IfcButterflyNode);
 
     // Core and three routers - core, left link, right link instantiation
     let core   <- mkCore(my_addr);
-
+    FIFO#(Flit) output_link <- mkFIFO;
     // Arbiter - connecting Output links to VC
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
@@ -33,7 +32,6 @@ module mkButterflyNode #(parameter Address my_addr) (IfcButterflyNode);
             output_link.enq(flit_generated);
     endrule
 
-    FIFO#(Flit) output_link <- mkFIFO;
 
     method ActionValue#(Flit) get_value();
         let data = output_link.first();
