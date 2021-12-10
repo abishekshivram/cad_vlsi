@@ -38,7 +38,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
     Reg#(Address) myAddress         <- mkReg(sourceAddress); //Register storing the Address of this Core/Node
     Reg#(Address) head_node_address <- mkReg(head_node_addr); //Register storing the Address of this Core/Node
 
-    Reg#(Flit) flitConsumeReg       <- mkReg(?); //A register to store the consumed flit
+    FIFO#(Flit) flit_consume_fifo   <- mkFIFO; //A fifo to store the consumed flit
 
     LFSR#(Bit#(16)) lfsr            <- mkLFSR_16; //Lnear Feedback Shift Register for generating random patterns
     Reg#(Bool) fireOnceFlag         <- mkReg(True);  
@@ -114,6 +114,16 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
         lfsr.next();
     endrule
 
+
+    //NOTE This rule can add additional delay to other flits which is waiting to be writtten to this fifo (consume fifo)
+    //Conflicting rules- 'outputLinkCore*' Rules in Node, which call put_flit (as they share the reg 'flitConsumeReg')
+    //This rule has the highest priority
+    (* descending_urgency = "calculateDelay" *)
+    rule calculateDelay;
+        let flit=flit_consume_fifo.first(); flit_consume_fifo.deq();
+        $display("############## Transmission Delay: %d, Payload: %d | %d,%d->%d,%d|", clockCount-flit.payload,flit.payload,flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress);
+    endrule:calculateDelay
+
     method Bool is_flit_generated();
         return flitValidStat;
     endmethod
@@ -123,8 +133,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
     endmethod
 
     method Action put_flit(Flit flit);
-        flitConsumeReg <=flit; //flitConsumeReg needed? 
-        //$display("Transmission delay from-%x,%x- to-%x,%x is -%x- cycles");
+        flit_consume_fifo.enq(flit);
         $display(">>>>>>>>>>>>>>> Flit received with payload: %h  | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node) | MyAddress: -> %d (Network),%d (Node)", flit.payload,flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress,myAddress.netAddress,myAddress.nodeAddress);
     endmethod
 

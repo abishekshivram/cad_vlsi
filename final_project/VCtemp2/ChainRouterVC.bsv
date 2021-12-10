@@ -6,6 +6,7 @@ package ChainRouterVC;
 // VC3,4 allocated to left neighbour, VC5,6 allocated to right neighbour
 // This routing can be seen in line 58: Two rules are written that connects the Input link to the respective VC
 
+import Parameters::*;
 import Shared::*;
 
 // FIFO used as buffers in routers
@@ -30,6 +31,8 @@ interface IfcChainRouterVC ;
     method ActionValue#(Flit) get_valueVC8();
     method ActionValue#(Flit) get_valueVC9();
     method ActionValue#(Flit) get_valueVC10();
+
+    method LinkUtilisationCounter get_link_util_counter();
     
 endinterface
 
@@ -49,8 +52,6 @@ module mkChainRouterVC #(parameter Address my_addr,parameter Bool is_head_nod) (
         endaction;
     endfunction
 
-    Reg#(Bool)  is_head_node <- mkReg(is_head_nod); // True indicates head node, False other nodes
-    
     // Input link for the router
     FIFO#(Flit)  input_link  <- mkFIFO; // to get data from left router
     
@@ -71,8 +72,10 @@ module mkChainRouterVC #(parameter Address my_addr,parameter Bool is_head_nod) (
     FIFO#(Flit)  vir_chnl_8  <- mkFIFO; // Virtual Channel 8
 
     // To store the flits that are sent to L1 routing, NETWORK on right
-    FIFO#(Flit)  vir_chnl_9  <- mkFIFO; // Virtual Channel 7
-    FIFO#(Flit)  vir_chnl_10  <- mkFIFO; // Virtual Channel 8
+    FIFO#(Flit)  vir_chnl_9  <- mkFIFO; // Virtual Channel 9
+    FIFO#(Flit)  vir_chnl_10  <- mkFIFO; // Virtual Channel 10
+
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
 
     // Since we have two VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
@@ -187,7 +190,12 @@ module mkChainRouterVC #(parameter Address my_addr,parameter Bool is_head_nod) (
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
         print_flit_details(flit);
+        link_util_counter <= link_util_counter+1;
         $display("(Addr: %h) received the flit into Input Link", my_addr);
+    endmethod
+
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
     endmethod
 
 

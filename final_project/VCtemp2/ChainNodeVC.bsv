@@ -1,10 +1,12 @@
 package ChainNodeVC;
 
+import Parameters:: *;
 import Shared::*;
 
 import FIFO :: * ;
 import Core :: * ;
 import ChainRouterVC :: *;
+
 
 
 interface IfcChainNode;
@@ -35,6 +37,18 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
     FIFO#(Flit) output_link_left <- mkFIFO;
     FIFO#(Flit) output_link_right <- mkFIFO;
 
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_left.get_link_util_counter();
+        let rr=router_right.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%d,%d | : Left Link->%d, Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr);
+    endrule
+
+
     // This counter is used by arbiters to choose VC to send out data
     Reg#(Bit#(2)) counter   <- mkReg(0);
     rule count_every_cycle;
@@ -49,6 +63,8 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
             $display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit_generated.srcAddress.netAddress,flit_generated.srcAddress.nodeAddress,flit_generated.finalDstAddress.netAddress,flit_generated.finalDstAddress.nodeAddress);
         end    
     endrule
+
+
 
     //NOTE LLOYD This (Round robin arbiter) can be improved
     //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
