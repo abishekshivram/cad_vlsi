@@ -56,7 +56,7 @@ for i in range(NO_OF_NETWORKS):
     d['rule_right_to_left'] = ''.join(rules_R2L)
     d['HEADNODE'] = f"{NUMBER_OF_NODES//2}"
 
-    with open('template_NOC.txt', 'r') as f:
+    with open('template_L2_Chains.txt', 'r') as f:
         src = Template(f.read())
         result = src.substitute(d)
         if(IF_OUT_TO_FILE):
