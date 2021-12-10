@@ -1,0 +1,31 @@
+package $PACKAGE_NAME;
+// This package instantiates all the nodes and connects them
+
+import Shared::*;
+
+import FIFO :: * ;
+import Core :: * ;
+import MeshRouterVC :: *;
+import MeshNodeVC :: *;
+
+(* synthesize *)
+
+module mkMeshNoc(Empty);
+
+    // MAKING MESH TOPOLOGY WITH ROWS: $NO_OF_ROWS AND COLUMNS: $NO_OF_COLUMNS
+    // MAKING NODES
+$nodes_instantiate
+
+
+// LEFT RIGHT
+$LR_CONNECTIONS
+
+
+// UP DOWN
+$UP_DOWN_CONNECTIONS
+
+
+
+endmodule
+
+endpackage: $PACKAGE_NAME
