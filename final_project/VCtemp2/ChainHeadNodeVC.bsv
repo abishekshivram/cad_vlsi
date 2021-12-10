@@ -54,7 +54,7 @@ module mkChainHeadNode #(parameter Address my_addr, parameter Address head_node_
         let rr=router_right.get_link_util_counter();
         let rhl=router_head_left.get_link_util_counter();
         let rhr=router_head_right.get_link_util_counter();
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%d,%d | : Left Link->%d, Right Link->%d, L1 Left Link->%d, L1 Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,rhl,rhr);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d, L1 Left Link->%d, L1 Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,rhl,rhr);
     endrule
 
     

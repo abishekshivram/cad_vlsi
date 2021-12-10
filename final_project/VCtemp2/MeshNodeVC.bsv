@@ -53,7 +53,7 @@ module mkMeshNode #(parameter Address my_addr, parameter Address head_node_addr,
         let rr=router_right.get_link_util_counter();
         let ru=router_up.get_link_util_counter();
         let rd=router_down.get_link_util_counter();
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%d,%d | : Left Link->%d, Right Link->%d, Up Link->%d, Down Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d, Up Link->%d, Down Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd);
     endrule
 
     // This counter is used by arbiters to choose VC to send out data
@@ -67,7 +67,7 @@ module mkMeshNode #(parameter Address my_addr, parameter Address head_node_addr,
         let flit_generated = core.get_generated_flit();
         if(core.is_flit_generated()==True) begin
             router_core.put_value(flit_generated);
-            $display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit_generated.srcAddress.netAddress,flit_generated.srcAddress.nodeAddress,flit_generated.finalDstAddress.netAddress,flit_generated.finalDstAddress.nodeAddress);
+            $display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %h (Network),%h (Node) | Destination: -> %h (Network),%h (Node)",flit_generated.srcAddress.netAddress,flit_generated.srcAddress.nodeAddress,flit_generated.finalDstAddress.netAddress,flit_generated.finalDstAddress.nodeAddress);
             end
     endrule
 
