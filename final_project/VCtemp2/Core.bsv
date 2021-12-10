@@ -40,11 +40,15 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
 
     FIFO#(Flit) flit_consume_fifo   <- mkFIFO; //A fifo to store the consumed flit
 
-    LFSR#(Bit#(16)) lfsr            <- mkLFSR_16; //Lnear Feedback Shift Register for generating random patterns
+    LFSR#(Bit#(8)) lfsrNodeX        <- mkLFSR_8; //Lnear Feedback Shift Register for generating random patterns
+    LFSR#(Bit#(8)) lfsrNodeY        <- mkLFSR_8;
+    LFSR#(Bit#(8)) lfsrNetX        <- mkLFSR_8;
+    LFSR#(Bit#(8)) lfsrNetY        <- mkLFSR_8;
+
     Reg#(Bool) fireOnceFlag         <- mkReg(True);  
     Reg#(ClockCount) clockCount     <- mkReg(0); //A register to store the clock pulse count
     
-    MaxAddressInterface l2AddressLengths <- mkMaxAddress; //instantiates mkMaxAddress from parameters.bsv
+    MaxAddressInterface addressLengths <- mkMaxAddress; //instantiates mkMaxAddress from parameters.bsv
 
 
     //A rule to fire only once to seed the LFSR
@@ -53,7 +57,10 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
         fireOnceFlag <= False;
         // *NOTE* Each core to be seeded differently, otherwise all the cores will 
         // be generating flits in a synchronised fashin (same clock generate)
-        lfsr.seed('h11);
+        lfsrNodeX.seed('h03);
+        lfsrNodeY.seed('h11);
+        lfsrNetX.seed('h13);
+        lfsrNetY.seed('h17);
     endrule
 
     //Counts the clock pulse, always fire
@@ -78,13 +85,32 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 flit.srcAddress.netAddress          = myAddress.netAddress;
                 flit.srcAddress.nodeAddress         = myAddress.nodeAddress;
 
-                let destNetAddress                  = unpack(lfsr.value()%fromInteger(l1NodeCount));
-                flit.finalDstAddress.netAddress     = destNetAddress;
-                //flit.finalDstAddress.netAddress     = fromInteger(2);//NOTE- for testing
+                NetAddressX destNetAddressX         = fromInteger(0);
+                if(addressLengths.getMaxNetAddressX()!=0) begin //maxNetAddressX,maxNetAddressY can be zero, To handle division by zero
+                    destNetAddressX                 = unpack(lfsrNetX.value()%pack(addressLengths.getMaxNetAddressX())); 
+                end
 
-                let destNodeAddress                 = unpack(lfsr.value()%pack(l2AddressLengths.getMaxAddress(destNetAddress)));
+                NetAddressY destNetAddressY         = fromInteger(0);
+                if(addressLengths.getMaxNetAddressY()!=0) begin 
+                    destNetAddressY                 = unpack(lfsrNetY.value()%pack(addressLengths.getMaxNetAddressY())); 
+                end
+
+                let destNetAddress                  = {destNetAddressX,destNetAddressY};
+                flit.finalDstAddress.netAddress     = destNetAddress;
+                //flit.finalDstAddress.netAddress     = 'h0000;//$$$$$$$$$$$$$$NOTE- for testing
+
+                NodeAddressX destNodeAddressX       = fromInteger(0);
+                if(addressLengths.getMaxAddressX(destNetAddress)!=0) begin
+                    destNodeAddressX                = unpack(lfsrNodeX.value()%pack(addressLengths.getMaxAddressX(destNetAddress)));
+                end
+                NodeAddressY destNodeAddressY       = fromInteger(0);
+                if(addressLengths.getMaxAddressY(destNetAddress)!=0) begin
+                    destNodeAddressY                = unpack(lfsrNodeY.value()%pack(addressLengths.getMaxAddressY(destNetAddress)));
+                end
+                
+                NodeAddress destNodeAddress          = {destNodeAddressX,destNodeAddressY};
                 flit.finalDstAddress.nodeAddress    = destNodeAddress;
-                //flit.finalDstAddress.nodeAddress    = fromInteger(5);//NOTE- for testing
+                //flit.finalDstAddress.nodeAddress    = 'h0101;//$$$$$$$$$$$$$$NOTE- for testing
 
                 if(flit.srcAddress.netAddress==flit.finalDstAddress.netAddress) begin
                     flit.currentDstAddress.netAddress   = flit.finalDstAddress.netAddress;
@@ -105,13 +131,19 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
 
             //end
         //end    
-        lfsr.next();
+        lfsrNodeX.next();
+        lfsrNodeY.next();
+        lfsrNetX.next();
+        lfsrNetY.next();
     endrule
 
     //If the generateFlit rule is not fired, this rule sets the flit as invalid one
     rule resetFlitStat;
         flitValidStat <= False;
-        lfsr.next();
+        lfsrNodeX.next();
+        lfsrNodeY.next();
+        lfsrNetX.next();
+        lfsrNetY.next();
     endrule
 
 
@@ -134,7 +166,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
 
     method Action put_flit(Flit flit);
         flit_consume_fifo.enq(flit);
-        $display(">>>>>>>>>>>>>>> Flit received with payload: %h  | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node) | MyAddress: -> %d (Network),%d (Node)", flit.payload,flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress,myAddress.netAddress,myAddress.nodeAddress);
+        $display(">>>>>>>>>>>>>>> Flit received with payload: %h  | Source: %h (Network),%h (Node) | Destination: -> %h (Network),%h (Node) | MyAddress: -> %h (Network),%h (Node)", flit.payload,flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress,myAddress.netAddress,myAddress.nodeAddress);
     endmethod
 
     

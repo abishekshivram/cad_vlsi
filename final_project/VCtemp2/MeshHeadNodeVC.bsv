@@ -75,7 +75,7 @@ module mkMeshHeadNode #(parameter Address my_addr, parameter Address head_node_a
         let rhr=router_head_right.get_link_util_counter();
         let rhu=router_head_up.get_link_util_counter();
         let rhd=router_head_down.get_link_util_counter();
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%d,%d | : Left Link->%d, Right Link->%d, Up Link->%d, Down Link->%d, L1 Left Link->%d, L1 Right Link->%d, L1 Up Link->%d, L1 Down Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd,rhl,rhr,rhu,rhd);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d, Up Link->%d, Down Link->%d, L1 Left Link->%d, L1 Right Link->%d, L1 Up Link->%d, L1 Down Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd,rhl,rhr,rhu,rhd);
     endrule
 
     // This counter is used by arbiters to choose VC to send out data

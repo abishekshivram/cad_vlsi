@@ -47,7 +47,7 @@ module mkRingNode #(parameter Address my_addr, parameter Address head_node_addr,
     rule print_link_utilisation(link_util_print_interval==0);
         let rl=router_left.get_link_util_counter();
         let rr=router_right.get_link_util_counter();
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%d,%d | : Left Link->%d, Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr);
     endrule
 
 
