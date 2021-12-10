@@ -28,15 +28,15 @@ endinterface
 
 
 (* synthesize *)
-module mkRingNode #(parameter Address my_addr, parameter Address head_node_addr, parameter Bool is_head_node, parameter NodeAddress maxNodeAddress) (IfcRingNode);
+module mkRingNode #(parameter Address my_addr, parameter Address head_node_addr, parameter Bool is_head_node, parameter NodeAddress maxNodeAddress, parameter NetAddress maxNetAddress) (IfcRingNode);
 
     //Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 
     // Core and three routers - core, left link, right link instantiation
     let core            <- mkCore(my_addr,head_node_addr); 
-    let router_left     <- mkRingRouterVC(my_addr, is_head_node, maxNodeAddress); // takes input from left neighbour and puts in corresponding VC
-    let router_right    <- mkRingRouterVC(my_addr, is_head_node, maxNodeAddress);
-    let router_core     <- mkRingRouterVC(my_addr, is_head_node, maxNodeAddress);
+    let router_left     <- mkRingRouterVC(my_addr, is_head_node, maxNodeAddress,maxNetAddress); // takes input from left neighbour and puts in corresponding VC
+    let router_right    <- mkRingRouterVC(my_addr, is_head_node, maxNodeAddress,maxNetAddress);
+    let router_core     <- mkRingRouterVC(my_addr, is_head_node, maxNodeAddress,maxNetAddress);
 
     Reg#(Bit#(2)) counter   <- mkReg(0);
 

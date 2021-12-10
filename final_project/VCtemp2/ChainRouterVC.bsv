@@ -49,7 +49,7 @@ module mkChainRouterVC #(parameter Address my_addr,parameter Bool is_head_nod) (
         endaction;
     endfunction
 
-    Reg#(Bool)  is_head_node <- mkReg(is_head_nod); // True indicates head node, False other nodes
+    //Reg#(Bool)  is_head_node <- mkReg(is_head_nod); // True indicates head node, False other nodes
     
     // Input link for the router
     FIFO#(Flit)  input_link  <- mkFIFO; // to get data from left router
@@ -71,8 +71,8 @@ module mkChainRouterVC #(parameter Address my_addr,parameter Bool is_head_nod) (
     FIFO#(Flit)  vir_chnl_8  <- mkFIFO; // Virtual Channel 8
 
     // To store the flits that are sent to L1 routing, NETWORK on right
-    FIFO#(Flit)  vir_chnl_9  <- mkFIFO; // Virtual Channel 7
-    FIFO#(Flit)  vir_chnl_10  <- mkFIFO; // Virtual Channel 8
+    FIFO#(Flit)  vir_chnl_9  <- mkFIFO; // Virtual Channel 9
+    FIFO#(Flit)  vir_chnl_10  <- mkFIFO; // Virtual Channel 10
 
 
     // Since we have two VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
