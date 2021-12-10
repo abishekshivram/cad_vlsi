@@ -33,6 +33,9 @@ typedef SizeOf#(NetAddressY) NetAddressYLen; //Length of Net address Y length
 typedef SizeOf#(NodeAddressX) NodeAddressXLen; //Length of Node address X length
 typedef SizeOf#(NodeAddressY) NodeAddressYLen; //Length of Node address Y length
 
+typedef Bit#(16) LinkUtilisationCounter; //To measure link utilisation performance
+typedef Bit#(3) LinkUtiliPrInterval; //Link utilisation print interval
+
 //For payload parameterisation, change the size here
 //Represents the payload in a Flit
 typedef Bit#(64) FlitPayload;
@@ -42,7 +45,7 @@ typedef Bit#(64) FlitPayload;
 typedef FlitPayload ClockCount;
 
 //3 indicates the no of networks (L1 node count). This value will change based on the network count
-Integer l1NodeCount=fromInteger(3);
+Integer l1NodeCount=fromInteger(1);
 
 interface MaxAddressInterface;
     method NodeAddress getMaxAddress(NetAddress index);
@@ -58,8 +61,8 @@ module mkMaxAddress(MaxAddressInterface);
 
     //initialise the max address of each network
     maxNodeAddress[0]=fromInteger(6);
-    maxNodeAddress[1]=fromInteger(6);
-    maxNodeAddress[2]=fromInteger(6);
+    //maxNodeAddress[1]=fromInteger(6);
+    //maxNodeAddress[2]=fromInteger(6);
     //maxNodeAddress[3]=fromInteger(8);
     //maxNodeAddress[4]=fromInteger(12);
 

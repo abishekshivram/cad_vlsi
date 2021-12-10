@@ -38,6 +38,19 @@ module mkRingNode #(parameter Address my_addr, parameter Address head_node_addr,
     let router_right    <- mkRingRouterVC(my_addr, is_head_node, maxNodeAddress,maxNetAddress);
     let router_core     <- mkRingRouterVC(my_addr, is_head_node, maxNodeAddress,maxNetAddress);
 
+
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_left.get_link_util_counter();
+        let rr=router_right.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%d,%d | : Left Link->%d, Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr);
+    endrule
+
+
     Reg#(Bit#(2)) counter   <- mkReg(0);
 
     // This counter is used by arbiters to choose VC to send out data
