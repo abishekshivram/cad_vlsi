@@ -46,7 +46,9 @@ interface IfcMeshRouterVC ;
     method ActionValue#(Flit) get_valueVC15();
     method ActionValue#(Flit) get_valueVC16();
     method ActionValue#(Flit) get_valueVC17();
-    method ActionValue#(Flit) get_valueVC18();   
+    method ActionValue#(Flit) get_valueVC18();  
+    
+    method LinkUtilisationCounter get_link_util_counter();
     
 endinterface
 
@@ -107,6 +109,7 @@ module mkMeshRouterVC #(parameter Address my_addr,parameter Bool is_head_nod) (I
     FIFO#(Flit)  vir_chnl_17  <- mkFIFO; // Virtual Channel 7
     FIFO#(Flit)  vir_chnl_18  <- mkFIFO; // Virtual Channel 8
         
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Since we have TWO VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
     // that chooses one VC in a round robin fashion.
@@ -325,6 +328,11 @@ module mkMeshRouterVC #(parameter Address my_addr,parameter Bool is_head_nod) (I
         input_link.enq(flit);
         $display("Router(Addr: %h) received the flit into its Input Link", my_addr);
         print_flit_details(flit);
+        link_util_counter <= link_util_counter+1;
+    endmethod
+
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
     endmethod
 
 

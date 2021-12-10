@@ -17,27 +17,29 @@ module mkNoc(Empty);
     // When its a head node, it should has more than two set of 3 links,
     // one set to L2 network, another set for L1 network
     NodeAddress maxNodeAddress = fromInteger(5);
+    NetAddress maxNetAddress = fromInteger(0);
+
     Address node0_address;  node0_address.netAddress=0;  node0_address.nodeAddress=0;   
     Address head_node_address_net_0=node0_address;
-    let node0   <- mkRingNode(node0_address, head_node_address_net_0, True, maxNodeAddress); // Head node
+    let node0   <- mkRingNode(node0_address, head_node_address_net_0, True, maxNodeAddress,maxNetAddress); // Head node
 
     
     
 
     Address node1_address;  node1_address.netAddress=0;  node1_address.nodeAddress=1;
-    let node1   <- mkRingNode(node1_address, head_node_address_net_0, True, maxNodeAddress);
+    let node1   <- mkRingNode(node1_address, head_node_address_net_0, True, maxNodeAddress,maxNetAddress);
     
     Address node2_address;  node2_address.netAddress=0;  node2_address.nodeAddress=2;
-    let node2   <- mkRingNode(node2_address, head_node_address_net_0, True, maxNodeAddress);
+    let node2   <- mkRingNode(node2_address, head_node_address_net_0, True, maxNodeAddress,maxNetAddress);
     
     Address node3_address;  node3_address.netAddress=0;  node3_address.nodeAddress=3;
-    let node3   <- mkRingNode(node3_address, head_node_address_net_0, True, maxNodeAddress);
+    let node3   <- mkRingNode(node3_address, head_node_address_net_0, True, maxNodeAddress,maxNetAddress);
     
     Address node4_address;  node4_address.netAddress=0;  node4_address.nodeAddress=4;
-    let node4   <- mkRingNode(node4_address, head_node_address_net_0, True, maxNodeAddress);
+    let node4   <- mkRingNode(node4_address, head_node_address_net_0, True, maxNodeAddress,maxNetAddress);
     
     Address node5_address;  node5_address.netAddress=0;  node5_address.nodeAddress=5;
-    let node5   <- mkRingNode(node5_address, head_node_address_net_0, True, maxNodeAddress);
+    let node5   <- mkRingNode(node5_address, head_node_address_net_0, True, maxNodeAddress,maxNetAddress);
 
 
     // Connecting nodes - following are the interface of the nodes

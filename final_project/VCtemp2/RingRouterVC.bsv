@@ -4,7 +4,7 @@ package RingRouterVC;
 // For each link, two VCs are allocated. For example, in each node in Ring topology, we have
 // 3 links (core, left neighbour, right neighbour). So 6 VCs are made and VC1,2 allocated to core, 
 // VC3,4 allocated to left neighbour, VC5,6 allocated to right neighbour
-// This routing can be seen in line 58: Two rules are written that connects the Input link to the respective VC
+
 
 import Shared::*;
 import Core :: * ;
@@ -31,6 +31,8 @@ interface IfcRingRouterVC ;
     method ActionValue#(Flit) get_valueVC4();
     method ActionValue#(Flit) get_valueVC5();
     method ActionValue#(Flit) get_valueVC6();
+
+    method LinkUtilisationCounter get_link_util_counter();
     
 endinterface
 
@@ -39,7 +41,7 @@ endinterface
 
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkRingRouterVC #(parameter Address my_addr, parameter Bool is_head_nod, parameter NodeAddress maxNodeAddress) (IfcRingRouterVC);
+module mkRingRouterVC #(parameter Address my_addr, parameter Bool is_head_nod, parameter NodeAddress maxNodeAddress, parameter NetAddress maxNetAddress) (IfcRingRouterVC);
 
     function Action print_flit_details(Flit flit_to_print);
         return action
@@ -50,11 +52,9 @@ module mkRingRouterVC #(parameter Address my_addr, parameter Bool is_head_nod, p
         endaction;
     endfunction
 
-    // Right now, it has been commented, we may need it for L1, L2 routing
-    //Reg#(bit)   level       <- mkReg(0); // 0 for low level (L2), 1 for high level (L1)
-    
+ 
     // Input link for the router
-    FIFO#(Flit)  input_link             <- mkFIFO; // to get data from left router
+    FIFO#(Flit)  input_link              <- mkFIFO; // to get data from left router
     FIFOF#(Flit)  input_link_dateline    <- mkFIFOF; // to get data from left router
     
     // To store the flits that are sent to core
@@ -69,6 +69,15 @@ module mkRingRouterVC #(parameter Address my_addr, parameter Bool is_head_nod, p
     FIFO#(Flit)  vir_chnl_5  <- mkFIFO; // Virtual Channel 5
     FIFO#(Flit)  vir_chnl_6  <- mkFIFO; // Virtual Channel 6
 
+    // To store the flits that are sent to L1 routing, NETWORK on left
+    FIFO#(Flit)  vir_chnl_7  <- mkFIFO; // Virtual Channel 7
+    FIFO#(Flit)  vir_chnl_8  <- mkFIFO; // Virtual Channel 8
+
+    // To store the flits that are sent to L1 routing, NETWORK on right
+    FIFO#(Flit)  vir_chnl_9  <- mkFIFO; // Virtual Channel 9
+    FIFO#(Flit)  vir_chnl_10  <- mkFIFO; // Virtual Channel 10
+
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Since we have two VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
     // that chooses one VC in a round robin fashion.
@@ -87,46 +96,46 @@ module mkRingRouterVC #(parameter Address my_addr, parameter Bool is_head_nod, p
         let flit = input_link_dateline.first();
         input_link_dateline.deq();
 
-        // Reached the destination - core will consume
-        if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
-            $display("vir_chnl_2.enq at addr:%h", my_addr);
-            vir_chnl_2.enq(flit);
+        if(flit.finalDstAddress == my_addr) begin //For this node, send to core
+            $display("vir_chnl_1.enq at addr:%h, payload:%d", my_addr,flit.payload);
+            vir_chnl_2.enq(flit);// Reached the destination - core will consume
         end
-
-        // The current flit has to go to left 
-        // else if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
-        else if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
-            $display("vir_chnl_4.enq at addr:%h", my_addr);
-            vir_chnl_4.enq(flit);
+        else begin //144
+            if (is_head_nod==False) begin
+                if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                    $display("vir_chnl_4.enq at addr:%h", my_addr);
+                    vir_chnl_4.enq(flit);
+                end
+                else begin
+                    $display("vir_chnl_6.enq at addr:%h", my_addr);
+                    vir_chnl_6.enq(flit);
+                end
+            end
+            else begin//107
+                if(flit.finalDstAddress.netAddress == my_addr.netAddress) begin //Do L2 routing in head node
+                    if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                        $display("vir_chnl_4.enq at addr:%h", my_addr);
+                        vir_chnl_4.enq(flit);
+                    end
+                    else begin
+                        $display("vir_chnl_6.enq at addr:%h", my_addr);
+                        vir_chnl_6.enq(flit);
+                    end
+                end
+                else begin //Do L1 routing //119
+                    flit.currentDstAddress = flit.finalDstAddress;
+                    if (flit.currentDstAddress.netAddress < my_addr.netAddress) begin
+                        $display("vir_chnl_8.enq at addr:%h", my_addr);
+                        vir_chnl_8.enq(flit);
+                    end
+                    else begin
+                        $display("vir_chnl_10.enq at addr:%h", my_addr);
+                        vir_chnl_10.enq(flit);
+                    end
+                end
+            end
         end
-        else begin
-            $display("vir_chnl_6.enq at addr:%h", my_addr);
-            vir_chnl_6.enq(flit);
-        end
-        // // end
-        // // The current flit has to go to right
-        // else  begin
-        //     if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
-        //         if (my_addr.nodeAddress == maxNodeAddress) begin
-        //             $display("vir_chnl_6.enq at addr:%h", my_addr);
-        //             vir_chnl_6.enq(flit);
-        //         end
-        //         else begin
-        //             $display("vir_chnl_5.enq at addr:%h", my_addr);
-        //             vir_chnl_5.enq(flit);                
-        //         end
-        //     end
-        //     else begin
-        //         if (my_addr.nodeAddress == 0) begin
-        //             $display("vir_chnl_4.enq at addr:%h", my_addr);
-        //             vir_chnl_4.enq(flit);
-        //         end
-        //         else begin
-        //             $display("vir_chnl_3.enq at addr:%h", my_addr);
-        //             vir_chnl_3.enq(flit);                
-        //         end
-        //     end
-        // end
+    
     endrule
 
     rule read_input_link_and_send_to_VC(my_addr.nodeAddress != 0 && my_addr.nodeAddress != maxNodeAddress);
@@ -134,93 +143,222 @@ module mkRingRouterVC #(parameter Address my_addr, parameter Bool is_head_nod, p
         let flit = input_link.first();
         input_link.deq();
 
-        // Reached the destination - core will consume
-        if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
-            $display("vir_chnl_1.enq at addr:%h", my_addr);
-            vir_chnl_1.enq(flit);
+        if(flit.finalDstAddress == my_addr) begin //For this node, send to core
+            $display("vir_chnl_1.enq at addr:%h, payload:%d", my_addr,flit.payload);
+            vir_chnl_1.enq(flit);// Reached the destination - core will consume
+        end
+        else begin
+            if (is_head_nod==False) begin
+                // The current flit has to go to left 
+                if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
+                    if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                        $display("vir_chnl_3.enq at addr:%h", my_addr);
+                        vir_chnl_3.enq(flit);
+                    end
+                    else begin
+                        $display("vir_chnl_5.enq at addr:%h", my_addr);
+                        vir_chnl_5.enq(flit);
+                    end
+                end
+
+                // The current flit has to go to right
+                else  begin
+                    if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                        $display("vir_chnl_5.enq at addr:%h", my_addr);
+                        vir_chnl_5.enq(flit);                
+                    end
+                    else begin
+                        $display("vir_chnl_3.enq at addr:%h", my_addr);
+                        vir_chnl_3.enq(flit);                
+                    end
+                end 
+
+            end
+            else begin
+                if(flit.finalDstAddress.netAddress == my_addr.netAddress) begin //Do L2 routing in head node
+                    // The current flit has to go to left 
+                    if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
+                        if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                            $display("vir_chnl_3.enq at addr:%h", my_addr);
+                            vir_chnl_3.enq(flit);
+                        end
+                        else begin
+                            $display("vir_chnl_5.enq at addr:%h", my_addr);
+                            vir_chnl_5.enq(flit);
+                        end
+                    end
+
+                    // The current flit has to go to right
+                    else  begin
+                        if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                            $display("vir_chnl_5.enq at addr:%h", my_addr);
+                            vir_chnl_5.enq(flit);                
+                        end
+                        else begin
+                            $display("vir_chnl_3.enq at addr:%h", my_addr);
+                            vir_chnl_3.enq(flit);                
+                        end
+                    end 
+                end
+                else begin //Do L1 routing
+
+                    flit.currentDstAddress = flit.finalDstAddress;
+                    // The current flit has to go to left in L1
+                    if(abs(flit.currentDstAddress.netAddress - my_addr.netAddress) <= maxNetAddress/2)  begin
+                        if (flit.currentDstAddress.netAddress < my_addr.netAddress) begin
+                            $display("vir_chnl_7.enq at addr:%h", my_addr);
+                            vir_chnl_7.enq(flit);
+                        end
+                        else begin
+                            $display("vir_chnl_9.enq at addr:%h", my_addr);
+                            vir_chnl_9.enq(flit);
+                        end
+                    end
+
+                    // The current flit has to go to right in L1
+                    else  begin
+                        if (flit.currentDstAddress.netAddress < my_addr.netAddress) begin
+                            $display("vir_chnl_9.enq at addr:%h", my_addr);
+                            vir_chnl_9.enq(flit);                
+                        end
+                        else begin
+                            $display("vir_chnl_7.enq at addr:%h", my_addr);
+                            vir_chnl_7.enq(flit);                
+                        end
+                    end 
+                end
+
+            end
         end
 
-        // The current flit has to go to left 
-        else if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
-            if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
-                $display("vir_chnl_3.enq at addr:%h", my_addr);
-                vir_chnl_3.enq(flit);
-            end
-            else begin
-                $display("vir_chnl_5.enq at addr:%h", my_addr);
-                vir_chnl_5.enq(flit);
-            end
-        end
-        // The current flit has to go to right
-        else  begin
-            if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
-                // if (my_addr.nodeAddress == maxNodeAddress) begin
-                //     $display("vir_chnl_6.enq at addr:%h", my_addr);
-                //     vir_chnl_6.enq(flit);
-                // end
-                // else begin
-                    $display("vir_chnl_5.enq at addr:%h", my_addr);
-                    vir_chnl_5.enq(flit);                
-                // end
-            end
-            else begin
-                // if (my_addr.nodeAddress == 0) begin
-                //     $display("vir_chnl_4.enq at addr:%h", my_addr);
-                //     vir_chnl_4.enq(flit);
-                // end
-                // else begin
-                    $display("vir_chnl_3.enq at addr:%h", my_addr);
-                    vir_chnl_3.enq(flit);                
-                // end
-            end
-        end
     endrule
+
 
     rule read_input_link_and_send_to_VC_extreme( (!input_link_dateline.notEmpty())  || (cycle==0 && (my_addr.nodeAddress == 0 || my_addr.nodeAddress == maxNodeAddress)));
     // rule read_input_link_and_send_to_VC_extreme( (!input_link_dateline.notEmpty()) && (my_addr.nodeAddress == 0 || my_addr.nodeAddress == maxNodeAddress)));
         let flit = input_link.first();
         input_link.deq();
 
-        // Reached the destination - core will consume
-        if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
-            $display("vir_chnl_1.enq at addr:%h", my_addr);
-            vir_chnl_1.enq(flit);
+        if(flit.finalDstAddress == my_addr) begin //For this node, send to core
+            $display("vir_chnl_1.enq at addr:%h, payload:%d", my_addr,flit.payload);
+            vir_chnl_1.enq(flit);// Reached the destination - core will consume
+        end
+        else begin
+            if(is_head_nod==False) begin 
+                // The current flit has to go to left 
+                if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
+                    if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                        $display("vir_chnl_3.enq at addr:%h", my_addr);
+                        vir_chnl_3.enq(flit);
+                    end
+                    else begin
+                        $display("vir_chnl_5.enq at addr:%h", my_addr);
+                        vir_chnl_5.enq(flit);
+                    end
+                end
+                // The current flit has to go to right
+                else  begin
+                    if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                        if (my_addr.nodeAddress == maxNodeAddress) begin
+                            $display("vir_chnl_6.enq at addr:%h", my_addr);
+                            vir_chnl_6.enq(flit);
+                        end
+                        else begin
+                            $display("vir_chnl_5.enq at addr:%h", my_addr);
+                            vir_chnl_5.enq(flit);                
+                        end
+                    end
+                    else begin
+                        if (my_addr.nodeAddress == 0) begin
+                            $display("vir_chnl_4.enq at addr:%h", my_addr);
+                            vir_chnl_4.enq(flit);
+                        end
+                        else begin
+                            $display("vir_chnl_3.enq at addr:%h", my_addr);
+                            vir_chnl_3.enq(flit);                
+                        end
+                    end
+                end
+            end
+            else begin 
+
+                if(flit.finalDstAddress.netAddress == my_addr.netAddress) begin //Do L2 routing in head node
+                    // The current flit has to go to left 
+                    if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
+                        if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                            $display("vir_chnl_3.enq at addr:%h", my_addr);
+                            vir_chnl_3.enq(flit);
+                        end
+                        else begin
+                            $display("vir_chnl_5.enq at addr:%h", my_addr);
+                            vir_chnl_5.enq(flit);
+                        end
+                    end
+                    // The current flit has to go to right
+                    else  begin
+                        if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
+                            if (my_addr.nodeAddress == maxNodeAddress) begin
+                                $display("vir_chnl_6.enq at addr:%h", my_addr);
+                                vir_chnl_6.enq(flit);
+                            end
+                            else begin
+                                $display("vir_chnl_5.enq at addr:%h", my_addr);
+                                vir_chnl_5.enq(flit);                
+                            end
+                        end
+                        else begin
+                            if (my_addr.nodeAddress == 0) begin
+                                $display("vir_chnl_4.enq at addr:%h", my_addr);
+                                vir_chnl_4.enq(flit);
+                            end
+                            else begin
+                                $display("vir_chnl_3.enq at addr:%h", my_addr);
+                                vir_chnl_3.enq(flit);                
+                            end
+                        end
+                    end
+                end
+
+                else begin //Do L1 routing
+                    flit.currentDstAddress = flit.finalDstAddress;
+                    // The current flit has to go to l1 left 
+                    if(abs(flit.currentDstAddress.netAddress - my_addr.netAddress) <= maxNetAddress/2)  begin
+                        if (flit.currentDstAddress.netAddress < my_addr.netAddress) begin
+                            $display("vir_chnl_7.enq at addr:%h", my_addr);
+                            vir_chnl_7.enq(flit);
+                        end
+                        else begin
+                            $display("vir_chnl_9.enq at addr:%h", my_addr);
+                            vir_chnl_9.enq(flit);
+                        end
+                    end
+                    // The current flit has to go to l1 right
+                    else  begin
+                        if (flit.currentDstAddress.netAddress < my_addr.netAddress) begin
+                            if (my_addr.netAddress == maxNetAddress) begin
+                                $display("vir_chnl_10.enq at addr:%h", my_addr);
+                                vir_chnl_10.enq(flit);
+                            end
+                            else begin
+                                $display("vir_chnl_9.enq at addr:%h", my_addr);
+                                vir_chnl_9.enq(flit);                
+                            end
+                        end
+                        else begin
+                            if (my_addr.netAddress == 0) begin
+                                $display("vir_chnl_8.enq at addr:%h", my_addr);
+                                vir_chnl_8.enq(flit);
+                            end
+                            else begin
+                                $display("vir_chnl_7.enq at addr:%h", my_addr);
+                                vir_chnl_7.enq(flit);                
+                            end
+                        end
+                    end
+                end
+            end
         end
 
-        // The current flit has to go to left 
-        else if(abs(flit.currentDstAddress.nodeAddress - my_addr.nodeAddress) <= maxNodeAddress/2)  begin
-            if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
-                $display("vir_chnl_3.enq at addr:%h", my_addr);
-                vir_chnl_3.enq(flit);
-            end
-            else begin
-                $display("vir_chnl_5.enq at addr:%h", my_addr);
-                vir_chnl_5.enq(flit);
-            end
-        end
-        // The current flit has to go to right
-        else  begin
-            if (flit.currentDstAddress.nodeAddress < my_addr.nodeAddress) begin
-                if (my_addr.nodeAddress == maxNodeAddress) begin
-                    $display("vir_chnl_6.enq at addr:%h", my_addr);
-                    vir_chnl_6.enq(flit);
-                end
-                else begin
-                    $display("vir_chnl_5.enq at addr:%h", my_addr);
-                    vir_chnl_5.enq(flit);                
-                end
-            end
-            else begin
-                if (my_addr.nodeAddress == 0) begin
-                    $display("vir_chnl_4.enq at addr:%h", my_addr);
-                    vir_chnl_4.enq(flit);
-                end
-                else begin
-                    $display("vir_chnl_3.enq at addr:%h", my_addr);
-                    vir_chnl_3.enq(flit);                
-                end
-            end
-        end
     endrule
 
 
@@ -230,6 +368,11 @@ module mkRingRouterVC #(parameter Address my_addr, parameter Bool is_head_nod, p
         input_link.enq(flit);
         print_flit_details(flit);
         $display("Router (Addr: %h) received the flit into its Input Link", my_addr);
+        link_util_counter <= link_util_counter+1;
+    endmethod
+
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
     endmethod
 
     method Action put_value_dateline(Flit flit);

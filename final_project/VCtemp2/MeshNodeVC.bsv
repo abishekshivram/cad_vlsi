@@ -1,5 +1,6 @@
 package MeshNodeVC;
 
+import Parameters:: *;
 import Shared::*;
 
 import FIFO :: * ;
@@ -41,6 +42,19 @@ module mkMeshNode #(parameter Address my_addr, parameter Address head_node_addr,
     FIFO#(Flit) output_link_right <- mkFIFO;
     FIFO#(Flit) output_link_up <- mkFIFO;
     FIFO#(Flit) output_link_down <- mkFIFO;
+
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_left.get_link_util_counter();
+        let rr=router_right.get_link_util_counter();
+        let ru=router_up.get_link_util_counter();
+        let rd=router_down.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%d,%d | : Left Link->%d, Right Link->%d, Up Link->%d, Down Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd);
+    endrule
 
     // This counter is used by arbiters to choose VC to send out data
     Reg#(Bit#(3)) counter   <- mkReg(0); 
