@@ -72,9 +72,6 @@ module mkMeshNode #(parameter Address my_addr, parameter Address head_node_addr)
     endrule
 
       
-    //NOTE LLOYD This (Round robin arbiter) can be improved
-    //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
-    
     // VC1 and VC2 are used to send data to the core (as decided earlier)
     // Rule - Output link - connecting to associated core
     // In this rule, we choose VC1 or VC2 from router_left or router_right,router_head_left,router_head_right (router_core cannot send to itself)

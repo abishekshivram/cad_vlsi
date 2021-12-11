@@ -39,15 +39,6 @@ interface IfcMeshRouterVC ;
     method ActionValue#(Flit) get_valueVC9();
     method ActionValue#(Flit) get_valueVC10();
         
-    //method ActionValue#(Flit) get_valueVC11();
-    //method ActionValue#(Flit) get_valueVC12();
-    //method ActionValue#(Flit) get_valueVC13();
-    //method ActionValue#(Flit) get_valueVC14();
-    //method ActionValue#(Flit) get_valueVC15();
-    //method ActionValue#(Flit) get_valueVC16();
-    //method ActionValue#(Flit) get_valueVC17();
-    //method ActionValue#(Flit) get_valueVC18();  
-    
     method LinkUtilisationCounter get_link_util_counter();
     
 endinterface
@@ -93,22 +84,7 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
     FIFO#(Flit)  vir_chnl_9  <- mkFIFO; // Virtual Channel 9
     FIFO#(Flit)  vir_chnl_10  <- mkFIFO; // Virtual Channel 10
 
-    /*// To store the flits that are sent to L1 routing, NETWORK on left
-    FIFO#(Flit)  vir_chnl_11  <- mkFIFO; // Virtual Channel 1
-    FIFO#(Flit)  vir_chnl_12  <- mkFIFO; // Virtual Channel 2
-        
-    // To store the flits that are sent to L1 routing, NETWORK on right
-    FIFO#(Flit)  vir_chnl_13  <- mkFIFO; // Virtual Channel 3
-    FIFO#(Flit)  vir_chnl_14  <- mkFIFO; // Virtual Channel 4
-        
-    // To store the flits that are sent to L1 routing, NETWORK above (up)
-    FIFO#(Flit)  vir_chnl_15  <- mkFIFO; // Virtual Channel 5
-    FIFO#(Flit)  vir_chnl_16  <- mkFIFO; // Virtual Channel 6
-    
-    // To store the flits that are sent to L1 routing, NETWORK below (down)
-    FIFO#(Flit)  vir_chnl_17  <- mkFIFO; // Virtual Channel 7
-    FIFO#(Flit)  vir_chnl_18  <- mkFIFO; // Virtual Channel 8*/
-        
+       
     Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Since we have TWO VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
@@ -310,62 +286,6 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
          vir_chnl_10.deq();
         return temp10;
     endmethod
-
-    /*method ActionValue#(Flit) get_valueVC11();
-        $display("get_valueVC11 method called at Router(Addr: %b)", my_addr);
-         let temp = vir_chnl_11.first();
-         vir_chnl_11.deq();
-        return temp;
-    endmethod
-
-    method ActionValue#(Flit) get_valueVC12();
-        $display("get_valueVC12 method called at Router(Addr: %b)", my_addr);
-         let temp = vir_chnl_12.first();
-         vir_chnl_12.deq();
-        return temp;
-    endmethod
-    
-    method ActionValue#(Flit) get_valueVC13();
-        $display("get_valueVC13 method called at Router(Addr: %b)", my_addr);
-         let temp = vir_chnl_13.first();
-         vir_chnl_13.deq();
-        return temp;
-    endmethod
-    
-    method ActionValue#(Flit) get_valueVC14();
-        $display("get_valueVC14 method called at Router(Addr: %b)", my_addr);
-         let temp = vir_chnl_14.first();
-         vir_chnl_14.deq();
-        return temp;
-    endmethod    
-
-    method ActionValue#(Flit) get_valueVC15();
-        $display("get_valueVC15 method called at Router(Addr: %b)", my_addr);
-         let temp = vir_chnl_15.first();
-         vir_chnl_15.deq();
-        return temp;
-    endmethod
-
-    method ActionValue#(Flit) get_valueVC16();
-        $display("get_valueVC16 method called at Router(Addr: %b)", my_addr);
-         let temp = vir_chnl_16.first();
-         vir_chnl_16.deq();
-        return temp;
-    endmethod
-    
-    method ActionValue#(Flit) get_valueVC17();
-        $display("get_valueVC17 method called at Router(Addr: %b)", my_addr);
-         let temp = vir_chnl_17.first();
-         vir_chnl_17.deq();
-        return temp;
-    endmethod
-    
-    method ActionValue#(Flit) get_valueVC18();
-        $display("get_valueVC18 method called at Router(Addr: %b)", my_addr);
-         let temp = vir_chnl_18.first();
-         vir_chnl_18.deq();
-        return temp;
-    endmethod*/
 
 endmodule: mkMeshRouterVC
 
