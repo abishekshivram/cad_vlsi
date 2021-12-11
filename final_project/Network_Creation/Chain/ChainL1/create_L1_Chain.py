@@ -72,7 +72,7 @@ def create_L1_Chain(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
 
     for i in range(NO_OF_NETWORKS):
         files_to_import.append(f"import {L2_NETWORK_NODE_FILES[i]} :: * ;\n")
-        l2_noc_list.append(f"\tlet noc_N{i} <- {L2_NETWORK_BSV_MODULES[i]}();\n")
+        l2_noc_list.append(f"\tlet noc_N{i} <- {L2_NETWORK_BSV_MODULES[i]};\n")
         rule_l2_l1_connection.append(ruleL1L2.format(net_id=i))
 
 

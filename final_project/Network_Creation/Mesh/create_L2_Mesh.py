@@ -67,9 +67,9 @@ def create_L2_Mesh(NO_OF_NETWORKS, ALL_NETWORK_NUM, ALL_NETWORK_ID, ALL_NUMBER_O
             for j in range(NUMBER_OF_COLS):
                 string_node = f"\tAddress node{i}{j}_address;  node{i}{j}_address.netAddress={NETWORK_ID};  node{i}{j}_address.nodeAddress=16'h{i:0>2x}{j:0>2x};\n"	
                 if(i==NUMBER_OF_ROWS//2 and j==NUMBER_OF_COLS//2):
-                    string_node += f"\tlet node{i}{j}   <- mkMeshL2HeadNode(node{i}{j}_address, head_node_addr, {NUMBER_OF_COLS-1},{NUMBER_OF_ROWS-1});\n"
+                    string_node += f"\tlet node{i}{j}   <- mkMeshL2HeadNode(node{i}{j}_address, head_node_addr);\n"
                 else:
-                    string_node += f"\tlet node{i}{j}   <- mkMeshNode(node{i}{j}_address, head_node_addr, {NUMBER_OF_COLS-1},{NUMBER_OF_ROWS-1});\n"
+                    string_node += f"\tlet node{i}{j}   <- mkMeshNode(node{i}{j}_address, head_node_addr);\n"
                 all_nodes.append(string_node)
                 if (j < NUMBER_OF_COLS -1):
                     stringLR = ruleL2R.format(from_row_id=i, from_col_id=j, to_row_id=i, to_col_id=(j+1))

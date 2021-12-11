@@ -65,7 +65,7 @@ def create_L1_Mesh(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     for i in range(NUMBER_OF_ROWS):
         for j in range(NUMBER_OF_COLS):
             string_node = f"\tAddress nodeL1_{i}{j}_address;  nodeL1_{i}{j}_address.netAddress=16'h{i:0>2x}{j:0>2x};  nodeL1_{i}{j}_address.nodeAddress=0;\n"	
-            string_node += f"\tlet nodeL1_{i}{j}   <- mkMeshL1Node(nodeL1_{i}{j}_address, {NUMBER_OF_COLS-1}, {NUMBER_OF_ROWS-1});\n"
+            string_node += f"\tlet nodeL1_{i}{j}   <- mkMeshL1Node(nodeL1_{i}{j}_address);\n"
             all_nodes.append(string_node)
             if j < NUMBER_OF_COLS-1:
                 stringLR = ruleL2R.format(from_row_id= i, from_col_id = j, to_row_id=i, to_col_id = (j+1))
@@ -99,7 +99,7 @@ def create_L1_Mesh(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
 
     for i in range(NO_OF_NETWORKS):
         files_to_import.append(f"import {L2_NETWORK_NODE_FILES[i]} :: * ;\n")
-        l2_noc_list.append(f"\tlet noc_N{i} <- {L2_NETWORK_BSV_MODULES[i]}();\n")
+        l2_noc_list.append(f"\tlet noc_N{i} <- {L2_NETWORK_BSV_MODULES[i]};\n")
 
     d['import_l2_noc_files'] = "".join(files_to_import)
     d['noc_instantiate'] = "".join(l2_noc_list)

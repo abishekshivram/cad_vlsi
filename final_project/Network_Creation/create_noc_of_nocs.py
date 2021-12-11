@@ -16,24 +16,33 @@ from Ring.create_L2_Rings import create_L2_Rings
 from Chain.ChainL1.create_L1_Chain import create_L1_Chain
 from Chain.Script.create_L2_Chains import create_L2_Chains
 
+from Hypercube.HypercubeL1.Template_L1_Hypercube_gen import create_L1_Hypercube
+from Butterfly.ButterflyL1.create_l1_noc_butterfly import create_L1_Butterfly
 
+# Function to define the module and NOC files that need to be instantiated and imported 
+#   respectively for each L2 network in the L1 Noc file
 L2_NETWORK_NOC_FILES = []
 L2_NETWORK_BSV_MODULES = []
-def choose_noc_file(L2_net_type, L2_net_idx):
+def choose_noc_file(L2_net_type, L2_net_idx,dim1):
     if (L2_net_type == 'R'):
         L2_NETWORK_NOC_FILES.append(f"RingNocL2_{L2_net_idx}")
-        L2_NETWORK_BSV_MODULES.append(f"mkRingL2Noc{L2_net_idx}")
+        L2_NETWORK_BSV_MODULES.append(f"mkRingL2Noc{L2_net_idx}()")
     elif (L2_net_type == 'C'):
         L2_NETWORK_NOC_FILES.append(f"ChainNocL2_{L2_net_idx}")
-        L2_NETWORK_BSV_MODULES.append(f"mkChainL2Noc{L2_net_idx}")
+        L2_NETWORK_BSV_MODULES.append(f"mkChainL2Noc{L2_net_idx}()")
     elif (L2_net_type == 'F'):
         L2_NETWORK_NOC_FILES.append(f"FoldedTorusNocL2_{L2_net_idx}")
-        L2_NETWORK_BSV_MODULES.append(f"mkFoldedTorusL2Noc{L2_net_idx}")
+        L2_NETWORK_BSV_MODULES.append(f"mkFoldedTorusL2Noc{L2_net_idx}()")
     elif (L2_net_type == 'M'):
         L2_NETWORK_NOC_FILES.append(f"MeshNocL2_{L2_net_idx}")
-        L2_NETWORK_BSV_MODULES.append(f"mkMeshL2Noc{L2_net_idx}")
-
-        
+        L2_NETWORK_BSV_MODULES.append(f"mkMeshL2Noc{L2_net_idx}()")
+    elif (L2_net_type == 'H'):
+        L2_NETWORK_NOC_FILES.append(f"HypercubeL2Noc")
+        L2_NETWORK_BSV_MODULES.append(f"mkHypercubeL2Noc({L2_net_idx})")
+    elif (L2_net_type == 'B'):
+        L2_NETWORK_NOC_FILES.append(f"Noc_butterfly{dim1}x{dim1}L2")
+        L2_NETWORK_BSV_MODULES.append(f"mkButterfly{dim1}x{dim1}L2Noc({L2_net_idx})") 
+      
 
 # Reading L1 topology text file: 
 # L1: Stores the attributes in L1Topology.txt
@@ -73,6 +82,8 @@ with open ("L2Topology.txt", 'r') as f:
         assert (len(L2_input_network) == 3), "In L2Topology.txt, line is of invalid format, please check the inputs"
         L2_dictionary[L2_input_network[0]][0] += 1          # NO_OF_NETWORKS
         L2_dictionary[L2_input_network[0]][1].append(idx)   # ALL_NETWORK_NUM
+        
+        # ALL_NETWORK_ID
         if (L1[0] in ['F','M']):
             L1_row = L1_DIM[0]
             L1_col = L1_DIM[1]
@@ -81,9 +92,12 @@ with open ("L2Topology.txt", 'r') as f:
             L2_dictionary[L2_input_network[0]][2].append(f"16'h{L1_row_idx:0>2x}{L1_col_idx:0>2x}")
         else:
             L2_dictionary[L2_input_network[0]][2].append(f"16'h{idx:0>4x}")
+        
+        # ALL_NETWORK_DIM
         L2_dictionary[L2_input_network[0]][3].append((int(L2_input_network[2]), int(L2_input_network[1])))
 
-        choose_noc_file(L2_input_network[0],idx)
+        # Modules that need to be instantiated in the L1 NoC
+        choose_noc_file(L2_input_network[0],idx,L2_input_network[1])
         idx += 1
 
 for i in NETWORK_TYPES:
@@ -108,5 +122,9 @@ elif L1[0] == 'F':
     create_L1_FT(L1_DIM,L2_NETWORK_NOC_FILES,L2_NETWORK_BSV_MODULES)
 elif L1[0] == 'M':
     create_L1_Mesh(L1_DIM,L2_NETWORK_NOC_FILES,L2_NETWORK_BSV_MODULES)
+elif L1[0] == 'H':
+    create_L1_Hypercube(L2_NETWORK_NOC_FILES,L2_NETWORK_BSV_MODULES)
+elif L1[0] == 'B':
+    create_L1_Butterfly(L1_DIM[0],L2_NETWORK_NOC_FILES,L2_NETWORK_BSV_MODULES)
   
 

@@ -105,7 +105,7 @@ def create_L1_FT(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
 
     for i in range(NO_OF_NETWORKS):
         files_to_import.append(f"import {L2_NETWORK_NODE_FILES[i]} :: * ;\n")
-        l2_noc_list.append(f"\tlet noc_N{i} <- {L2_NETWORK_BSV_MODULES[i]}();\n")
+        l2_noc_list.append(f"\tlet noc_N{i} <- {L2_NETWORK_BSV_MODULES[i]};\n")
 
     d['import_l2_noc_files'] = "".join(files_to_import)
     d['noc_instantiate'] = "".join(l2_noc_list)

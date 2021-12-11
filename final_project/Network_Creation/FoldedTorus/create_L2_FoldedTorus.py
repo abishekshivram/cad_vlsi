@@ -87,10 +87,10 @@ def create_L2_FT(NO_OF_NETWORKS, ALL_NETWORK_NUM, ALL_NETWORK_ID, ALL_NUMBER_OF_
 
         for j in range(NUMBER_OF_COLS):            
             for i in range(NUMBER_OF_ROWS):
-                stringLR = ruleU2D.format(from_row_id=i, from_col_id=j, to_row_id=(i+1)%NUMBER_OF_ROWS, to_col_id=j)
-                rules_L2R.append(stringLR)
-                stringRL = ruleD2U.format(from_row_id=(i+1)%NUMBER_OF_ROWS, from_col_id=j, to_row_id=i, to_col_id=j)
-                rules_R2L.append(stringRL)        
+                stringUD = ruleU2D.format(from_row_id=i, from_col_id=j, to_row_id=(i+1)%NUMBER_OF_ROWS, to_col_id=j)
+                rules_U2D.append(stringUD)
+                stringDU = ruleD2U.format(from_row_id=(i+1)%NUMBER_OF_ROWS, from_col_id=j, to_row_id=i, to_col_id=j)
+                rules_D2U.append(stringDU)        
             
 
         d['nodes_instantiate'] = ''.join(all_nodes)
