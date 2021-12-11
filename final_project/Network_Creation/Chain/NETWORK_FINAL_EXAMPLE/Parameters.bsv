@@ -14,6 +14,29 @@ Last updated on: 09-Dec-2021
 package Parameters;
 
 //Modify here for changing network address length 
+//Assumption - All the network topologies share the same network address length and node address length
+typedef Bit#(16) NetAddress; //Represents the network address in NoC.
+
+//NOTE Most significant byte is X and LSByte is Y
+
+typedef Bit#(8) NetAddressX; //Represents the network address split to X dimensions
+typedef Bit#(8) NetAddressY; //Represents the network address split to Y dimensions
+
+typedef Bit#(16) NodeAddress; //Represents the node address in NoC.
+typedef Bit#(8) NodeAddressX; //Represents the node address split to X dimensions
+typedef Bit#(8) NodeAddressY; //Represents the node address split to Y dimensions
+
+// typedef SizeOf#(NAddress) NetAddressLen; //Length of Net address
+// typedef SizeOf#(NodeAddress) NodeAddressLen; //Length of Node address
+typedef SizeOf#(NetAddressX) NetAddressXLen; //Length of Net address X length
+typedef SizeOf#(NetAddressY) NetAddressYLen; //Length of Net address Y length
+typedef SizeOf#(NodeAddressX) NodeAddressXLen; //Length of Node address X length
+typedef SizeOf#(NodeAddressY) NodeAddressYLen; //Length of Node address Y length
+
+typedef Bit#(16) LinkUtilisationCounter; //To measure link utilisation performance
+typedef Bit#(3) LinkUtiliPrInterval; //Link utilisation print intervalet
+
+//Modify here for changing network address length 
 typedef Int#(16) NetAddressLen;
 
 //Modify here for changing node address length 
@@ -21,6 +44,7 @@ typedef Int#(16) NodeAddressLen;
 
 //For payload parameterisation, change the size here
 typedef UInt#(64) PayloadLen;
+typedef Bit#(64) FlitPayload;
 
 //A type to represet the clock count
 typedef PayloadLen ClockCount;
@@ -29,27 +53,46 @@ typedef PayloadLen ClockCount;
 Integer l1NodeCount=fromInteger(5);
 
 interface MaxAddressInterface;
-    method NodeAddressLen getMaxAddress(NetAddressLen index);
+    method NodeAddressX getMaxAddressX(NetAddress index);
+    method NodeAddressY getMaxAddressY(NetAddress index);
+    method NetAddressX getMaxNetAddressX();
+    method NetAddressY getMaxNetAddressY();
 endinterface: MaxAddressInterface
 
 (* synthesize *)
 module mkMaxAddress(MaxAddressInterface);
     
-    //An array supporitng the core module genrate valid filt addresses
+    //An array supporitng the core module to genrate valid filt addresses
     //NodeAddressLen represents the maximum value each array element can store
-    //Each element of the array contains the maximum address possible in that L2 network
-    NodeAddressLen maxNodeAddress[l1NodeCount];
+    //Each element of the array contains the maximum address possible in that L2 network (in Mesh - X and Y dimensions, for chain, ring etc fill Y dimension first, MSB overflow may be stored in X)
+    //
+    NodeAddressX maxNodeAddressX[l1NodeCount];     NodeAddressY maxNodeAddressY[l1NodeCount];
+
+
+    //initialise the max address of L1 network
+    NetAddressX maxNetAddressX='h00; NetAddressY maxNetAddressY='h01;
 
     //initialise the max address of each network
-    maxNodeAddress[0]=fromInteger(6);
-    maxNodeAddress[1]=fromInteger(16);
-    maxNodeAddress[2]=fromInteger(4);
-    maxNodeAddress[3]=fromInteger(8);
-    maxNodeAddress[4]=fromInteger(12);
+    maxNodeAddressX[0]='h03; maxNodeAddressY[0]='h03;
+    //maxNodeAddressX[1]='h00; maxNodeAddressY[1]='h06;
+    //maxNodeAddressX[2]='h00; maxNodeAddressY[2]='h06;
+    //maxNodeAddressX[3]='h00; maxNodeAddressY[3]='h06;
+    
+    method NodeAddressX getMaxAddressX(NetAddress index);
+        return maxNodeAddressX[index];
+    endmethod: getMaxAddressX
 
-    method NodeAddressLen getMaxAddress(NetAddressLen index);
-        return maxNodeAddress[index];
-    endmethod: getMaxAddress
+    method NodeAddressY getMaxAddressY(NetAddress index);
+        return maxNodeAddressY[index];
+    endmethod: getMaxAddressY
+
+    method NetAddressX getMaxNetAddressX();
+        return maxNetAddressX;
+    endmethod
+
+    method NetAddressY getMaxNetAddressY();
+        return maxNetAddressY;
+    endmethod
 
 endmodule: mkMaxAddress
 
