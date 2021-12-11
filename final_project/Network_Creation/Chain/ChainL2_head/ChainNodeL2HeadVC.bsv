@@ -26,12 +26,12 @@ endinterface
 
 (* synthesize *)
 
-module mkChainL2HeadNode #(parameter Address my_addr, parameter Address head_node_addr) (IfcChainL2HeadNode);
+module mkChainL2HeadNode #(parameter Address my_addr, parameter Address head_node_addr ) (IfcChainL2HeadNode);
 
     //Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 
     // Core and three routers - core, left link, right link instantiation
-    let core            <- mkCore(my_addr, head_node_addr); 
+    let core            <- mkCore(my_addr,head_node_addr); 
     let router_left     <- mkChainRouterL2HeadVC(my_addr); // takes input from left neighbour and puts in corresponding VC
     let router_right    <- mkChainRouterL2HeadVC(my_addr);
     let router_core     <- mkChainRouterL2HeadVC(my_addr);

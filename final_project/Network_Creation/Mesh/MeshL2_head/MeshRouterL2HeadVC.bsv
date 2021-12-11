@@ -9,7 +9,7 @@ Description: The Mesh router implementation
 Last updated on: 09-Dec-2021
 **************************************************************************************/
 
-package MeshRouterVC;
+package MeshRouterL2HeadVC;
 // This package contains the router - which implements the routing algorithm for the mesh topology
 // Routing algorithm works as follows:
 // For each link, two VCs are allocated. For example, in each node in mesh topology, we have
@@ -21,7 +21,7 @@ import Shared::*;
 import FIFO :: * ;
 import Parameters :: * ;
 
-interface IfcMeshRouterVC ;
+interface IfcMeshRouterL2HeadVC ;
     // Put value is used to insert data to the router
     
     method Action put_value (Flit flit);
@@ -39,6 +39,10 @@ interface IfcMeshRouterVC ;
     method ActionValue#(Flit) get_valueVC9();
     method ActionValue#(Flit) get_valueVC10();
         
+    method ActionValue#(Flit) get_valueVC11();
+    method ActionValue#(Flit) get_valueVC12();
+  
+    
     method LinkUtilisationCounter get_link_util_counter();
     
 endinterface
@@ -48,7 +52,7 @@ endinterface
 
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
+module mkMeshRouterL2HeadVC #(parameter Address my_addr) (IfcMeshRouterL2HeadVC);
 
     function Action print_flit_details(Flit flit_to_print);
         return action
@@ -84,7 +88,11 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
     FIFO#(Flit)  vir_chnl_9  <- mkFIFO; // Virtual Channel 9
     FIFO#(Flit)  vir_chnl_10  <- mkFIFO; // Virtual Channel 10
 
-       
+    // To L1
+    FIFO#(Flit)  vir_chnl_11  <- mkFIFO; // Virtual Channel 1
+    FIFO#(Flit)  vir_chnl_12  <- mkFIFO; // Virtual Channel 2
+  
+        
     Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Since we have TWO VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
@@ -112,7 +120,17 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
         NetAddressX curr_dest_net_addr_x    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		NetAddressY curr_dest_net_addr_y    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
 
-        if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
+        NodeAddressX final_dest_nod_addr_x  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
+		NodeAddressY final_dest_nod_addr_y  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
+        NetAddressX final_dest_net_addr_x   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
+		NetAddressY final_dest_net_addr_y   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+
+        if(flit.finalDstAddress.netAddress != my_addr.netAddress) begin
+            $display("Odd cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
+            vir_chnl_11.enq(flit);
+        end
+        else if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
+        
             $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
             vir_chnl_1.enq(flit);
         end
@@ -160,8 +178,18 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
         NetAddressX curr_dest_net_addr_x    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		NetAddressY curr_dest_net_addr_y    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
 
+        NodeAddressX final_dest_nod_addr_x  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
+		NodeAddressY final_dest_nod_addr_y  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
+        NetAddressX final_dest_net_addr_x   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
+		NetAddressY final_dest_net_addr_y   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+
+        if(flit.finalDstAddress.netAddress != my_addr.netAddress) begin
+            $display("Even cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
+            vir_chnl_12.enq(flit);
+        end
+
         if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
-            $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
+            $display("Even cycle: vir_chnl_2.enq at addr:%h", my_addr);
             vir_chnl_2.enq(flit);
         end
         else begin
@@ -194,7 +222,7 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
     method Action put_value(Flit flit);
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
-        $display("Router(Addr: %b) received the flit into its Input Link", my_addr);
+        $display("Core router(Addr: %b) received the flit into its Input Link", my_addr);
         print_flit_details(flit);
         link_util_counter <= link_util_counter+1;
     endmethod
@@ -287,6 +315,21 @@ module mkMeshRouterVC #(parameter Address my_addr) (IfcMeshRouterVC);
         return temp10;
     endmethod
 
-endmodule: mkMeshRouterVC
+    method ActionValue#(Flit) get_valueVC11();
+        $display("get_valueVC11 method called at Router(Addr: %b)", my_addr);
+         let temp = vir_chnl_11.first();
+         vir_chnl_11.deq();
+        return temp;
+    endmethod
 
-endpackage : MeshRouterVC
+    method ActionValue#(Flit) get_valueVC12();
+        $display("get_valueVC12 method called at Router(Addr: %b)", my_addr);
+         let temp = vir_chnl_12.first();
+         vir_chnl_12.deq();
+        return temp;
+    endmethod
+    
+
+endmodule: mkMeshRouterL2HeadVC
+
+endpackage : MeshRouterL2HeadVC

@@ -1,4 +1,4 @@
-package ChainRouterL2VC;
+package ChainRouterVC;
 // This package contains the router - which implements the routing algorithm for the chain topology
 // Routing algorithm works as follows:
 // For each link, two VCs are allocated. For example, in each node in chain topology, we have
@@ -14,7 +14,7 @@ import FIFOF :: * ;
 
 
 
-interface IfcChainRouterL2VC ;
+interface IfcChainRouterVC ;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
     method Action put_value (Flit flit);
@@ -36,7 +36,7 @@ endinterface
 
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkChainRouterL2VC #(parameter Address my_addr) (IfcChainRouterL2VC);
+module mkChainRouterVC #(parameter Address my_addr) (IfcChainRouterVC);
 
     function Action print_flit_details(Flit flit_to_print);
         return action
@@ -47,8 +47,8 @@ module mkChainRouterL2VC #(parameter Address my_addr) (IfcChainRouterL2VC);
         endaction;
     endfunction
 
-    // Right now, it has been commented, we may need it for L2, L2 routing
-    //Reg#(bit)   level       <- mkReg(0); // 0 for low level (L2), 1 for high level (L2)
+    // Right now, it has been commented, we may need it for L1, L2 routing
+    //Reg#(bit)   level       <- mkReg(0); // 0 for low level (L2), 1 for high level (L1)
     
     // Input link for the router
     FIFO#(Flit)  input_link  <- mkFIFO; // to get data from left router
@@ -175,6 +175,6 @@ module mkChainRouterL2VC #(parameter Address my_addr) (IfcChainRouterL2VC);
         return temp6;
     endmethod
 
-endmodule: mkChainRouterL2VC
+endmodule: mkChainRouterVC
 
-endpackage : ChainRouterL2VC
+endpackage : ChainRouterVC

@@ -1,13 +1,13 @@
-package ChainNodeL2VC;
+package ChainNodeVC;
 
 import Shared::*;
 
 import FIFO :: * ;
 import Core :: * ;
-import ChainRouterL2VC :: *;
+import ChainRouterVC :: *;
 
 
-interface IfcChainL2Node;
+interface IfcChainNode;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
     method Action put_value_from_left(Flit data_left);
@@ -21,14 +21,15 @@ endinterface
 
 (* synthesize *)
 
-module mkChainL2Node #(parameter Address my_addr, parameter Address head_node_addr) (IfcChainL2Node);
+module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr) (IfcChainNode);
 
+    //Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 
     // Core and three routers - core, left link, right link instantiation
     let core            <- mkCore(my_addr, head_node_addr); 
-    let router_left     <- mkChainRouterL2VC(my_addr); // takes input from left neighbour and puts in corresponding VC
-    let router_right    <- mkChainRouterL2VC(my_addr);
-    let router_core     <- mkChainRouterL2VC(my_addr);
+    let router_left     <- mkChainRouterVC(my_addr); // takes input from left neighbour and puts in corresponding VC
+    let router_right    <- mkChainRouterVC(my_addr);
+    let router_core     <- mkChainRouterVC(my_addr);
 
     Reg#(Bit#(2)) counter   <- mkReg(0);
 
@@ -189,4 +190,4 @@ module mkChainL2Node #(parameter Address my_addr, parameter Address head_node_ad
 
 endmodule
 
-endpackage: ChainNodeL2VC
+endpackage: ChainNodeVC

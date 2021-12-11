@@ -101,14 +101,14 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
         input_link.deq();
 
         // Extracting the X and Y coordinates
-        //NetAddressX my_nod_addr_x          = pack(my_addr.NetAddress)[valueOf(NetAddressLen)-1:valueOf(NetAddressXLen)];
+        //NetAddressX my_nod_addr_x          = pack(my_addr.NetAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		//NetAddressY my_nod_addr_y          = pack(my_addr.NetAddress)[valueOf(NetAddressXLen)-1:0];
-        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressLen)-1:valueOf(NetAddressXLen)];
+        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
 
-        //NetAddressX curr_dest_nod_addr_x   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressLen)-1:valueOf(NetAddressXLen)];
+        //NetAddressX curr_dest_nod_addr_x   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		//NetAddressY curr_dest_nod_addr_y   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressXLen)-1:0];
-        NetAddressX final_dest_net_addr_x    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressLen)-1:valueOf(NetAddressXLen)];
+        NetAddressX final_dest_net_addr_x    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		NetAddressY final_dest_net_addr_y    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
 
         if(flit.finalDstAddress.netAddress == my_addr.netAddress)  begin
@@ -149,14 +149,14 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
         input_link.deq();
 
         // Extracting the X and Y coordinates
-        //NetAddressX my_nod_addr_x          = pack(my_addr.NetAddress)[valueOf(NetAddressLen)-1:valueOf(NetAddressXLen)];
+        //NetAddressX my_nod_addr_x          = pack(my_addr.NetAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		//NetAddressY my_nod_addr_y          = pack(my_addr.NetAddress)[valueOf(NetAddressXLen)-1:0];
-        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressLen)-1:valueOf(NetAddressXLen)];
+        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
 
-        //NetAddressX final_dest_nod_addr_x   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressLen)-1:valueOf(NetAddressXLen)];
+        //NetAddressX final_dest_nod_addr_x   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		//NetAddressY curr_dest_nod_addr_y   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressXLen)-1:0];
-        NetAddressX final_dest_net_addr_x    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressLen)-1:valueOf(NetAddressXLen)];
+        NetAddressX final_dest_net_addr_x    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		NetAddressY final_dest_net_addr_y    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
 
         if(flit.currentDstAddress.netAddress == my_addr.netAddress)  begin

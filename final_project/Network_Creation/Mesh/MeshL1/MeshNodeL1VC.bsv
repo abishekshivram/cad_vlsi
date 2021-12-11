@@ -28,10 +28,9 @@ endinterface
 
 (* synthesize *)
 
-module mkMeshNodeL1 #(parameter Address my_addr, parameter Address head_node_addr) (IfcMeshNode);
+module mkMeshL1Node #(parameter Address my_addr) (IfcMeshNode);
 
     // Core and three routers - core, left link, right link instantiation
-    //let core                <- mkCore(my_addr,head_node_addr); 
     //Left, right routers
     let router_left         <- mkMeshRouterL1VC(my_addr); // takes input from left neighbour and puts in corresponding VC
     let router_right        <- mkMeshRouterL1VC(my_addr);
@@ -435,6 +434,6 @@ module mkMeshNodeL1 #(parameter Address my_addr, parameter Address head_node_add
         router_l2.put_value(data_l2);
     endmethod
  
-endmodule: mkMeshNodeL1
+endmodule: mkMeshL1Node
 
 endpackage: MeshNodeL1VC

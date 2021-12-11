@@ -29,7 +29,6 @@ interface IfcChainRouterL2HeadVC ;
     method ActionValue#(Flit) get_valueVC5();
     method ActionValue#(Flit) get_valueVC6();
     
-    // METHODS TO PUT FLIT TO L1
     method ActionValue#(Flit) get_valueVC7();
     method ActionValue#(Flit) get_valueVC8();
 endinterface

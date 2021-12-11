@@ -6,7 +6,7 @@ import Shared::*;
 import FIFO :: * ;
 import Core :: * ;
 
-import MeshRouterVCL2Head::*;
+import MeshRouterL2HeadVC::*;
 
 interface IfcMeshL2HeadNode;
     // Put value is used to insert data to the router
