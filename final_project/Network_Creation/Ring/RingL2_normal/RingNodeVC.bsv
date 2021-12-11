@@ -1,15 +1,15 @@
-package ChainNodeVC;
+package RingNodeVC;
 
-import Parameters:: *;
 import Shared::*;
+import Parameters::*;
 
 import FIFO :: * ;
 import Core :: * ;
-import ChainRouterVC :: *;
+import RingRouterVC :: *;
 
 
+interface IfcRingNode;
 
-interface IfcChainNode;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
     method Action put_value_from_left(Flit data_left);
@@ -18,62 +18,47 @@ interface IfcChainNode;
     method ActionValue#(Flit) get_value_to_left();
     method ActionValue#(Flit) get_value_to_right();
 
+    method Action put_value_from_left_dateline(Flit data_left);
+    method Action put_value_from_right_dateline(Flit data_right);
+
+    method ActionValue#(Flit) get_value_to_left_dateline();
+    method ActionValue#(Flit) get_value_to_right_dateline();
+
 endinterface
 
 
 (* synthesize *)
 
-module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr, parameter Bool is_head_node) (IfcChainNode);
+module mkRingNode #(parameter Address my_addr, parameter NodeAddressLen maxNodeAddress, parameter Address head_node_addr) (IfcRingNode);
 
-    
+    // Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 
     // Core and three routers - core, left link, right link instantiation
-    let core            <- mkCore(my_addr,head_node_addr); 
-    let router_left     <- mkChainRouterVC(my_addr,is_head_node); // takes input from left neighbour and puts in corresponding VC
-    let router_right    <- mkChainRouterVC(my_addr,is_head_node);
-    let router_core     <- mkChainRouterVC(my_addr,is_head_node);
+    let core            <- mkCore(my_addr, head_node_addr); 
+    let router_left     <- mkRingRouterVC(my_addr, maxNodeAddress); // takes input from left neighbour and puts in corresponding VC
+    let router_right    <- mkRingRouterVC(my_addr, maxNodeAddress);
+    let router_core     <- mkRingRouterVC(my_addr, maxNodeAddress);
 
-    // These output link buffers were added to store the flit from VC in FIFO order and send them to next INPUT LINK
-    FIFO#(Flit) output_link_left <- mkFIFO;
-    FIFO#(Flit) output_link_right <- mkFIFO;
-
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rl=router_left.get_link_util_counter();
-        let rr=router_right.get_link_util_counter();
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr);
-    endrule
-
+    Reg#(Bit#(2)) counter   <- mkReg(0);
 
     // This counter is used by arbiters to choose VC to send out data
-    Reg#(Bit#(2)) counter   <- mkReg(0);
     rule count_every_cycle;
         counter <= counter + 1;
     endrule
 
-    //If core generated a flit, move it to core router
+    // Arbiter - connecting Output links to VC
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
-        if(core.is_flit_generated()==True) begin
+        if(core.is_flit_generated()==True)
             router_core.put_value(flit_generated);
-            $display("<<<<<<<<<<<<<<<<<<<Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit_generated.srcAddress.netAddress,flit_generated.srcAddress.nodeAddress,flit_generated.finalDstAddress.netAddress,flit_generated.finalDstAddress.nodeAddress);
-        end    
     endrule
 
-
-
-    //NOTE LLOYD This (Round robin arbiter) can be improved
-    //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
     
     // VC1 and VC2 are used to send data to the core (as decided earlier)
     // Rule - Output link - connecting to associated core
     // In this rule, we choose VC1 or VC2 from router_left or router_right (router_core cannot send to itself)
     // in a round robin fashion (implemented through 2 bit counter) (2 bit because we have 4 VCs to choose from)
-
+    
     rule outputLinkCore0(counter == 2'b00);
         $display("here flit is put into core from router left vc1; Arbiter count-%d", counter);      
         Flit data_core=defaultValue;
@@ -102,9 +87,15 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
         core.put_flit(data_core);
     endrule
 
-    // To send to right neighbour, we have to choose from available VC5s and VC6s
-    // The chosen flit is added to the OUTPUT_LINK_RIGHT
-    rule add_to_link_right0(counter == 2'b00);
+    // Without these buffer, there was error compiling 
+    // (ie) to send directly from VC to next input link buffer, it showed error (below commented code)
+    // These output link buffers were added to store the flit from VC in FIFO order and send them to next INPUT LINK
+    FIFO#(Flit) output_link_left            <- mkFIFO;
+    FIFO#(Flit) output_link_right           <- mkFIFO;
+    FIFO#(Flit) output_link_left_dateline   <- mkFIFO;
+    FIFO#(Flit) output_link_right_dateline  <- mkFIFO;
+
+    rule add_to_link_right0(counter == 2'b00 || counter == 2'b10);
         $display("add_to_link_right0-> my_addr %d",my_addr.netAddress);    
         Flit data_right=defaultValue;
         data_right <- router_core.get_valueVC5();
@@ -112,7 +103,7 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
     endrule
 
 
-    rule add_to_link_right1(counter == 2'b01);
+    rule add_to_link_right1(counter == 2'b01 || counter == 2'b11);
         $display("add_to_link_right1-> my_addr %d",my_addr.netAddress);    
         Flit data_right=defaultValue;
         data_right <- router_left.get_valueVC5();
@@ -120,25 +111,26 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
     endrule
 
 
-    rule add_to_link_right2(counter == 2'b10);
+    rule add_to_link_right2(counter == 2'b00 || counter == 2'b10);
         $display("add_to_link_right2-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_core.get_valueVC6();
-        output_link_right.enq(data_right);
+        Flit data_right_dateline=defaultValue;
+        data_right_dateline <- router_core.get_valueVC6();
+        output_link_right_dateline.enq(data_right_dateline);
     endrule
 
 
-    rule add_to_link_right3(counter == 2'b11);
+    rule add_to_link_right3(counter == 2'b01 || counter == 2'b11);
         $display("add_to_link_right3-> my_addr %d",my_addr.netAddress);    
-        Flit data_right=defaultValue;
-        data_right <- router_left.get_valueVC6();
-        output_link_right.enq(data_right);
+        Flit data_right_dateline=defaultValue;
+        data_right_dateline <- router_left.get_valueVC6();
+        output_link_right_dateline.enq(data_right_dateline);
     endrule
 
-
+    //NOTE LLOYD This can be improved
+    //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
     // To send to left neighbour, we have to choose from available VC3s and VC4s
     // The chosen flit is added to the OUTPUT_LINK_LEFT
-    rule add_to_link_left0(counter == 2'b00);
+    rule add_to_link_left0(counter == 2'b00 || counter == 2'b10);
         $display("add_to_link_left0 -> my_addr %d",my_addr.netAddress);    
         Flit data_left=defaultValue;
         data_left <- router_right.get_valueVC3();
@@ -146,7 +138,7 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
     endrule
 
 
-    rule add_to_link_left1(counter == 2'b01);
+    rule add_to_link_left1(counter == 2'b01 || counter == 2'b11);
         $display("add_to_link_left1 -> my_addr %d",my_addr.netAddress);    
         Flit data_left=defaultValue;
         data_left <- router_core.get_valueVC3();
@@ -154,20 +146,28 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
     endrule
 
 
-    rule add_to_link_left2(counter == 2'b10);
+    rule add_to_link_left2(counter == 2'b00 || counter == 2'b10);
         $display("add_to_link_left2 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_right.get_valueVC4();
-        output_link_left.enq(data_left);
+        Flit data_left_dateline=defaultValue;
+        data_left_dateline <- router_right.get_valueVC4();
+        output_link_left_dateline.enq(data_left_dateline);
     endrule
 
 
-    rule add_to_link_left3(counter == 2'b11);
+    rule add_to_link_left3(counter == 2'b01 || counter == 2'b11);
         $display("add_to_link_left3 -> my_addr %d",my_addr.netAddress);    
-        Flit data_left=defaultValue;
-        data_left <- router_core.get_valueVC4();
-        output_link_left.enq(data_left);
+        Flit data_left_dateline=defaultValue;
+        data_left_dateline <- router_core.get_valueVC4();
+        output_link_left_dateline.enq(data_left_dateline);
     endrule
+
+
+
+    //NOTE LLOYD This can be improved
+    //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
+    // To send to right neighbour, we have to choose from available VC5s and VC6s
+    // The chosen flit is added to the OUTPUT_LINK_RIGHT
+    
 
     // Method to take the flit from OUTPUT_LINK_LEFT and return 
     // This is invoked in NOC.bsv where final connections are made
@@ -176,6 +176,11 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
         output_link_left.deq();
         return data_to_left;
     endmethod
+    method ActionValue#(Flit) get_value_to_left_dateline();
+        let data_to_left_dateline = output_link_left_dateline.first();
+        output_link_left_dateline.deq();
+        return data_to_left_dateline;
+    endmethod
 
     // Method to take the flit from OUTPUT_LINK_RIGHT and return 
     method ActionValue#(Flit) get_value_to_right();
@@ -183,20 +188,31 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
         output_link_right.deq();
         return data_to_right;
     endmethod
+    method ActionValue#(Flit) get_value_to_right_dateline();
+        let data_to_right_dateline = output_link_right_dateline.first();
+        output_link_right_dateline.deq();
+        return data_to_right_dateline;
+    endmethod
 
       // Methods to take care of input links 
     // (ie) the flits that come from left neighbour are inserted to the router_left's input link buffer
     method Action put_value_from_left(Flit data_left);
         router_left.put_value(data_left);
     endmethod
+    method Action put_value_from_left_dateline(Flit data_left);
+        router_left.put_value_dateline(data_left);
+    endmethod
 
     // The flits that come from right neighbour are inserted to the router_right's input link buffer
     method Action put_value_from_right(Flit data_right);
         router_right.put_value(data_right);
+    endmethod
+    method Action put_value_from_right_dateline(Flit data_right);
+        router_right.put_value_dateline(data_right);
     endmethod
 
   
 
 endmodule
 
-endpackage: ChainNodeVC
+endpackage: RingNodeVC

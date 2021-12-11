@@ -14,6 +14,29 @@ Last updated on: 09-Dec-2021
 package Parameters;
 
 //Modify here for changing network address length 
+//Assumption - All the network topologies share the same network address length and node address length
+typedef Bit#(16) NetAddress; //Represents the network address in NoC.
+
+//NOTE Most significant byte is X and LSByte is Y
+
+typedef Bit#(8) NetAddressX; //Represents the network address split to X dimensions
+typedef Bit#(8) NetAddressY; //Represents the network address split to Y dimensions
+
+typedef Bit#(16) NodeAddress; //Represents the node address in NoC.
+typedef Bit#(8) NodeAddressX; //Represents the node address split to X dimensions
+typedef Bit#(8) NodeAddressY; //Represents the node address split to Y dimensions
+
+typedef SizeOf#(NetAddress) NetAddressTotalLen; //Length of Net address
+typedef SizeOf#(NodeAddress) NodeAddressTotalLen; //Length of Node address
+typedef SizeOf#(NetAddressX) NetAddressXLen; //Length of Net address X length
+typedef SizeOf#(NetAddressY) NetAddressYLen; //Length of Net address Y length
+typedef SizeOf#(NodeAddressX) NodeAddressXLen; //Length of Node address X length
+typedef SizeOf#(NodeAddressY) NodeAddressYLen; //Length of Node address Y length
+
+typedef Bit#(16) LinkUtilisationCounter; //To measure link utilisation performance
+typedef Bit#(3) LinkUtiliPrInterval; //Link utilisation print intervalet
+
+//Modify here for changing network address length 
 typedef Int#(16) NetAddressLen;
 
 //Modify here for changing node address length 
@@ -21,6 +44,7 @@ typedef Int#(16) NodeAddressLen;
 
 //For payload parameterisation, change the size here
 typedef UInt#(64) PayloadLen;
+typedef Bit#(64) FlitPayload;
 
 //A type to represet the clock count
 typedef PayloadLen ClockCount;
