@@ -26,8 +26,8 @@ typedef Bit#(16) NodeAddress; //Represents the node address in NoC.
 typedef Bit#(8) NodeAddressX; //Represents the node address split to X dimensions
 typedef Bit#(8) NodeAddressY; //Represents the node address split to Y dimensions
 
-// typedef SizeOf#(NAddress) NetAddressLen; //Length of Net address
-// typedef SizeOf#(NodeAddress) NodeAddressLen; //Length of Node address
+typedef SizeOf#(NAddress) NetAddressTotalLen; //Length of Net address
+typedef SizeOf#(NodeAddress) NodeAddressTotalLen; //Length of Node address
 typedef SizeOf#(NetAddressX) NetAddressXLen; //Length of Net address X length
 typedef SizeOf#(NetAddressY) NetAddressYLen; //Length of Net address Y length
 typedef SizeOf#(NodeAddressX) NodeAddressXLen; //Length of Node address X length
