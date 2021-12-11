@@ -1,0 +1,57 @@
+package $PACKAGE_NAME;
+// This package instantiates all the nodes and connects them in Mesh topology
+
+import Shared::*;
+import Parameters::*;
+
+import FIFO :: * ;
+import Core :: * ;
+
+import MeshRouterVC :: *;
+import MeshNodeVC :: *;
+
+import MeshRouterL2HeadVC :: *;
+import MeshNodeL2HeadVC :: *;
+
+interface IfcMeshNoc;
+    // Put value is used to insert data to the router
+    // Get Value is used to read the value from the router
+
+    method Action put_value_from_l1(Flit data_from_L1);
+    method ActionValue#(Flit) get_value_to_l1();
+
+endinterface
+
+
+(* synthesize *)
+module mkMeshL2Noc$NETWORK_ID (IfcMeshNoc);
+
+
+$nodes_instantiate
+
+    
+$rule_left_to_right
+
+
+$rule_right_to_left
+
+
+$rule_up_to_down
+
+
+$rule_down_to_up
+
+
+    method Action put_value_from_l1(Flit data_from_L1);
+        node$HEADNODE.put_value_from_l1(data_from_L1);
+    endmethod
+
+    method ActionValue#(Flit) get_value_to_l1();
+        Flit data=defaultValue;
+        data <- node$HEADNODE.get_value_to_l1();
+        return data;
+    endmethod
+
+endmodule
+
+endpackage : $PACKAGE_NAME

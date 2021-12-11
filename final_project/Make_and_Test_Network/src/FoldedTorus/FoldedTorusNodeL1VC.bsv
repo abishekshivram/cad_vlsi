@@ -1,0 +1,446 @@
+package FoldedTorusNodeL1VC;
+
+import Shared::*;
+import Parameters::*;
+
+import FIFO :: * ;
+import Core :: * ;
+
+import FoldedTorusRouterL1VC::*;
+
+interface IfcFoldedTorusNodeL1;
+    // Put value is used to insert data to the router
+    // Get Value is used to read the value from the router
+    method Action put_value_from_left(Flit data_left);
+    method Action put_value_from_right(Flit data_right);
+    method Action put_value_from_up(Flit data_up);
+    method Action put_value_from_down(Flit data_down);
+
+    method ActionValue#(Flit) get_value_to_left();
+    method ActionValue#(Flit) get_value_to_right();
+    method ActionValue#(Flit) get_value_to_up();
+    method ActionValue#(Flit) get_value_to_down();
+
+    // method Action put_value_from_left_dateline(Flit data_left);
+    // method Action put_value_from_right_dateline(Flit data_right);
+    method Action put_value_from_up_dateline(Flit data_up);
+    method Action put_value_from_down_dateline(Flit data_down);
+
+    // method ActionValue#(Flit) get_value_to_left_dateline();
+    // method ActionValue#(Flit) get_value_to_right_dateline();
+    method ActionValue#(Flit) get_value_to_up_dateline();
+    method ActionValue#(Flit) get_value_to_down_dateline();
+
+    method Action put_value_from_l2(Flit data_l2);
+    method ActionValue#(Flit) get_value_to_l2();
+
+endinterface
+
+
+(* synthesize *)
+
+module mkFoldedTorusL1Node #(parameter Address my_addr, parameter NetAddressX maxXAddress, parameter NetAddressY maxYAddress) (IfcFoldedTorusNodeL1);
+
+    // 5 routers - left link, right link, down link, up link, l2 link instantiation
+    let router_left         <- mkFoldedTorusRouterL1VC(my_addr,maxXAddress,maxYAddress); // takes input from left neighbour and puts in corresponding VC
+    let router_right        <- mkFoldedTorusRouterL1VC(my_addr,maxXAddress,maxYAddress);
+    let router_up           <- mkFoldedTorusRouterL1VC(my_addr,maxXAddress,maxYAddress);
+    let router_down         <- mkFoldedTorusRouterL1VC(my_addr,maxXAddress,maxYAddress);  
+    let router_l2           <- mkFoldedTorusRouterL1VC(my_addr,maxXAddress,maxYAddress);
+
+    // These output link buffers were added to store the flit from VC in FIFO order and send them to next INPUT LINK
+    FIFO#(Flit) output_link_left <- mkFIFO;
+    FIFO#(Flit) output_link_right <- mkFIFO;
+    FIFO#(Flit) output_link_up <- mkFIFO;
+    FIFO#(Flit) output_link_down <- mkFIFO;
+
+    FIFO#(Flit) output_link_up_dateline <- mkFIFO;
+    FIFO#(Flit) output_link_down_dateline <- mkFIFO;
+
+    // Output link for L2
+    FIFO#(Flit) output_link_l2 <- mkFIFO;
+
+    // This counter is used by arbiters to choose VC to send out data
+    Reg#(Bit#(3)) counter   <- mkReg(0); 
+    rule count_every_cycle;
+        counter <= counter + 1;
+    endrule
+
+      
+    //NOTE LLOYD This (Round robin arbiter) can be improved
+    //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
+    
+    // VC1 and VC2 are used to send data to the core (as decided earlier)
+    // Rule - Output link - connecting to associated core
+    // In this rule, we choose VC1 or VC2 from router_left or router_right,router_head_left,router_head_right (router_l2 cannot send to itself)
+    // in a round robin fashion (implemented through 3 bit counter) (3 bit because we have 8 VCs to choose from)
+    
+    rule outputLinkl2_0(counter == 3'b000);
+        Flit data_l2=defaultValue;
+        data_l2 <- router_left.get_valueVC1();
+        output_link_l2.enq(data_l2);
+    endrule
+    
+    rule outputLinkl2_1(counter == 3'b001);
+        Flit data_l2=defaultValue;
+        data_l2 <- router_right.get_valueVC1();
+        output_link_l2.enq(data_l2);
+    endrule
+
+    rule outputLinkl2_2(counter == 3'b010);
+        Flit data_l2=defaultValue;
+        data_l2 <- router_up.get_valueVC1();
+        output_link_l2.enq(data_l2);
+    endrule
+
+    rule outputLinkl2_3(counter == 3'b011);
+        Flit data_l2=defaultValue;
+        data_l2 <- router_down.get_valueVC1();
+        output_link_l2.enq(data_l2);
+    endrule
+
+    rule outputLinkl2_4(counter == 3'b100);
+        Flit data_l2=defaultValue;
+        data_l2 <- router_left.get_valueVC2();
+        output_link_l2.enq(data_l2);
+    endrule
+    
+    rule outputLinkl2_5(counter == 3'b101);
+        Flit data_l2=defaultValue;
+        data_l2 <- router_right.get_valueVC2();
+        output_link_l2.enq(data_l2);
+    endrule
+
+    rule outputLinkl2_6(counter == 3'b110);
+        Flit data_l2=defaultValue;
+        data_l2 <- router_up.get_valueVC2();
+        output_link_l2.enq(data_l2);
+    endrule
+
+    rule outputLinkl2_7(counter == 3'b111);
+        Flit data_l2=defaultValue;
+        data_l2 <- router_down.get_valueVC2();
+        output_link_l2.enq(data_l2);
+    endrule
+
+    // To send to right neighbour, we have to choose from available VC5s and VC6s
+    // The chosen flit is added to the OUTPUT_LINK_RIGHT
+
+    rule add_to_link_right0(counter == 3'b000);
+        $display("add_to_link_right0-> my_addr %d",my_addr);    
+        Flit data_right=defaultValue;
+        data_right <- router_l2.get_valueVC5();
+        output_link_right.enq(data_right);
+    endrule
+
+    rule add_to_link_right1(counter == 3'b001);
+        $display("add_to_link_right1-> my_addr %d",my_addr);    
+        Flit data_right=defaultValue;
+        data_right <- router_left.get_valueVC5();
+        output_link_right.enq(data_right);
+    endrule
+
+    rule add_to_link_right2(counter == 3'b010);
+        $display("add_to_link_right2-> my_addr %d",my_addr);    
+        Flit data_right=defaultValue;
+        data_right <- router_up.get_valueVC5();
+        output_link_right.enq(data_right);
+    endrule
+
+    rule add_to_link_right3(counter == 3'b011);
+        $display("add_to_link_right3-> my_addr %d",my_addr);    
+        Flit data_right=defaultValue;
+        data_right <- router_down.get_valueVC5();
+        output_link_right.enq(data_right);
+    endrule
+
+    rule add_to_link_right4(counter == 3'b100);
+        $display("add_to_link_right4-> my_addr %d",my_addr);    
+        Flit data_right=defaultValue;
+        data_right <- router_l2.get_valueVC6();
+        output_link_right.enq(data_right);
+    endrule
+
+    rule add_to_link_right5(counter == 3'b101);
+        $display("add_to_link_right5-> my_addr %d",my_addr);    
+        Flit data_right=defaultValue;
+        data_right <- router_left.get_valueVC6();
+        output_link_right.enq(data_right);
+    endrule
+
+    rule add_to_link_right6(counter == 3'b110);
+        $display("add_to_link_right6-> my_addr %d",my_addr);    
+        Flit data_right=defaultValue;
+        data_right <- router_up.get_valueVC6();
+        output_link_right.enq(data_right);
+    endrule
+
+    rule add_to_link_right7(counter == 3'b111);
+        $display("add_to_link_right7-> my_addr %d",my_addr);    
+        Flit data_right=defaultValue;
+        data_right <- router_down.get_valueVC6();
+        output_link_right.enq(data_right);
+    endrule
+
+    // To send to left neighbour, we have to choose from available VC7s and VC4s
+    // The chosen flit is added to the OUTPUT_LINK_LEFT
+
+    rule add_to_link_left0(counter == 3'b000);
+        $display("add_to_link_left0-> my_addr %d",my_addr);    
+        Flit data_left=defaultValue;
+        data_left <- router_l2.get_valueVC3();
+        output_link_left.enq(data_left);
+    endrule
+
+    rule add_to_link_left1(counter == 3'b001);
+        $display("add_to_link_left1-> my_addr %d",my_addr);    
+        Flit data_left=defaultValue;
+        data_left <- router_right.get_valueVC3();
+        output_link_left.enq(data_left);
+    endrule
+
+    rule add_to_link_left2(counter == 3'b010);
+        $display("add_to_link_left2-> my_addr %d",my_addr);    
+        Flit data_left=defaultValue;
+        data_left <- router_up.get_valueVC3();
+        output_link_left.enq(data_left);
+    endrule
+
+    rule add_to_link_left3(counter == 3'b011);
+        $display("add_to_link_left3-> my_addr %d",my_addr);    
+        Flit data_left=defaultValue;
+        data_left <- router_down.get_valueVC3();
+        output_link_left.enq(data_left);
+    endrule
+
+    rule add_to_link_left4(counter == 3'b100);
+        $display("add_to_link_left4-> my_addr %d",my_addr);    
+        Flit data_left=defaultValue;
+        data_left <- router_l2.get_valueVC4();
+        output_link_left.enq(data_left);
+    endrule
+
+    rule add_to_link_left5(counter == 3'b101);
+        $display("add_to_link_left5-> my_addr %d",my_addr);    
+        Flit data_left=defaultValue;
+        data_left <- router_right.get_valueVC4();
+        output_link_left.enq(data_left);
+    endrule
+
+    rule add_to_link_left6(counter == 3'b110);
+        $display("add_to_link_left6-> my_addr %d",my_addr);    
+        Flit data_left=defaultValue;
+        data_left <- router_up.get_valueVC4();
+        output_link_left.enq(data_left);
+    endrule
+
+    rule add_to_link_left7(counter == 3'b111);
+        $display("add_to_link_left7-> my_addr %d",my_addr);    
+        Flit data_left=defaultValue;
+        data_left <- router_down.get_valueVC4();
+        output_link_left.enq(data_left);
+    endrule
+
+
+    // To send to up neighbour, we have to choose from available VC7s and VC8s
+    // The chosen flit is added to the OUTPUT_LINK_UP
+
+    rule add_to_link_up0(counter == 3'b000 || counter == 3'b100);
+        $display("add_to_link_up0-> my_addr %d",my_addr);    
+        Flit data_up=defaultValue;
+        data_up <- router_l2.get_valueVC7();
+        output_link_up.enq(data_up);
+    endrule
+
+    rule add_to_link_up1(counter == 3'b001 || counter == 3'b101);
+        $display("add_to_link_up1-> my_addr %d",my_addr);    
+        Flit data_up=defaultValue;
+        data_up <- router_left.get_valueVC7();
+        output_link_up.enq(data_up);
+    endrule
+
+    rule add_to_link_up2(counter == 3'b010 || counter == 3'b110);
+        $display("add_to_link_up2-> my_addr %d",my_addr);    
+        Flit data_up=defaultValue;
+        data_up <- router_right.get_valueVC7();
+        output_link_up.enq(data_up);
+    endrule
+
+    rule add_to_link_up3(counter == 3'b011 || counter == 3'b111);
+        $display("add_to_link_up3-> my_addr %d",my_addr);    
+        Flit data_up=defaultValue;
+        data_up <- router_down.get_valueVC7();
+        output_link_up.enq(data_up);
+    endrule
+
+
+    rule add_to_link_up4_dateline(counter == 3'b000 || counter == 3'b100);
+        $display("add_to_link_up4_dateline-> my_addr %d",my_addr);    
+        Flit data_up_dateline=defaultValue;
+        data_up_dateline <- router_l2.get_valueVC8();
+        output_link_up_dateline.enq(data_up_dateline);
+    endrule
+
+    rule add_to_link_up5_dateline(counter == 3'b001 || counter == 3'b101);
+        $display("add_to_link_up5_dateline-> my_addr %d",my_addr);    
+        Flit data_up_dateline=defaultValue;
+        data_up_dateline <- router_left.get_valueVC8();
+        output_link_up_dateline.enq(data_up_dateline);
+    endrule
+
+    rule add_to_link_up6_dateline(counter == 3'b010 || counter == 3'b110);
+        $display("add_to_link_up6_dateline-> my_addr %d",my_addr);    
+        Flit data_up_dateline=defaultValue;
+        data_up_dateline <- router_right.get_valueVC8();
+        output_link_up_dateline.enq(data_up_dateline);
+    endrule
+
+    rule add_to_link_up7_dateline(counter == 3'b011 || counter == 3'b111);
+        $display("add_to_link_up7_dateline-> my_addr %d",my_addr);    
+        Flit data_up_dateline=defaultValue;
+        data_up_dateline <- router_down.get_valueVC8();
+        output_link_up_dateline.enq(data_up_dateline);
+    endrule
+
+
+    // To send to down neighbour, we have to choose from available VC9s and VC10s
+    // The chosen flit is added to the OUTPUT_LINK_DOWN
+
+    rule add_to_link_down0(counter == 3'b000);
+        $display("add_to_link_down0-> my_addr %d",my_addr);    
+        Flit data_down=defaultValue;
+        data_down <- router_l2.get_valueVC9();
+        output_link_down.enq(data_down);
+    endrule
+
+    rule add_to_link_down1(counter == 3'b001);
+        $display("add_to_link_down1-> my_addr %d",my_addr);    
+        Flit data_down=defaultValue;
+        data_down <- router_left.get_valueVC9();
+        output_link_down.enq(data_down);
+    endrule
+
+    rule add_to_link_down2(counter == 3'b010);
+        $display("add_to_link_down2-> my_addr %d",my_addr);    
+        Flit data_down=defaultValue;
+        data_down <- router_right.get_valueVC9();
+        output_link_down.enq(data_down);
+    endrule
+
+    rule add_to_link_down3(counter == 3'b011);
+        $display("add_to_link_down3-> my_addr %d",my_addr);    
+        Flit data_down=defaultValue;
+        data_down <- router_up.get_valueVC9();
+        output_link_down.enq(data_down);
+    endrule
+
+    rule add_to_link_down4(counter == 3'b100);
+        $display("add_to_link_down4-> my_addr %d",my_addr);    
+        Flit data_down_dateline=defaultValue;
+        data_down_dateline <- router_l2.get_valueVC10();
+        output_link_down_dateline.enq(data_down_dateline);
+    endrule
+
+    rule add_to_link_down5(counter == 3'b101);
+        $display("add_to_link_down5-> my_addr %d",my_addr);    
+        Flit data_down_dateline=defaultValue;
+        data_down_dateline <- router_left.get_valueVC10();
+        output_link_down_dateline.enq(data_down_dateline);
+    endrule
+
+    rule add_to_link_down6(counter == 3'b110);
+        $display("add_to_link_down6-> my_addr %d",my_addr);    
+        Flit data_down_dateline=defaultValue;
+        data_down_dateline <- router_right.get_valueVC10();
+        output_link_down_dateline.enq(data_down_dateline);
+    endrule
+
+    rule add_to_link_down7(counter == 3'b111);
+        $display("add_to_link_down7-> my_addr %d",my_addr);    
+        Flit data_down_dateline=defaultValue;
+        data_down_dateline <- router_up.get_valueVC10();
+        output_link_down_dateline.enq(data_down_dateline);
+    endrule
+
+
+    // Method to take the flit from OUTPUT_LINK_LEFT and return 
+    // This is invoked in NOC.bsv where final connections are made
+    method ActionValue#(Flit) get_value_to_left();
+        let data_to_left = output_link_left.first();
+        output_link_left.deq();
+        return data_to_left;
+    endmethod
+
+    // Method to take the flit from OUTPUT_LINK_RIGHT and return 
+    method ActionValue#(Flit) get_value_to_right();
+        let data_to_right = output_link_right.first();
+        output_link_right.deq();
+        return data_to_right;
+    endmethod
+
+    method ActionValue#(Flit) get_value_to_up();
+        let data_to_up = output_link_up.first();
+        output_link_up.deq();
+        return data_to_up;
+    endmethod
+
+    method ActionValue#(Flit) get_value_to_up_dateline();
+        let data_to_up_dateline = output_link_up_dateline.first();
+        output_link_up_dateline.deq();
+        return data_to_up_dateline;
+    endmethod
+
+
+    method ActionValue#(Flit) get_value_to_down();
+        let data_to_down = output_link_down.first();
+        output_link_down.deq();
+        return data_to_down;
+    endmethod
+    
+    method ActionValue#(Flit) get_value_to_down_dateline();
+        let data_to_down_dateline = output_link_down_dateline.first();
+        output_link_down_dateline.deq();
+        return data_to_down_dateline;
+    endmethod
+
+    method ActionValue#(Flit) get_value_to_l2();
+        let data_to_l2 = output_link_l2.first();
+        output_link_l2.deq();
+        return data_to_l2;
+    endmethod
+
+
+    // Methods to take care of input links 
+    // (ie) the flits that come from left neighbour are inserted to the router_left's input link buffer
+    method Action put_value_from_left(Flit data_left);
+        router_left.put_value(data_left);
+    endmethod
+
+    // The flits that come from right neighbour are inserted to the router_right's input link buffer
+    method Action put_value_from_right(Flit data_right);
+        router_right.put_value(data_right);
+    endmethod
+
+    method Action put_value_from_up(Flit data_up);
+        router_up.put_value(data_up);
+    endmethod
+    
+    method Action put_value_from_up_dateline(Flit data_up);
+        router_up.put_value_dateline(data_up);
+    endmethod
+
+    method Action put_value_from_down(Flit data_down);
+        router_down.put_value(data_down);
+    endmethod
+
+    method Action put_value_from_down_dateline(Flit data_down);
+        router_down.put_value_dateline(data_down);
+    endmethod
+
+    method Action put_value_from_l2(Flit data_l2);
+        router_l2.put_value(data_l2);
+    endmethod  
+    
+endmodule: mkFoldedTorusL1Node
+
+endpackage: FoldedTorusNodeL1VC

@@ -1,0 +1,38 @@
+package $PACKAGE_NAME;
+// This package instantiates all the nodes and connects them in FoldedTorus topology
+
+import Shared::*;
+import Parameters::*;
+
+import FIFO :: * ;
+import Core :: * ;
+
+import FoldedTorusRouterL1VC :: *;
+import FoldedTorusNodeL1VC :: *;
+
+$import_l2_noc_files
+
+
+(* synthesize *)
+module mkFoldedTorusL1Noc (Empty);
+
+
+$nodes_instantiate
+
+$noc_instantiate
+
+
+
+$rule_left_to_right
+
+
+
+$rule_right_to_left
+
+
+
+$L1_L2_connection
+
+endmodule
+
+endpackage : $PACKAGE_NAME
