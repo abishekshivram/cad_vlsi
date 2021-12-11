@@ -1,50 +1,75 @@
-package HypercubeNocL2;
+package HypercubeL2Noc;
 // This package instantiates all the nodes and connects them
 
 import Shared::*;
+import Parameters::*;
 
 import FIFO :: * ;
 import Core :: * ;
-import HypercubeRouterVC :: *;
 
-import HypercubeNode0VC :: *;
-import HypercubeNode1VC :: *;
-import HypercubeNode2VC :: *;
-import HypercubeNode3VC :: *;
-import HypercubeNode4VC :: *;
-import HypercubeNode5VC :: *;
-import HypercubeNode6VC :: *;
-import HypercubeNode7VC :: *;
+
+import HypercubeL2NodesVC :: *; // Nodes 0 to 7 where Node0=HEAD
+import HypercubeRouterL2VC :: *; // Router for rest nodes
+import HypercubeRouterL2HeadVC :: *; // Router for HEAD NODE
+
+// import HypercubeRouterVC :: *;
+// import HypercubeNode0VC :: *;
+// import HypercubeNode1VC :: *;
+// import HypercubeNode2VC :: *;
+// import HypercubeNode3VC :: *;
+// import HypercubeNode4VC :: *;
+// import HypercubeNode5VC :: *;
+// import HypercubeNode6VC :: *;
+// import HypercubeNode7VC :: *;
+
+
+
+interface IfcHypercubeL2Noc;
+    // Put value is used to insert data to the router
+    // Get Value is used to read the value from the router
+
+    method Action put_value_from_l1(Flit data_from_L1);
+    method ActionValue#(Flit) get_value_to_l1();
+
+endinterface 
 
 (* synthesize *)
-
-module mkHypercubeNoc(Empty);
-
-    // In this example, 8 nodes are linked in a hypercube
-    
-    Address node0_address;  node0_address.netAddress=0;  node0_address.nodeAddress=0;
-    let node0   <- mkHypercubeNode0VC(node0_address, 0);
-    Address node1_address;  node1_address.netAddress=0;  node1_address.nodeAddress=1;
-    let node1   <- mkHypercubeNode1VC(node1_address, 0);
-    Address node2_address;  node2_address.netAddress=0;  node2_address.nodeAddress=2;
-    let node2   <- mkHypercubeNode2VC(node2_address, 0);
+module mkHypercubeL2Noc #(parameter NetAddressLen net_id) (IfcHypercubeL2Noc);
 
     // When its a head node, it should has more than two set of 3 links,
     // one set to L2 network, another set for L1 network
     
-    Address node3_address;  node3_address.netAddress=0;  node3_address.nodeAddress=3;
-    let node3   <- mkHypercubeNode3VC(node3_address, 1); // Head node
-
-    Address node4_address;  node4_address.netAddress=0;  node4_address.nodeAddress=4;
-    let node4   <- mkHypercubeNode4VC(node4_address, 0);
-    Address node5_address;  node5_address.netAddress=0;  node5_address.nodeAddress=5;
-    let node5   <- mkHypercubeNode5VC(node5_address, 0);
-    Address node6_address;  node6_address.netAddress=0;  node6_address.nodeAddress=6;
-    let node6   <- mkHypercubeNode6VC(node6_address, 0);
-    Address node7_address;  node7_address.netAddress=0;  node7_address.nodeAddress=7;
-    let node7   <- mkHypercubeNode7VC(node7_address, 0);
+    Address node0_address;  node0_address.netAddress=net_id;  node0_address.nodeAddress=0;
+    let node0   <- mkHypercubeNode0VC(node0_address); // HEAD
     
-    // Connecting nodes according to hypercube topology
+    Address node1_address;  node1_address.netAddress=net_id;  node1_address.nodeAddress=1;
+    let node1   <- mkHypercubeNode1VC(node1_address);
+    
+    Address node2_address;  node2_address.netAddress=net_id;  node2_address.nodeAddress=2;
+    let node2   <- mkHypercubeNode2VC(node2_address);
+
+    Address node3_address;  node3_address.netAddress=net_id;  node3_address.nodeAddress=3;
+    let node3   <- mkHypercubeNode3VC(node3_address);
+
+    Address node4_address;  node4_address.netAddress=net_id;  node4_address.nodeAddress=4;
+    let node4   <- mkHypercubeNode4VC(node4_address);
+
+    Address node5_address;  node5_address.netAddress=net_id;  node5_address.nodeAddress=5;
+    let node5   <- mkHypercubeNode5VC(node5_address);
+
+    Address node6_address;  node6_address.netAddress=net_id;  node6_address.nodeAddress=6;
+    let node6   <- mkHypercubeNode6VC(node6_address);
+
+    Address node7_address;  node7_address.netAddress=net_id;  node7_address.nodeAddress=7;
+    let node7   <- mkHypercubeNode7VC(node7_address);
+    
+
+
+    
+
+
+
+    // Connecting nodes - following are the interface of the nodes
     rule connect_Node0_to_Node1_lsb;
         let data0_1_lsb <- node0.get_value_to_lsb();
         node1.put_value_from_lsb(data0_1_lsb);
@@ -164,7 +189,19 @@ module mkHypercubeNoc(Empty);
         let data7_3_msb <- node7.get_value_to_msb();
         node3.put_value_from_msb(data7_3_msb);
     endrule
+    
+    
 
+    method Action put_value_from_l1(Flit data_from_L1);
+        node0.put_value_from_l1(data_from_L1);
+    endmethod
+
+    method ActionValue#(Flit) get_value_to_l1();
+        Flit data=defaultValue;
+        $display("Calling get_value_to_l1 from L2 N0");
+        data <- node0.get_value_to_l1();
+        return data;
+    endmethod
 
 endmodule
-endpackage : HypercubeNoc
+endpackage : HypercubeL2Noc

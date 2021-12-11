@@ -1,4 +1,4 @@
-package HypercubeRouterVC;
+package HypercubeRouterL2HeadVC;
 // This package contains the router - which implements the routing algorithm for the chain topology
 // Routing algorithm works as follows:
 // For each link, two VCs are allocated. For example, in each node in chain topology, we have
@@ -13,7 +13,8 @@ import FIFO :: * ;
 `define MAX_COL_BITS 7
 `define TOTAL_ADDRESS_BITS 15
 
-interface IfcHypercubeRouterVC;
+
+interface IfcHypercubeRouterL2HeadVC;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
     method Action put_value (Flit flit);
@@ -27,6 +28,8 @@ interface IfcHypercubeRouterVC;
     method ActionValue#(Flit) get_valueVC6();
     method ActionValue#(Flit) get_valueVC7();
     method ActionValue#(Flit) get_valueVC8();
+
+    method ActionValue#(Flit) get_valueVCl1();
     
 endinterface
 
@@ -35,7 +38,7 @@ endinterface
 
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
+module mkHypercubeRouterL2HeadVC #(parameter Address my_addr) (IfcHypercubeRouterL2HeadVC);
 
     function Action print_flit_details(Flit flit_to_print);
         return action
@@ -61,7 +64,8 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
     FIFO#(Flit)  vir_chnl_6  <- mkFIFO; // Virtual Channel 6
     FIFO#(Flit)  vir_chnl_7  <- mkFIFO; // Virtual Channel 7
     FIFO#(Flit)  vir_chnl_8  <- mkFIFO; // Virtual Channel 8
-
+    
+    FIFO#(Flit)  vir_chnl_l1  <- mkFIFO; // Virtual Channel 8
 
 
     // Since we have TWO VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
@@ -78,7 +82,10 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
         let flit = input_link.first();
         input_link.deq();
 
-        if (flit.currentDstAddress.nodeAddress == 0) begin
+        if(flit.finalDstAddress.netAddress != my_addr.netAddress) begin
+            vir_chnl_l1.enq(flit); // When flit does not belong to this network
+        end
+        else if (flit.currentDstAddress.nodeAddress == 0) begin
             vir_chnl_1.enq(flit);
         end
         else if (flit.currentDstAddress.nodeAddress == 1) begin
@@ -116,9 +123,15 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
     // Following are the six methods (corresponding to six available VCs) 
     // These methods return the flit so that it can reach the next node in its path
     // The VC1, VC2 methods will be invoked to send the flits to the core (as we fixed earlier, line:4)
+    method ActionValue#(Flit) get_valueVCl1();
+        $display("Hypercube: Sending to L1 network from addr:%h", my_addr);
+        let templ1 = vir_chnl_l1.first();
+        vir_chnl_l1.deq();
+        return templ1;
+    endmethod
 
     method ActionValue#(Flit) get_valueVC1();
-        $display("get_valueVC1 method called at Router(Addr: %h)", my_addr.nodeAddress);
+        $display("get_valueVC1 method called at Router(Addr: %h)", my_addr);
          let temp1 = vir_chnl_1.first();
          vir_chnl_1.deq();
         return temp1;
@@ -181,6 +194,8 @@ module mkHypercubeRouterVC #(parameter Address my_addr) (IfcHypercubeRouterVC);
     endmethod
 
 
-endmodule: mkHypercubeRouterVC
+endmodule
 
-endpackage : HypercubeRouterVC
+
+endpackage: HypercubeRouterL2HeadVC
+
