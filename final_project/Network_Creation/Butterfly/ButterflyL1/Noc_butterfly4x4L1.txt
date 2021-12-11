@@ -6,7 +6,8 @@ import ButterflyL1NodeVC::*;
 //import ButterflyL1HeadNodeVC::*;
 //import ButterflyL1HeadRouterVC::*;
 
-import ButterflySwitch::*;
+import ButterflySwitchL1::*;
+import ButterflySwitchL2::*;
 import Shared::*;
 import Parameters::*;
 
@@ -14,25 +15,25 @@ import Parameters::*;
 $import_l2_noc_files
 
 
-module mkButterfly4x4L1Noc #(parameter NetAddressLen net_id) (Empty);
+module mkButterfly4x4L1Noc (Empty);
 
     /* 4x4 butterfly network is made */
-    Address node0_address;  node0_address.netAddress=net_id;  node0_address.nodeAddress=0;
+    Address node0_address;  node0_address.netAddress=0;  node0_address.nodeAddress=0;
     let node000 <- mkButterflyL1Node(node0_address);
-    Address node1_address;  node1_address.netAddress=net_id;  node1_address.nodeAddress=1;
+    Address node1_address;  node1_address.netAddress=1;  node1_address.nodeAddress=1;
     let node001 <- mkButterflyL1Node(node1_address); 
-    Address node2_address;  node2_address.netAddress=net_id;  node2_address.nodeAddress=2;
+    Address node2_address;  node2_address.netAddress=2;  node2_address.nodeAddress=2;
     let node010 <- mkButterflyL1Node(node2_address);
-    Address node3_address;  node3_address.netAddress=net_id;  node3_address.nodeAddress=3;
+    Address node3_address;  node3_address.netAddress=3;  node3_address.nodeAddress=3;
     let node011 <- mkButterflyL1Node(node3_address);
 
-    Address node4_address;  node4_address.netAddress=net_id;  node4_address.nodeAddress=4;
+    Address node4_address;  node4_address.netAddress=4;  node4_address.nodeAddress=4;
     let node100 <- mkButterflyL1Node(node4_address);
-    Address node5_address;  node5_address.netAddress=net_id;  node5_address.nodeAddress=5;
+    Address node5_address;  node5_address.netAddress=5;  node5_address.nodeAddress=5;
     let node101 <- mkButterflyL1Node(node5_address);
-    Address node6_address;  node6_address.netAddress=net_id;  node6_address.nodeAddress=6;
+    Address node6_address;  node6_address.netAddress=6;  node6_address.nodeAddress=6;
     let node110 <- mkButterflyL1Node(node6_address);
-    Address node7_address;  node7_address.netAddress=net_id;  node7_address.nodeAddress=7;
+    Address node7_address;  node7_address.netAddress=7;  node7_address.nodeAddress=7;
     let node111 <- mkButterflyL1Node(node7_address);
 
 $NOC_INSTANTIATE

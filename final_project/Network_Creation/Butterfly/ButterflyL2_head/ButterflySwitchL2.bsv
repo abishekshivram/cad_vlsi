@@ -1,13 +1,14 @@
-package ButterflySwitch;
+package ButterflySwitchL2;
 
 import Shared::*;
 
 import FIFO :: * ;
 import Core :: * ;
-import ButterflyRouterVC :: *;
+import ButterflyL2HeadRouterVC :: *;
+import ButterflyL2RouterVC :: *;
 
 
-interface IfcButterflySwitch;
+interface IfcButterflySwitchL2;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
     method Action put_value_from_left_up(Flit data_left);
@@ -23,20 +24,20 @@ interface IfcButterflySwitch;
 endinterface
 
 
-`define BUTTERFLY_MAX_BITS 4
-`define BUTTERFLY_MAX_BITS_INDEX 3
+`define BUTTERFLY_MAX_BITS 4 // 8x8
+`define BUTTERFLY_MAX_BITS_INDEX 3 // 8x8
 
 (* synthesize *)
 
-module mkButterflySwitch #(parameter int my_addr, parameter int layer, parameter Bool left_ext, parameter Bool right_ext) (IfcButterflySwitch);
+module mkButterflySwitchL2 #(parameter int my_addr, parameter int layer, parameter Bool left_ext, parameter Bool right_ext,  parameter int max_bits_index) (IfcButterflySwitchL2);
 
     //Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 
-    int butterfly_MAX_BITS_INDEX = 3;
-    let router_l2r_up       <- mkButterflyRouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, right_ext);
-    let router_l2r_down     <- mkButterflyRouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, right_ext);
-    let router_r2l_up       <- mkButterflyRouterR2L(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
-    let router_r2l_down     <- mkButterflyRouterR2L(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
+    int butterfly_MAX_BITS_INDEX = max_bits_index;
+    let router_l2r_up       <- mkButterflyL2RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, right_ext);
+    let router_l2r_down     <- mkButterflyL2RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, right_ext);
+    let router_r2l_up       <- mkButterflyL2RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
+    let router_r2l_down     <- mkButterflyL2RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
     
     Reg#(Bit#(1)) counter_even_odd      <- mkReg(0);
     Reg#(Bit#(1)) counter_up_down       <- mkReg(0);
@@ -220,4 +221,4 @@ module mkButterflySwitch #(parameter int my_addr, parameter int layer, parameter
   
 endmodule
 
-endpackage: ButterflySwitch
+endpackage: ButterflySwitchL2

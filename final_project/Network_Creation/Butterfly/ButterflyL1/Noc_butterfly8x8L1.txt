@@ -6,47 +6,48 @@ import ButterflyL1RouterVC::*;
 import ButterflyL1HeadNodeVC::*;
 import ButterflyL1HeadRouterVC::*;
 
-import ButterflySwitch::*;
+import ButterflySwitchL1::*;
+import ButterflySwitchL2::*;
 import Shared::*;
 import Parameters::*;
 
 $import_l2_noc_files
 
-module mkButterfly8x8L1Noc #(parameter NetAddressLen net_id) (Empty);
+module mkButterfly8x8L1Noc (Empty);
 
     /* 8x8 butterfly network is made */
-    Address node0_address;  node0_address.netAddress=net_id;  node0_address.nodeAddress=0;
+    Address node0_address;  node0_address.netAddress=0;  node0_address.nodeAddress=0;
     let node0000 <- mkButterflyL1Node(node0_address);
-    Address node1_address;  node1_address.netAddress=net_id;  node1_address.nodeAddress=1;
+    Address node1_address;  node1_address.netAddress=1;  node1_address.nodeAddress=1;
     let node0001 <- mkButterflyL1Node(node1_address);
-    Address node2_address;  node2_address.netAddress=net_id;  node2_address.nodeAddress=2;
+    Address node2_address;  node2_address.netAddress=2;  node2_address.nodeAddress=2;
     let node0010 <- mkButterflyL1Node(node2_address);
-    Address node3_address;  node3_address.netAddress=net_id;  node3_address.nodeAddress=3;
+    Address node3_address;  node3_address.netAddress=3;  node3_address.nodeAddress=3;
     let node0011 <- mkButterflyL1Node(node3_address);
-    Address node4_address;  node4_address.netAddress=net_id;  node4_address.nodeAddress=4;
+    Address node4_address;  node4_address.netAddress=4;  node4_address.nodeAddress=4;
     let node0100 <- mkButterflyL1Node(node4_address);
-    Address node5_address;  node5_address.netAddress=net_id;  node5_address.nodeAddress=5;
+    Address node5_address;  node5_address.netAddress=5;  node5_address.nodeAddress=5;
     let node0101 <- mkButterflyL1Node(node5_address);
-    Address node6_address;  node6_address.netAddress=net_id;  node6_address.nodeAddress=6;
+    Address node6_address;  node6_address.netAddress=6;  node6_address.nodeAddress=6;
     let node0110 <- mkButterflyL1Node(node6_address);
-    Address node7_address;  node7_address.netAddress=net_id;  node7_address.nodeAddress=7;
+    Address node7_address;  node7_address.netAddress=7;  node7_address.nodeAddress=7;
     let node0111 <- mkButterflyL1Node(node7_address);
 
-    Address node8_address;  node8_address.netAddress=net_id;  node8_address.nodeAddress=8;
+    Address node8_address;  node8_address.netAddress=8;  node8_address.nodeAddress=8;
     let node1000 <- mkButterflyL1Node(node8_address);
-    Address node9_address;  node9_address.netAddress=net_id;  node9_address.nodeAddress=9;
+    Address node9_address;  node9_address.netAddress=9;  node9_address.nodeAddress=9;
     let node1001 <- mkButterflyL1Node(node9_address);
-    Address node10_address;  node10_address.netAddress=net_id;  node10_address.nodeAddress=10;
+    Address node10_address;  node10_address.netAddress=10;  node10_address.nodeAddress=10;
     let node1010 <- mkButterflyL1Node(node10_address);
-    Address node11_address;  node11_address.netAddress=net_id;  node11_address.nodeAddress=11;
+    Address node11_address;  node11_address.netAddress=11;  node11_address.nodeAddress=11;
     let node1011 <- mkButterflyL1Node(node11_address);
-    Address node12_address;  node12_address.netAddress=net_id;  node12_address.nodeAddress=12;
+    Address node12_address;  node12_address.netAddress=12;  node12_address.nodeAddress=12;
     let node1100 <- mkButterflyL1Node(node12_address);
-    Address node13_address;  node13_address.netAddress=net_id;  node13_address.nodeAddress=13;
+    Address node13_address;  node13_address.netAddress=13;  node13_address.nodeAddress=13;
     let node1101 <- mkButterflyL1Node(node13_address);
-    Address node14_address;  node14_address.netAddress=net_id;  node14_address.nodeAddress=14;
+    Address node14_address;  node14_address.netAddress=14;  node14_address.nodeAddress=14;
     let node1110 <- mkButterflyL1Node(node14_address);
-    Address node15_address;  node15_address.netAddress=net_id;  node15_address.nodeAddress=15;
+    Address node15_address;  node15_address.netAddress=15;  node15_address.nodeAddress=15;
     let node1111 <- mkButterflyL1Node(node15_address);
 
     // MAKING SWITCHES

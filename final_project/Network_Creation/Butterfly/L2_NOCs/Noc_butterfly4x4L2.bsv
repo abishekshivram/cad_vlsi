@@ -6,7 +6,7 @@ import ButterflyL2RouterVC::*;
 import ButterflyL2HeadNodeVC::*;
 import ButterflyL2HeadRouterVC::*;
 
-import ButterflySwitch::*;
+import ButterflySwitchL2::*;
 import Shared::*;
 import Parameters::*;
 
@@ -48,10 +48,10 @@ module mkButterfly4x4L2Noc #(parameter NetAddressLen net_id) (IfcButterflyL2Noc)
 
     // MAKING SWITCHES
     // mkButterflySwitch #(int my_addr, int layer, Bool left_ext, Bool right_ext)
-    let switch_L0_0 <- mkButterflySwitch(0, 0, True, False, 2);
-    let switch_L0_1 <- mkButterflySwitch(1, 0, True, False, 2);
-    let switch_L1_0 <- mkButterflySwitch(0, 1, False, True, 2);
-    let switch_L1_1 <- mkButterflySwitch(1, 1, False, True, 2);
+    let switch_L0_0 <- mkButterflySwitchL2(0, 0, True, False, 2);
+    let switch_L0_1 <- mkButterflySwitchL2(1, 0, True, False, 2);
+    let switch_L1_0 <- mkButterflySwitchL2(0, 1, False, True, 2);
+    let switch_L1_1 <- mkButterflySwitchL2(1, 1, False, True, 2);
 
     // CONNECTING NODES TO ITS SWITCHES
     // LEFT NODES
@@ -178,7 +178,7 @@ module mkButterfly4x4L2Noc #(parameter NetAddressLen net_id) (IfcButterflyL2Noc)
 
     rule connect_l2r_switchL0_1_switchL1_0;
         let data <- switch_L0_1.get_value_to_right_down();
-        switch_L1_3.put_value_from_left_down(data);
+        switch_L1_0.put_value_from_left_down(data);
     endrule
     rule connect_r2l_switchL1_0_switchL0_1;
         let data <- switch_L1_0.get_value_to_left_down();
