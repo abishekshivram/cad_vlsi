@@ -7,8 +7,9 @@ import Parameters::*;
 import FIFO :: * ;
 import Core :: * ;
 
-import ChainRouterVC :: *;
-import ChainNodeVC :: *;
+import ChainRouterL1VC :: *;
+import ChainNodeL1VC :: *;
+
 
 import ChainRouterL2HeadVC :: *;
 import ChainNodeL2HeadVC :: *;
@@ -41,7 +42,7 @@ $rule_right_to_left
 
     method ActionValue#(Flit) get_value_to_l1();
         Flit data=defaultValue;
-        let data <- node$HEADNODE.get_value_to_l1();
+        data <- node$HEADNODE.get_value_to_l1();
         return data;
     endmethod
 

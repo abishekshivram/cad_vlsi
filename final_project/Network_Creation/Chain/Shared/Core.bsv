@@ -31,11 +31,12 @@ endinterface: CoreInterface
 
 
 (* synthesize *)
-module mkCore#(parameter Address sourceAddress) (CoreInterface);
+module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr ) (CoreInterface);
 
     Reg#(Flit) flitReg          <- mkReg(?); //Uninitialised register to store generated flit
     Reg#(Bool) flitValidStat    <- mkReg(False); //To indicate the content of flitReg is valid or not
     Reg#(Address) myAddress     <- mkReg(sourceAddress); //Register storing the Address of this Core/Node
+    Reg#(Address) head_node_address <- mkReg(head_node_addr); //Register storing the Address of this Core/Node
 
     Reg#(Flit) flitConsumeReg   <- mkReg(?); //A register to store the consumed flit
 
@@ -58,7 +59,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
     //Counts the clock pulse, always fire
     rule clockCounter;
         clockCount <= clockCount+1;
-        if(myAddress.nodeAddress==fromInteger(0)) // To prevent all the cores from printing the same statement
+        if(myAddress.nodeAddress==fromInteger(0) && myAddress.netAddress==fromInteger(0)) // To prevent all the cores from printing the same statement
             $display("\nClock Cycle: %d",clockCount);
     endrule
 
@@ -68,7 +69,7 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
     //rule generateFlit(lfsr.value() < 32768); 
     rule generateFlit(clockCount==3); //NOTE for testing. Generate only 1 flit
         
-        if(myAddress.nodeAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
+        if(myAddress.nodeAddress==fromInteger(0) && myAddress.netAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
         //NOTE The test traffic is from node 0 to node 1
             begin
                 
@@ -77,13 +78,22 @@ module mkCore#(parameter Address sourceAddress) (CoreInterface);
                 flit.srcAddress.nodeAddress         = myAddress.nodeAddress;
 
                 let destNetAddress                  = unpack(lfsr.value()%fromInteger(l1NodeCount));
-                flit.finalDstAddress.netAddress     = destNetAddress;
+                //flit.finalDstAddress.netAddress     = destNetAddress;
+                flit.finalDstAddress.netAddress     = fromInteger(2);
 
                 let destNodeAddress                 = unpack(lfsr.value()%pack(l2AddressLengths.getMaxAddress(destNetAddress)));
-                flit.finalDstAddress.nodeAddress    = destNodeAddress;
+                // flit.finalDstAddress.nodeAddress    = destNodeAddress;
+                flit.finalDstAddress.nodeAddress    = fromInteger(0);
 
-                flit.currentDstAddress.netAddress   = fromInteger(0);
-                flit.currentDstAddress.nodeAddress  = fromInteger(2);
+                if(flit.srcAddress.netAddress==flit.finalDstAddress.netAddress) begin
+                    flit.currentDstAddress.netAddress   = flit.finalDstAddress.netAddress;
+                    flit.currentDstAddress.nodeAddress  = flit.finalDstAddress.nodeAddress;
+                end
+                else begin
+                    flit.currentDstAddress.netAddress   = head_node_address.netAddress;
+                    flit.currentDstAddress.nodeAddress  = head_node_address.nodeAddress;
+                end
+                
                 flit.payload                        = clockCount;
 
                 flitReg                             <= flit;

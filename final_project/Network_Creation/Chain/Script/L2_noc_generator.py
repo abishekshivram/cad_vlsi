@@ -3,9 +3,9 @@ from math import log2
 
 d = {}
 
-NO_OF_NETWORKS = 3
-ALL_NETWORK_ID = [0, 1, 2]
-ALL_NUMBER_OF_NODES = [6, 4, 5]
+NO_OF_NETWORKS = 8
+ALL_NETWORK_ID = [0, 1, 2, 3, 4, 5, 6, 7]
+ALL_NUMBER_OF_NODES = [6, 4, 5, 3, 4, 3, 2, 4]
 
 for i in range(NO_OF_NETWORKS):
     NETWORK_ID = ALL_NETWORK_ID[i]
@@ -42,7 +42,7 @@ for i in range(NO_OF_NETWORKS):
         if(i==NUMBER_OF_NODES//2):
             string_node += f"\tlet node{i}   <- mkChainL2HeadNode(node{i}_address, head_node_addr);\n"
         else:
-            string_node += f"\tlet node{i}   <- mkChainNode(node{i}_address, head_node_addr);\n"
+            string_node += f"\tlet node{i}   <- mkChainNodeL1(node{i}_address);\n"
         all_nodes.append(string_node)
 
     for i in range(NUMBER_OF_NODES-1):
