@@ -1,4 +1,4 @@
-package ChainRouterVC;
+package ChainRouterL1VC;
 // This package contains the router - which implements the routing algorithm for the chain topology
 // Routing algorithm works as follows:
 // For each link, two VCs are allocated. For example, in each node in chain topology, we have
@@ -14,7 +14,7 @@ import FIFOF :: * ;
 
 
 
-interface IfcChainRouterVC ;
+interface IfcChainRouterL1VC ;
     // Put value is used to insert data to the router
     // Get Value is used to read the value from the router
     method Action put_value (Flit flit);
@@ -36,7 +36,7 @@ endinterface
 
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkChainRouterVC #(parameter Address my_addr) (IfcChainRouterVC);
+module mkChainRouterL1VC #(parameter Address my_addr) (IfcChainRouterL1VC);
 
     function Action print_flit_details(Flit flit_to_print);
         return action
@@ -81,12 +81,12 @@ module mkChainRouterVC #(parameter Address my_addr) (IfcChainRouterVC);
         input_link.deq();
 
         // Reached the destination - core will consume
-        if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
+        if(flit.finalDstAddress.netAddress == my_addr.netAddress)  begin
             $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
             vir_chnl_1.enq(flit);
         end
         // The current flit has to go to left 
-        else if(flit.currentDstAddress.nodeAddress < my_addr.nodeAddress)  begin
+        else if(flit.finalDstAddress.netAddress < my_addr.netAddress)  begin
             $display("Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
             vir_chnl_3.enq(flit);
         end
@@ -105,12 +105,12 @@ module mkChainRouterVC #(parameter Address my_addr) (IfcChainRouterVC);
         input_link.deq();
                 
         // Reached the destination - core will consume
-        if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
+        if(flit.finalDstAddress.netAddress == my_addr.netAddress)  begin
             $display("Even cycle: vir_chnl_2.enq at addr:%h", my_addr);
             vir_chnl_2.enq(flit);
         end
         // The current flit has to go to left 
-        else if(flit.currentDstAddress.nodeAddress < my_addr.nodeAddress)  begin
+        else if(flit.finalDstAddress.netAddress < my_addr.netAddress)  begin
             $display("Even cycle: vir_chnl_4.enq at addr:%h", my_addr);
             vir_chnl_4.enq(flit);
         end
@@ -175,6 +175,6 @@ module mkChainRouterVC #(parameter Address my_addr) (IfcChainRouterVC);
         return temp6;
     endmethod
 
-endmodule: mkChainRouterVC
+endmodule: mkChainRouterL1VC
 
-endpackage : ChainRouterVC
+endpackage : ChainRouterL1VC

@@ -1,113 +1,126 @@
-package Noc_butterfly16x16;
+package Noc_butterfly16x16L1;
 
-import ButterflyNodeVC::*;
-import ButterflyRouterVC::*;
+import ButterflyL1NodeVC::*;
+import ButterflyL1RouterVC::*;
+
+import ButterflyL1HeadNodeVC::*;
+import ButterflyL1HeadRouterVC::*;
+
 import ButterflySwitch::*;
 import Shared::*;
 import Parameters::*;
 
-module mkButterfly16x16Noc(Empty);
+$import_l2_noc_files
+
+module mkButterfly16x16L1Noc #(parameter NetAddressLen net_id) (Empty);
 
     /* 16x16 butterfly network is made */
-    Address node0_address;  node0_address.netAddress=0;  node0_address.nodeAddress=0;
-    let node00000 <- mkButterflyNode(node0_address);
-    Address node1_address;  node1_address.netAddress=0;  node1_address.nodeAddress=1;
-    let node00001 <- mkButterflyNode(node1_address);
-    Address node2_address;  node2_address.netAddress=0;  node2_address.nodeAddress=2;
-    let node00010 <- mkButterflyNode(node2_address);
-    Address node3_address;  node3_address.netAddress=0;  node3_address.nodeAddress=3;
-    let node00011 <- mkButterflyNode(node3_address);
-    Address node4_address;  node4_address.netAddress=0;  node4_address.nodeAddress=4;
-    let node00100 <- mkButterflyNode(node4_address);
-    Address node5_address;  node5_address.netAddress=0;  node5_address.nodeAddress=5;
-    let node00101 <- mkButterflyNode(node5_address);
-    Address node6_address;  node6_address.netAddress=0;  node6_address.nodeAddress=6;
-    let node00110 <- mkButterflyNode(node6_address);
-    Address node7_address;  node7_address.netAddress=0;  node7_address.nodeAddress=7;
-    let node00111 <- mkButterflyNode(node7_address);
-    Address node8_address;  node8_address.netAddress=0;  node8_address.nodeAddress=8;
-    let node01000 <- mkButterflyNode(node8_address);
-    Address node9_address;  node9_address.netAddress=0;  node9_address.nodeAddress=9;
-    let node01001 <- mkButterflyNode(node9_address);
-    Address node10_address;  node10_address.netAddress=0;  node10_address.nodeAddress=10;
-    let node01010 <- mkButterflyNode(node10_address);
-    Address node11_address;  node11_address.netAddress=0;  node11_address.nodeAddress=11;
-    let node01011 <- mkButterflyNode(node11_address);
-    Address node12_address;  node12_address.netAddress=0;  node12_address.nodeAddress=12;
-    let node01100 <- mkButterflyNode(node12_address);
-    Address node13_address;  node13_address.netAddress=0;  node13_address.nodeAddress=13;
-    let node01101 <- mkButterflyNode(node13_address);
-    Address node14_address;  node14_address.netAddress=0;  node14_address.nodeAddress=14;
-    let node01110 <- mkButterflyNode(node14_address);
-    Address node15_address;  node15_address.netAddress=0;  node15_address.nodeAddress=15;
-    let node01111 <- mkButterflyNode(node15_address);
+    Address node0_address;  node0_address.netAddress=net_id;  node0_address.nodeAddress=0;
+    let node00000 <- mkButterflyL1Node(node0_address);
+    Address node1_address;  node1_address.netAddress=net_id;  node1_address.nodeAddress=1;
+    let node00001 <- mkButterflyL1Node(node1_address);
+    Address node2_address;  node2_address.netAddress=net_id;  node2_address.nodeAddress=2;
+    let node00010 <- mkButterflyL1Node(node2_address);
+    Address node3_address;  node3_address.netAddress=net_id;  node3_address.nodeAddress=3;
+    let node00011 <- mkButterflyL1Node(node3_address);
+    Address node4_address;  node4_address.netAddress=net_id;  node4_address.nodeAddress=4;
+    let node00100 <- mkButterflyL1Node(node4_address);
+    Address node5_address;  node5_address.netAddress=net_id;  node5_address.nodeAddress=5;
+    let node00101 <- mkButterflyL1Node(node5_address);
+    Address node6_address;  node6_address.netAddress=net_id;  node6_address.nodeAddress=6;
+    let node00110 <- mkButterflyL1Node(node6_address);
+    Address node7_address;  node7_address.netAddress=net_id;  node7_address.nodeAddress=7;
+    let node00111 <- mkButterflyL1Node(node7_address); 
+    Address node8_address;  node8_address.netAddress=net_id;  node8_address.nodeAddress=8;
+    let node01000 <- mkButterflyL1Node(node8_address);
+    Address node9_address;  node9_address.netAddress=net_id;  node9_address.nodeAddress=9;
+    let node01001 <- mkButterflyL1Node(node9_address);
+    Address node10_address;  node10_address.netAddress=net_id;  node10_address.nodeAddress=10;
+    let node01010 <- mkButterflyL1Node(node10_address);
+    Address node11_address;  node11_address.netAddress=net_id;  node11_address.nodeAddress=11;
+    let node01011 <- mkButterflyL1Node(node11_address);
+    Address node12_address;  node12_address.netAddress=net_id;  node12_address.nodeAddress=12;
+    let node01100 <- mkButterflyL1Node(node12_address);
+    Address node13_address;  node13_address.netAddress=net_id;  node13_address.nodeAddress=13;
+    let node01101 <- mkButterflyL1Node(node13_address);
+    Address node14_address;  node14_address.netAddress=net_id;  node14_address.nodeAddress=14;
+    let node01110 <- mkButterflyL1Node(node14_address);
+    Address node15_address;  node15_address.netAddress=net_id;  node15_address.nodeAddress=15;
+    let node01111 <- mkButterflyL1Node(node15_address);
 
-    Address node16_address;  node16_address.netAddress=0;  node16_address.nodeAddress=16;
-    let node10000 <- mkButterflyNode(node16_address);
-    Address node17_address;  node17_address.netAddress=0;  node17_address.nodeAddress=17;
-    let node10001 <- mkButterflyNode(node17_address);
-    Address node18_address;  node18_address.netAddress=0;  node18_address.nodeAddress=18;
-    let node10010 <- mkButterflyNode(node18_address);
-    Address node19_address;  node19_address.netAddress=0;  node19_address.nodeAddress=19;
-    let node10011 <- mkButterflyNode(node19_address);
-    Address node20_address;  node20_address.netAddress=0;  node20_address.nodeAddress=20;
-    let node10100 <- mkButterflyNode(node20_address);
-    Address node21_address;  node21_address.netAddress=0;  node21_address.nodeAddress=21;
-    let node10101 <- mkButterflyNode(node21_address);
-    Address node22_address;  node22_address.netAddress=0;  node22_address.nodeAddress=22;
-    let node10110 <- mkButterflyNode(node22_address);
-    Address node23_address;  node23_address.netAddress=0;  node23_address.nodeAddress=23;
-    let node10111 <- mkButterflyNode(node23_address);
-    Address node24_address;  node24_address.netAddress=0;  node24_address.nodeAddress=24;
-    let node11000 <- mkButterflyNode(node24_address);
-    Address node25_address;  node25_address.netAddress=0;  node25_address.nodeAddress=25;
-    let node11001 <- mkButterflyNode(node25_address);
-    Address node26_address;  node26_address.netAddress=0;  node26_address.nodeAddress=26;
-    let node11010 <- mkButterflyNode(node26_address);
-    Address node27_address;  node27_address.netAddress=0;  node27_address.nodeAddress=27;
-    let node11011 <- mkButterflyNode(node27_address);
-    Address node28_address;  node28_address.netAddress=0;  node28_address.nodeAddress=28;
-    let node11100 <- mkButterflyNode(node28_address);
-    Address node29_address;  node29_address.netAddress=0;  node29_address.nodeAddress=29;
-    let node11101 <- mkButterflyNode(node29_address);
-    Address node30_address;  node30_address.netAddress=0;  node30_address.nodeAddress=30;
-    let node11110 <- mkButterflyNode(node30_address);
-    Address node31_address;  node31_address.netAddress=0;  node31_address.nodeAddress=31;
-    let node11111 <- mkButterflyNode(node31_address);
+    Address node16_address;  node16_address.netAddress=net_id;  node16_address.nodeAddress=16;
+    let node10000 <- mkButterflyL1Node(node16_address);
+    Address node17_address;  node17_address.netAddress=net_id;  node17_address.nodeAddress=17;
+    let node10001 <- mkButterflyL1Node(node17_address);
+    Address node18_address;  node18_address.netAddress=net_id;  node18_address.nodeAddress=18;
+    let node10010 <- mkButterflyL1Node(node18_address);
+    Address node19_address;  node19_address.netAddress=net_id;  node19_address.nodeAddress=19;
+    let node10011 <- mkButterflyL1Node(node19_address);
+    Address node20_address;  node20_address.netAddress=net_id;  node20_address.nodeAddress=20;
+    let node10100 <- mkButterflyL1Node(node20_address);
+    Address node21_address;  node21_address.netAddress=net_id;  node21_address.nodeAddress=21;
+    let node10101 <- mkButterflyL1Node(node21_address);
+    Address node22_address;  node22_address.netAddress=net_id;  node22_address.nodeAddress=22;
+    let node10110 <- mkButterflyL1Node(node22_address);
+    Address node23_address;  node23_address.netAddress=net_id;  node23_address.nodeAddress=23;
+    let node10111 <- mkButterflyL1Node(node23_address);
+    Address node24_address;  node24_address.netAddress=net_id;  node24_address.nodeAddress=24;
+    let node11000 <- mkButterflyL1Node(node24_address);
+    Address node25_address;  node25_address.netAddress=net_id;  node25_address.nodeAddress=25;
+    let node11001 <- mkButterflyL1Node(node25_address);
+    Address node26_address;  node26_address.netAddress=net_id;  node26_address.nodeAddress=26;
+    let node11010 <- mkButterflyL1Node(node26_address);
+    Address node27_address;  node27_address.netAddress=net_id;  node27_address.nodeAddress=27;
+    let node11011 <- mkButterflyL1Node(node27_address);
+    Address node28_address;  node28_address.netAddress=net_id;  node28_address.nodeAddress=28;
+    let node11100 <- mkButterflyL1Node(node28_address);
+    Address node29_address;  node29_address.netAddress=net_id;  node29_address.nodeAddress=29;
+    let node11101 <- mkButterflyL1Node(node29_address);
+    Address node30_address;  node30_address.netAddress=net_id;  node30_address.nodeAddress=30;
+    let node11110 <- mkButterflyL1Node(node30_address);
+    Address node31_address;  node31_address.netAddress=net_id;  node31_address.nodeAddress=31;
+    let node11111 <- mkButterflyL1Node(node31_address);
 
     // MAKING SWITCHES
-    let switch_L0_0 <- mkButterflySwitch(node0_address, 0, True, False);
-    let switch_L0_1 <- mkButterflySwitch(node1_address, 0, True, False);
-    let switch_L0_2 <- mkButterflySwitch(node2_address, 0, True, False);
-    let switch_L0_3 <- mkButterflySwitch(node3_address, 0, True, False);
-    let switch_L0_4 <- mkButterflySwitch(node4_address, 0, True, False);
-    let switch_L0_5 <- mkButterflySwitch(node5_address, 0, True, False);
-    let switch_L0_6 <- mkButterflySwitch(node6_address, 0, True, False);
-    let switch_L0_7 <- mkButterflySwitch(node7_address, 0, True, False);
-    let switch_L1_0 <- mkButterflySwitch(node0_address, 1, False, False);
-    let switch_L1_1 <- mkButterflySwitch(node1_address, 1, False, False);
-    let switch_L1_2 <- mkButterflySwitch(node2_address, 1, False, False);
-    let switch_L1_3 <- mkButterflySwitch(node3_address, 1, False, False);
-    let switch_L1_4 <- mkButterflySwitch(node4_address, 1, False, False);
-    let switch_L1_5 <- mkButterflySwitch(node5_address, 1, False, False);
-    let switch_L1_6 <- mkButterflySwitch(node6_address, 1, False, False);
-    let switch_L1_7 <- mkButterflySwitch(node7_address, 1, False, False);
-    let switch_L2_0 <- mkButterflySwitch(node0_address, 2, False, False);
-    let switch_L2_1 <- mkButterflySwitch(node1_address, 2, False, False);
-    let switch_L2_2 <- mkButterflySwitch(node2_address, 2, False, False);
-    let switch_L2_3 <- mkButterflySwitch(node3_address, 2, False, False);
-    let switch_L2_4 <- mkButterflySwitch(node4_address, 2, False, False);
-    let switch_L2_5 <- mkButterflySwitch(node5_address, 2, False, False);
-    let switch_L2_6 <- mkButterflySwitch(node6_address, 2, False, False);
-    let switch_L2_7 <- mkButterflySwitch(node7_address, 2, False, False);
-    let switch_L3_0 <- mkButterflySwitch(node0_address, 3, False, True);
-    let switch_L3_1 <- mkButterflySwitch(node1_address, 3, False, True);
-    let switch_L3_2 <- mkButterflySwitch(node2_address, 3, False, True);
-    let switch_L3_3 <- mkButterflySwitch(node3_address, 3, False, True);
-    let switch_L3_4 <- mkButterflySwitch(node4_address, 3, False, True);
-    let switch_L3_5 <- mkButterflySwitch(node5_address, 3, False, True);
-    let switch_L3_6 <- mkButterflySwitch(node6_address, 3, False, True);
-    let switch_L3_7 <- mkButterflySwitch(node7_address, 3, False, True);
+    let switch_L0_0 <- mkButterflySwitch(node0_address, 0, True, False, 4);
+    let switch_L0_1 <- mkButterflySwitch(node1_address, 0, True, False, 4);
+    let switch_L0_2 <- mkButterflySwitch(node2_address, 0, True, False, 4);
+    let switch_L0_3 <- mkButterflySwitch(node3_address, 0, True, False, 4);
+    let switch_L0_4 <- mkButterflySwitch(node4_address, 0, True, False, 4);
+    let switch_L0_5 <- mkButterflySwitch(node5_address, 0, True, False, 4);
+    let switch_L0_6 <- mkButterflySwitch(node6_address, 0, True, False, 4);
+    let switch_L0_7 <- mkButterflySwitch(node7_address, 0, True, False, 4);
+    let switch_L1_0 <- mkButterflySwitch(node0_address, 1, False, False, 4);
+    let switch_L1_1 <- mkButterflySwitch(node1_address, 1, False, False, 4);
+    let switch_L1_2 <- mkButterflySwitch(node2_address, 1, False, False, 4);
+    let switch_L1_3 <- mkButterflySwitch(node3_address, 1, False, False, 4);
+    let switch_L1_4 <- mkButterflySwitch(node4_address, 1, False, False, 4);
+    let switch_L1_5 <- mkButterflySwitch(node5_address, 1, False, False, 4);
+    let switch_L1_6 <- mkButterflySwitch(node6_address, 1, False, False, 4);
+    let switch_L1_7 <- mkButterflySwitch(node7_address, 1, False, False, 4);
+    let switch_L2_0 <- mkButterflySwitch(node0_address, 2, False, False, 4);
+    let switch_L2_1 <- mkButterflySwitch(node1_address, 2, False, False, 4);
+    let switch_L2_2 <- mkButterflySwitch(node2_address, 2, False, False, 4);
+    let switch_L2_3 <- mkButterflySwitch(node3_address, 2, False, False, 4);
+    let switch_L2_4 <- mkButterflySwitch(node4_address, 2, False, False, 4);
+    let switch_L2_5 <- mkButterflySwitch(node5_address, 2, False, False, 4);
+    let switch_L2_6 <- mkButterflySwitch(node6_address, 2, False, False, 4);
+    let switch_L2_7 <- mkButterflySwitch(node7_address, 2, False, False, 4);
+    let switch_L3_0 <- mkButterflySwitch(node0_address, 3, False, True, 4);
+    let switch_L3_1 <- mkButterflySwitch(node1_address, 3, False, True, 4);
+    let switch_L3_2 <- mkButterflySwitch(node2_address, 3, False, True, 4);
+    let switch_L3_3 <- mkButterflySwitch(node3_address, 3, False, True, 4);
+    let switch_L3_4 <- mkButterflySwitch(node4_address, 3, False, True, 4);
+    let switch_L3_5 <- mkButterflySwitch(node5_address, 3, False, True, 4);
+    let switch_L3_6 <- mkButterflySwitch(node6_address, 3, False, True, 4);
+    let switch_L3_7 <- mkButterflySwitch(node7_address, 3, False, True, 4);
+
+
+$NOC_INSTANTIATE
+
+$CONNECT_NODES_TO_NOC
+    
+
 
     // CONNECTING NODES TO ITS SWITCHES
     // LEFT NODES
@@ -927,7 +940,6 @@ module mkButterfly16x16Noc(Empty);
 
 
 
-
 endmodule
 
-endpackage : Noc_butterfly16x16
+endpackage : Noc_butterfly16x16L1
