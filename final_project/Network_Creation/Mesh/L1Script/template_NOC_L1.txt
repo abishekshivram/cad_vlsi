@@ -1,0 +1,50 @@
+package $PACKAGE_NAME;
+// This package instantiates all the nodes and connects them in chain topology
+
+import Shared::*;
+import Parameters::*;
+
+import FIFO :: * ;
+import Core :: * ;
+import MeshRouterL1VC :: *;
+import MeshNodeL1VC :: *;
+
+
+
+
+
+(* synthesize *)
+module mkMeshNocL1 (Empty);
+
+
+    // MAKING MESH TOPOLOGY WITH ROWS: $$NO_OF_ROWS AND COLUMNS: $$NO_OF_COLUMNS
+    // MAKING NODES
+    
+$headnode_instantiate    
+$nodes_instantiate
+
+$noc_instantiate
+
+
+
+// LEFT RIGHT
+$LR_CONNECTIONS
+
+
+// UP DOWN
+$UP_DOWN_CONNECTIONS
+
+
+
+
+$L1_L2_connection
+
+
+
+
+
+
+
+endmodule
+
+endpackage : $PACKAGE_NAME
