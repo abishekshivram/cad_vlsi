@@ -3,7 +3,7 @@ from math import log2
 
 d = {}
 
-def create_L1_FT(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
+def create_L1_Mesh(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     NETWORK_ID = 0
     NUMBER_OF_ROWS = L1_DIM[0]
     NUMBER_OF_COLS = L1_DIM[1]
@@ -27,19 +27,11 @@ def create_L1_FT(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     ruleU2D = """\trule connect_Node{from_row_id}{from_col_id}_to_Node{to_row_id}{to_col_id}_U2D;
             let data{from_row_id}{from_col_id}_U2D <- nodeL1_{from_row_id}{from_col_id}.get_value_to_down();
             nodeL1_{to_row_id}{to_col_id}.put_value_from_up(data{from_row_id}{from_col_id}_U2D);
-        endrule\n
-        rule connect_Node{from_row_id}{from_col_id}_to_Node{to_row_id}{to_col_id}_U2D_dateline;
-            let data{from_row_id}{from_col_id}_U2D_dateline <- nodeL1_{from_row_id}{from_col_id}.get_value_to_down_dateline();
-            nodeL1_{to_row_id}{to_col_id}.put_value_from_up_dateline(data{from_row_id}{from_col_id}_U2D_dateline);
         endrule\n\n"""
 
     ruleD2U = """\trule connect_Node{from_row_id}{from_col_id}_to_Node{to_row_id}{to_col_id}_D2U;
             let data{from_row_id}{from_col_id}_D2U <- nodeL1_{from_row_id}{from_col_id}.get_value_to_up();
             nodeL1_{to_row_id}{to_col_id}.put_value_from_down(data{from_row_id}{from_col_id}_D2U);
-        endrule\n
-        rule connect_Node{from_row_id}{from_col_id}_to_Node{to_row_id}{to_col_id}_D2U_dateline;
-            let data{from_row_id}{from_col_id}_D2U_dateline <- nodeL1_{from_row_id}{from_col_id}.get_value_to_up_dateline();
-            nodeL1_{to_row_id}{to_col_id}.put_value_from_down_dateline(data{from_row_id}{from_col_id}_D2U_dateline);
         endrule\n\n"""
 
 
@@ -59,7 +51,7 @@ def create_L1_FT(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
 
 
     # NODES
-    PACKAGE_NAME = "FoldedTorusNocL1"
+    PACKAGE_NAME = "MeshNocL1"
     d['PACKAGE_NAME'] = PACKAGE_NAME 
     OUTPUT_FILE_NAME = PACKAGE_NAME + ".bsv"
 
@@ -73,20 +65,22 @@ def create_L1_FT(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     for i in range(NUMBER_OF_ROWS):
         for j in range(NUMBER_OF_COLS):
             string_node = f"\tAddress nodeL1_{i}{j}_address;  nodeL1_{i}{j}_address.netAddress=16'h{i:0>2x}{j:0>2x};  nodeL1_{i}{j}_address.nodeAddress=0;\n"	
-            string_node += f"\tlet nodeL1_{i}{j}   <- mkFoldedTorusL1Node(nodeL1_{i}{j}_address, {NUMBER_OF_COLS-1}, {NUMBER_OF_ROWS-1});\n"
+            string_node += f"\tlet nodeL1_{i}{j}   <- mkMeshL1Node(nodeL1_{i}{j}_address, {NUMBER_OF_COLS-1}, {NUMBER_OF_ROWS-1});\n"
             all_nodes.append(string_node)
-            stringLR = ruleL2R.format(from_row_id= i, from_col_id = j, to_row_id=i, to_col_id = (j+1)%NUMBER_OF_COLS)
-            rules_L2R.append(stringLR)
-            stringRL = ruleR2L.format(from_row_id= i, from_col_id = (j+1)%NUMBER_OF_COLS, to_row_id=i, to_col_id = j)
-            rules_R2L.append(stringRL)
+            if j < NUMBER_OF_COLS-1:
+                stringLR = ruleL2R.format(from_row_id= i, from_col_id = j, to_row_id=i, to_col_id = (j+1))
+                rules_L2R.append(stringLR)
+                stringRL = ruleR2L.format(from_row_id= i, from_col_id = (j+1), to_row_id=i, to_col_id = j)
+                rules_R2L.append(stringRL)
+            
             stringL1L2 = ruleL1L2.format(row_id= i, col_id = j, net_id = i*NUMBER_OF_COLS+j)
             rulesL1L2.append(stringL1L2)
 
     for j in range(NUMBER_OF_COLS):
-        for i in range(NUMBER_OF_ROWS):
-            stringUD = ruleU2D.format(from_row_id= i, from_col_id = j, to_row_id=(i+1)%NUMBER_OF_ROWS, to_col_id=j)
+        for i in range(NUMBER_OF_ROWS-1):
+            stringUD = ruleL2R.format(from_row_id= i, from_col_id = j, to_row_id=(i+1), to_col_id=j)
             rules_U2D.append(stringUD)
-            stringDU = ruleD2U.format(from_row_id= (i+1)%NUMBER_OF_ROWS, from_col_id = j, to_row_id=i , to_col_id = j)
+            stringDU = ruleR2L.format(from_row_id= (i+1), from_col_id = j, to_row_id=i , to_col_id = j)
             rules_D2U.append(stringDU)
 
     d['nodes_instantiate'] = ''.join(all_nodes)
@@ -112,7 +106,7 @@ def create_L1_FT(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     d['L1_L2_connection'] = "\n".join(rulesL1L2)
 
 
-    with open('./FoldedTorus/template_L1_FoldedTorus.txt', 'r') as f:
+    with open('./Mesh/template_L1_Mesh.txt', 'r') as f:
         src = Template(f.read())
         result = src.substitute(d)
         if(IF_OUT_TO_FILE):
