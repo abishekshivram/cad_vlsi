@@ -6,7 +6,7 @@ import ButterflyL2RouterVC::*;
 import ButterflyL2HeadNodeVC::*;
 import ButterflyL2HeadRouterVC::*;
 
-import ButterflySwitch::*;
+import ButterflySwitchL2::*;
 import Shared::*;
 import Parameters::*;
 
@@ -62,18 +62,18 @@ module mkButterfly8x8L2Noc #(parameter NetAddressLen net_id) (IfcButterflyL2Noc)
     let node1111 <- mkButterflyL2Node(node15_address, head_node_addr);
 
     // MAKING SWITCHES
-    let switch_L0_0 <- mkButterflySwitch(0, 0, True, False, 3);
-    let switch_L0_1 <- mkButterflySwitch(1, 0, True, False, 3);
-    let switch_L0_2 <- mkButterflySwitch(2, 0, True, False, 3);
-    let switch_L0_3 <- mkButterflySwitch(3, 0, True, False, 3);
-    let switch_L1_0 <- mkButterflySwitch(0, 1, False, False, 3);
-    let switch_L1_1 <- mkButterflySwitch(1, 1, False, False, 3);
-    let switch_L1_2 <- mkButterflySwitch(2, 1, False, False, 3);
-    let switch_L1_3 <- mkButterflySwitch(3, 1, False, False, 3);
-    let switch_L2_0 <- mkButterflySwitch(0, 2, False, True, 3);
-    let switch_L2_1 <- mkButterflySwitch(1, 2, False, True, 3);
-    let switch_L2_2 <- mkButterflySwitch(2, 2, False, True, 3);
-    let switch_L2_3 <- mkButterflySwitch(3, 2, False, True, 3);
+    let switch_L0_0 <- mkButterflySwitchL2(0, 0, True, False, 3);
+    let switch_L0_1 <- mkButterflySwitchL2(1, 0, True, False, 3);
+    let switch_L0_2 <- mkButterflySwitchL2(2, 0, True, False, 3);
+    let switch_L0_3 <- mkButterflySwitchL2(3, 0, True, False, 3);
+    let switch_L1_0 <- mkButterflySwitchL2(0, 1, False, False, 3);
+    let switch_L1_1 <- mkButterflySwitchL2(1, 1, False, False, 3);
+    let switch_L1_2 <- mkButterflySwitchL2(2, 1, False, False, 3);
+    let switch_L1_3 <- mkButterflySwitchL2(3, 1, False, False, 3);
+    let switch_L2_0 <- mkButterflySwitchL2(0, 2, False, True, 3);
+    let switch_L2_1 <- mkButterflySwitchL2(1, 2, False, True, 3);
+    let switch_L2_2 <- mkButterflySwitchL2(2, 2, False, True, 3);
+    let switch_L2_3 <- mkButterflySwitchL2(3, 2, False, True, 3);
 
     // CONNECTING NODES TO ITS SWITCHES
     // LEFT NODES

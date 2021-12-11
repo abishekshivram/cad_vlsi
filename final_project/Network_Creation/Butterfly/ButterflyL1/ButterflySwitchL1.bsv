@@ -1,4 +1,4 @@
-package ButterflySwitch;
+package ButterflySwitchL1;
 
 import Shared::*;
 
@@ -220,4 +220,4 @@ module mkButterflySwitch #(parameter int my_addr, parameter int layer, parameter
   
 endmodule
 
-endpackage: ButterflySwitch
+endpackage: ButterflySwitchL1

@@ -6,7 +6,7 @@ import ButterflyL2RouterVC::*;
 import ButterflyL2HeadNodeVC::*;
 import ButterflyL2HeadRouterVC::*;
 
-import ButterflySwitch::*;
+import ButterflySwitchL2::*;
 import Shared::*;
 import Parameters::*;
 
@@ -94,38 +94,38 @@ module mkButterfly16x16L2Noc #(parameter NetAddressLen net_id) (IfcButterflyL2No
     let node11111 <- mkButterflyL2Node(node31_address, head_node_addr);
 
     // MAKING SWITCHES
-    let switch_L0_0 <- mkButterflySwitch(node0_address, 0, True, False, 4);
-    let switch_L0_1 <- mkButterflySwitch(node1_address, 0, True, False, 4);
-    let switch_L0_2 <- mkButterflySwitch(node2_address, 0, True, False, 4);
-    let switch_L0_3 <- mkButterflySwitch(node3_address, 0, True, False, 4);
-    let switch_L0_4 <- mkButterflySwitch(node4_address, 0, True, False, 4);
-    let switch_L0_5 <- mkButterflySwitch(node5_address, 0, True, False, 4);
-    let switch_L0_6 <- mkButterflySwitch(node6_address, 0, True, False, 4);
-    let switch_L0_7 <- mkButterflySwitch(node7_address, 0, True, False, 4);
-    let switch_L1_0 <- mkButterflySwitch(node0_address, 1, False, False, 4);
-    let switch_L1_1 <- mkButterflySwitch(node1_address, 1, False, False, 4);
-    let switch_L1_2 <- mkButterflySwitch(node2_address, 1, False, False, 4);
-    let switch_L1_3 <- mkButterflySwitch(node3_address, 1, False, False, 4);
-    let switch_L1_4 <- mkButterflySwitch(node4_address, 1, False, False, 4);
-    let switch_L1_5 <- mkButterflySwitch(node5_address, 1, False, False, 4);
-    let switch_L1_6 <- mkButterflySwitch(node6_address, 1, False, False, 4);
-    let switch_L1_7 <- mkButterflySwitch(node7_address, 1, False, False, 4);
-    let switch_L2_0 <- mkButterflySwitch(node0_address, 2, False, False, 4);
-    let switch_L2_1 <- mkButterflySwitch(node1_address, 2, False, False, 4);
-    let switch_L2_2 <- mkButterflySwitch(node2_address, 2, False, False, 4);
-    let switch_L2_3 <- mkButterflySwitch(node3_address, 2, False, False, 4);
-    let switch_L2_4 <- mkButterflySwitch(node4_address, 2, False, False, 4);
-    let switch_L2_5 <- mkButterflySwitch(node5_address, 2, False, False, 4);
-    let switch_L2_6 <- mkButterflySwitch(node6_address, 2, False, False, 4);
-    let switch_L2_7 <- mkButterflySwitch(node7_address, 2, False, False, 4);
-    let switch_L3_0 <- mkButterflySwitch(node0_address, 3, False, True, 4);
-    let switch_L3_1 <- mkButterflySwitch(node1_address, 3, False, True, 4);
-    let switch_L3_2 <- mkButterflySwitch(node2_address, 3, False, True, 4);
-    let switch_L3_3 <- mkButterflySwitch(node3_address, 3, False, True, 4);
-    let switch_L3_4 <- mkButterflySwitch(node4_address, 3, False, True, 4);
-    let switch_L3_5 <- mkButterflySwitch(node5_address, 3, False, True, 4);
-    let switch_L3_6 <- mkButterflySwitch(node6_address, 3, False, True, 4);
-    let switch_L3_7 <- mkButterflySwitch(node7_address, 3, False, True, 4);
+    let switch_L0_0 <- mkButterflySwitchL2(0, 0, True, False, 4);
+    let switch_L0_1 <- mkButterflySwitchL2(1, 0, True, False, 4);
+    let switch_L0_2 <- mkButterflySwitchL2(2, 0, True, False, 4);
+    let switch_L0_3 <- mkButterflySwitchL2(3, 0, True, False, 4);
+    let switch_L0_4 <- mkButterflySwitchL2(4, 0, True, False, 4);
+    let switch_L0_5 <- mkButterflySwitchL2(5, 0, True, False, 4);
+    let switch_L0_6 <- mkButterflySwitchL2(6, 0, True, False, 4);
+    let switch_L0_7 <- mkButterflySwitchL2(7, 0, True, False, 4);
+    let switch_L1_0 <- mkButterflySwitchL2(0, 1, False, False, 4);
+    let switch_L1_1 <- mkButterflySwitchL2(1, 1, False, False, 4);
+    let switch_L1_2 <- mkButterflySwitchL2(2, 1, False, False, 4);
+    let switch_L1_3 <- mkButterflySwitchL2(3, 1, False, False, 4);
+    let switch_L1_4 <- mkButterflySwitchL2(4, 1, False, False, 4);
+    let switch_L1_5 <- mkButterflySwitchL2(5, 1, False, False, 4);
+    let switch_L1_6 <- mkButterflySwitchL2(6, 1, False, False, 4);
+    let switch_L1_7 <- mkButterflySwitchL2(7, 1, False, False, 4);
+    let switch_L2_0 <- mkButterflySwitchL2(0, 2, False, False, 4);
+    let switch_L2_1 <- mkButterflySwitchL2(1, 2, False, False, 4);
+    let switch_L2_2 <- mkButterflySwitchL2(2, 2, False, False, 4);
+    let switch_L2_3 <- mkButterflySwitchL2(3, 2, False, False, 4);
+    let switch_L2_4 <- mkButterflySwitchL2(4, 2, False, False, 4);
+    let switch_L2_5 <- mkButterflySwitchL2(5, 2, False, False, 4);
+    let switch_L2_6 <- mkButterflySwitchL2(6, 2, False, False, 4);
+    let switch_L2_7 <- mkButterflySwitchL2(7, 2, False, False, 4);
+    let switch_L3_0 <- mkButterflySwitchL2(0, 3, False, True, 4);
+    let switch_L3_1 <- mkButterflySwitchL2(1, 3, False, True, 4);
+    let switch_L3_2 <- mkButterflySwitchL2(2, 3, False, True, 4);
+    let switch_L3_3 <- mkButterflySwitchL2(3, 3, False, True, 4);
+    let switch_L3_4 <- mkButterflySwitchL2(4, 3, False, True, 4);
+    let switch_L3_5 <- mkButterflySwitchL2(5, 3, False, True, 4);
+    let switch_L3_6 <- mkButterflySwitchL2(6, 3, False, True, 4);
+    let switch_L3_7 <- mkButterflySwitchL2(7, 3, False, True, 4);
 
     // CONNECTING NODES TO ITS SWITCHES
     // LEFT NODES
@@ -211,7 +211,7 @@ module mkButterfly16x16L2Noc #(parameter NetAddressLen net_id) (IfcButterflyL2No
     //SWITCHES TO NODES
     rule to_switch_L0_0_node0;
         let data <- switch_L0_0.get_value_to_left_up();
-        node00000.put_value(data);;
+        node00000.put_value(data);
     endrule
 
    rule to_switch_L0_0_node1;

@@ -20,10 +20,10 @@ endinterface
 
 (* synthesize *)
 
-module mkButterflyL2HeadNode #(parameter Address my_addr) (IfcButterflyL2HeadNode);
+module mkButterflyL2HeadNode #(parameter Address my_addr, parameter Address head_node_addr) (IfcButterflyL2HeadNode);
 
     // Core and three routers - core, left link, right link instantiation
-    let core                    <- mkCore(my_addr);
+    let core                    <- mkCore(my_addr, head_node_addr);
     FIFO#(Flit) output_link     <- mkFIFO;
     FIFO#(Flit) output_link_l1  <- mkFIFO;
     

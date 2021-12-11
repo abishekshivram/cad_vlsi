@@ -6,7 +6,8 @@ import ButterflyL1NodeVC::*;
 //import ButterflyL1HeadNodeVC::*;
 //import ButterflyL1HeadRouterVC::*;
 
-import ButterflySwitch::*;
+import ButterflySwitchL1::*;
+import ButterflySwitchL2::*;
 import Shared::*;
 import Parameters::*;
 

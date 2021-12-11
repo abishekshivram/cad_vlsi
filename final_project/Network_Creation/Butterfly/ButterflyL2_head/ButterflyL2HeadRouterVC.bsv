@@ -193,12 +193,12 @@ module mkButterflyL2HeadRouterL2R #(parameter int my_addr, parameter int index_t
     //     return temp6;
     // endmethod
 
-endmodule: mkButterflyL2RouterL2R
+endmodule: mkButterflyL2HeadRouterL2R
 
 (* synthesize *)
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkButterflyL2RouterR2L #(parameter int my_addr, parameter int index_to_check, parameter Bool left_ext) (IfcButterflyL2Router);
+module mkButterflyL2HeadRouterR2L #(parameter int my_addr, parameter int index_to_check, parameter Bool left_ext) (IfcButterflyL2HeadRouter);
 
     function Action print_flit_details(Flit flit_to_print);
         return action
@@ -357,7 +357,7 @@ module mkButterflyL2RouterR2L #(parameter int my_addr, parameter int index_to_ch
     //     return temp6;
     // endmethod
 
-endmodule: mkButterflyL2HeadRouterL2R
+endmodule
 
 
 
