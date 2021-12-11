@@ -18,7 +18,7 @@ import HypercubeL1Node7VC :: *;
 
 import HypercubeL2Noc :: *;
 
-
+$import_l2_network_files
 
 (* synthesize *)
 module mkHypercubeL1Noc (Empty);

@@ -29,7 +29,7 @@ endinterface
 
 (* synthesize *)
 
-module mkButterflySwitchL2 #(parameter int my_addr, parameter int layer, parameter Bool left_ext, parameter Bool right_ext,  parameter int max_bits_index) (IfcButterflySwitchL2);
+module mkButterflySwitchL2 #(parameter int my_addr, parameter int layer, parameter Bool left_ext, parameter Bool right_ext, parameter int max_bits_index) (IfcButterflySwitchL2);
 
     //Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 

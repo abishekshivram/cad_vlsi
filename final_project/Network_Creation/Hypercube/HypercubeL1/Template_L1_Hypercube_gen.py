@@ -21,8 +21,8 @@ def create_L1_Hypercube(L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
 
 
     l1_nodes_phrase = """\tAddress node{id}_address;  node{id}_address.netAddress={id};  node{id}_address.nodeAddress={id};
-        let nodeL1_{id}   <- mkHypercubeL1Node{id}VC(node{id}_address); 
-    """
+    let nodeL1_{id}   <- mkHypercubeL1Node{id}VC(node{id}_address); 
+"""
 
     l1_inst_nodes = []
     l2_networks = []
@@ -33,7 +33,8 @@ def create_L1_Hypercube(L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
         sentence = "\tlet noc_N{net_id} <- {module};\n"
         l2_networks.append(sentence.format(net_id=i,module =L2_NETWORK_BSV_MODULES[i]))
         l1_inst_nodes.append(l1_nodes_phrase.format(id=i))
-
+    
+    d['import_l2_network_files'] = ''.join(files_to_import)
     d['EIGHT_NETWORKS_HYPERCUBE_CONNECTED'] = ''.join(l2_networks)
     d['nodes_inst'] = ''.join(l1_inst_nodes)
 
@@ -41,18 +42,18 @@ def create_L1_Hypercube(L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
 
 
     ruleL1L2 = """\trule connect_N{net_id}_to_node{net_id}_L1_to_L2;
-            Flit data=defaultValue;
-            data <- nodeL1_{net_id}.get_value_to_l2();
-            data.currentDstAddress.netAddress   = data.finalDstAddress.netAddress;
-            data.currentDstAddress.nodeAddress  = data.finalDstAddress.nodeAddress;
-            noc_N{net_id}.put_value_from_l1(data);
-        endrule
-        rule connect_node{net_id}_to_N{net_id}_L2_to_L1;
-            Flit data=defaultValue;
-            data <- noc_N{net_id}.get_value_to_l1();
-            nodeL1_{net_id}.put_value_from_l2(data);
-        endrule
-    """
+        Flit data=defaultValue;
+        data <- nodeL1_{net_id}.get_value_to_l2();
+        data.currentDstAddress.netAddress   = data.finalDstAddress.netAddress;
+        data.currentDstAddress.nodeAddress  = data.finalDstAddress.nodeAddress;
+        noc_N{net_id}.put_value_from_l1(data);
+    endrule
+    rule connect_node{net_id}_to_N{net_id}_L2_to_L1;
+        Flit data=defaultValue;
+        data <- noc_N{net_id}.get_value_to_l1();
+        nodeL1_{net_id}.put_value_from_l2(data);
+    endrule
+"""
     for i in range(8):
         l1_l2_connections.append(ruleL1L2.format(net_id=i))
 
