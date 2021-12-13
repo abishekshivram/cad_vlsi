@@ -56,12 +56,12 @@ def check_input(level,networkType,n,m):
 			total_head_nodes = n
 
 	elif (networkType == 'M'):
-		assert (m>1 and n>1 and m+n>4),f"The given dimension doesn't correspond to a Mesh network in {level}Topology.txt"
+		assert (m>1 and n>1),f"The given dimension doesn't correspond to a Mesh network in {level}Topology.txt"
 		if level == 'L1':
 			total_head_nodes = m*n
 
 	elif (networkType == 'F'):
-		assert (m>1 and n>1 and m+n>4),f"The given dimension doesn't correspond to a Folded Torus network in {level}Topology.txt"
+		assert (m>1 and n>1),f"The given dimension doesn't correspond to a Folded Torus network in {level}Topology.txt"
 		if level == 'L1':
 			total_head_nodes = m*n
 
