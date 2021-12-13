@@ -19,6 +19,64 @@ from Templates.Chain.create_L2_Chains import create_L2_Chains
 from Templates.Hypercube.Template_L1_Hypercube_gen import create_L1_Hypercube
 from Templates.Butterfly.create_l1_noc_butterfly import create_L1_Butterfly
 
+
+def isPowerOfTwo(x):
+	"""
+	Checks if the given number is power of 2 or not
+
+	Parameters:
+	-----------
+	x : Integer
+	The number to be checked for 
+
+	Returns:
+	--------
+	True if the number is power of two
+	"""
+    # First x in the below expression
+    # is for the case when x is 0
+	return (x and (not(x & (x - 1))))
+
+# A set of assertion statements to make sure that L1 and L2 Topolgy has been defined rightly
+def check_input(level,networkType,n,m):
+	if (networkType == 'B'):
+		assert (n==m),f"Dimensions of Butterfly network should be equal in {level}Topology.txt"
+		assert (isPowerOfTwo(n)), "n should be a power of two in Butterfly network"
+		if level == 'L1':
+			total_head_nodes = 2*m
+	
+	elif (networkType == 'C'):
+		assert (m==1),f"Second dimension of Chain network is invalid in {level}Topology.txt"
+		if level == 'L1':
+			total_head_nodes = n
+
+	elif (networkType == 'R'):
+		assert (m==1),f"Second dimension of Ring network is invalid in {level}Topology.txt"
+		if level == 'L1':
+			total_head_nodes = n
+
+	elif (networkType == 'M'):
+		assert (m>1 and n>1 and m+n>4),f"The given dimension doesn't correspond to a Mesh network in {level}Topology.txt"
+		if level == 'L1':
+			total_head_nodes = m*n
+
+	elif (networkType == 'F'):
+		assert (m>1 and n>1 and m+n>4),f"The given dimension doesn't correspond to a Folded Torus network in {level}Topology.txt"
+		if level == 'L1':
+			total_head_nodes = m*n
+
+	elif (networkType == 'H'):
+		assert (m==n and m==3),f"Please specify the dimension of the Hypercube network properly in {level}Topology.txt, can only be specified as 'H,3,3'"
+		if level == 'L1':
+			total_head_nodes = 2**n
+
+	else:
+		print(f"Please choose a valid network in {level}Topology.txt, {networkType} is not a valid network type")
+
+	return total_head_nodes if level == 'L1' else None
+
+
+
 # Function to define the module and NOC files that need to be instantiated and imported 
 #   respectively for each L2 network in the L1 Noc file
 L2_NETWORK_NOC_FILES = []
@@ -53,7 +111,8 @@ with open ("L1Topology.txt",'r') as f:
         if (line=='\n'):
             continue
         L1 = line.strip().replace(" ", "").split(',')
-        assert(len(L1) == 3), "Please check your input"
+        assert(len(L1) == 3), "Please check your input in L1Toplogy.txt"
+        total_head_nodes = check_input('L1',L1[0],int(L1[1]),int(L1[2]))        
         L1_DIM = (int(L1[2]),int(L1[1]))
 
 
@@ -61,7 +120,6 @@ with open ("L1Topology.txt",'r') as f:
 # L2: Stores the attributes in L2Topology.txt
 # idx: Index of the network (1st network in L2: Index 0)
 # This contains details of each of the network
-L2 = []
 L2_dictionary = {}
 NETWORK_TYPES = ['C','R','H','F','M','B']
 for i in NETWORK_TYPES:
@@ -73,6 +131,7 @@ for i in NETWORK_TYPES:
     L2_dictionary[i] = [0,[],[],[]] 
 
 
+# Reading the L2Topology file for making NoC files as necessary
 idx = 0
 with open ("L2Topology.txt", 'r') as f:
     for line in f:
@@ -80,6 +139,9 @@ with open ("L2Topology.txt", 'r') as f:
             continue
         L2_input_network = line.strip().replace(" ", "").split(',')
         assert (len(L2_input_network) == 3), "In L2Topology.txt, line is of invalid format, please check the inputs"
+        
+        # Checking if the input matches the expected behaviour
+        check_input('L2',L2_input_network[0],int(L2_input_network[1]),int(L2_input_network[2]))
         L2_dictionary[L2_input_network[0]][0] += 1          # NO_OF_NETWORKS
         L2_dictionary[L2_input_network[0]][1].append(idx)   # ALL_NETWORK_NUM
         
@@ -100,6 +162,11 @@ with open ("L2Topology.txt", 'r') as f:
         choose_noc_file(L2_input_network[0],idx,L2_input_network[1])
         idx += 1
 
+
+# If there is an inconsistency in the number of nodes in L1 and the number of head-nodes in L2
+assert (idx == total_head_nodes), "Please check your inputs, inconsistency in terms of number of nodes in L1 and networks in L2"
+
+# Calling L2 NoC making functons
 for i in NETWORK_TYPES:
     if L2_dictionary[i][0] != 0:
         if (i == 'C'):
