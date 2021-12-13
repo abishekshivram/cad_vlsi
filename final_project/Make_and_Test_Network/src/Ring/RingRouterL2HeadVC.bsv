@@ -41,7 +41,7 @@ endinterface
 
 // This router sends both in left right directions. 
 // For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
-module mkRingRouterL2HeadVC #(parameter Address my_addr, parameter NodeAddressLen maxNodeAddress) (IfcRingRouterL2HeadVC);
+module mkRingRouterL2HeadVC #(parameter Address my_addr, parameter NodeAddress maxNodeAddress) (IfcRingRouterL2HeadVC);
 
     function Action print_flit_details(Flit flit_to_print);
         return action

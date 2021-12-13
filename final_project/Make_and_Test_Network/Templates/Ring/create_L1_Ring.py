@@ -88,7 +88,7 @@ def create_L1_Ring(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     d['L1_L2_connection'] = "\n".join(rule_l2_l1_connection)
 
 
-    with open('./Ring/template_L1_Ring.txt', 'r') as f:
+    with open('./Templates/Ring/template_L1_Ring.txt', 'r') as f:
         src = Template(f.read())
         result = src.substitute(d)
         if(IF_OUT_TO_FILE):

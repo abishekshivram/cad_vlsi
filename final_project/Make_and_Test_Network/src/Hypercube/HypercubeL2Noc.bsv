@@ -34,7 +34,7 @@ interface IfcHypercubeL2Noc;
 endinterface 
 
 (* synthesize *)
-module mkHypercubeL2Noc #(parameter NetAddressLen net_id) (IfcHypercubeL2Noc);
+module mkHypercubeL2Noc #(parameter NetAddress net_id) (IfcHypercubeL2Noc);
 
     // When its a head node, it should has more than two set of 3 links,
     // one set to L2 network, another set for L1 network

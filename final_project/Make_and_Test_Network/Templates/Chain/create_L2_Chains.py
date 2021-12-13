@@ -62,7 +62,7 @@ def create_L2_Chains(NO_OF_NETWORKS, ALL_NETWORK_NUM, ALL_NETWORK_ID, ALL_NETWOR
         d['HEADNODE'] = f"{NUMBER_OF_NODES//2}"
 
         # with open('template_NOC.txt', 'r') as f:
-        with open('./Chain/ChainL2/template_L2_NOC.txt', 'r') as f:
+        with open('./Templates/Chain/template_L2_NOC.txt', 'r') as f:
             src = Template(f.read())
             result = src.substitute(d)
             if(IF_OUT_TO_FILE):

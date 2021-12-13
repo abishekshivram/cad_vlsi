@@ -37,13 +37,13 @@ typedef Bit#(16) LinkUtilisationCounter; //To measure link utilisation performan
 typedef Bit#(3) LinkUtiliPrInterval; //Link utilisation print intervalet
 
 //Modify here for changing network address length 
-//typedef Int#(16) NetAddressLen;// Can remove?
+typedef Int#(16) NetAddressLen;
 
 //Modify here for changing node address length 
-//typedef Int#(16) NodeAddressLen;//Can remove?
+typedef Int#(16) NodeAddressLen;
 
 //For payload parameterisation, change the size here
-//typedef UInt#(64) PayloadLen; //Can remove?
+typedef UInt#(64) PayloadLen; 
 typedef Bit#(64) FlitPayload;
 
 //A type to represet the clock count

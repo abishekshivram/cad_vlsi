@@ -101,7 +101,7 @@ def create_L2_FT(NO_OF_NETWORKS, ALL_NETWORK_NUM, ALL_NETWORK_ID, ALL_NUMBER_OF_
 
         d['HEADNODE'] = f"{NUMBER_OF_ROWS//2}{NUMBER_OF_COLS//2}"
 
-        with open('./FoldedTorus/template_L2_FoldedTorus.txt', 'r') as f:
+        with open('./Templates/FoldedTorus/template_L2_FoldedTorus.txt', 'r') as f:
             src = Template(f.read())
             result = src.substitute(d)
             if(IF_OUT_TO_FILE):

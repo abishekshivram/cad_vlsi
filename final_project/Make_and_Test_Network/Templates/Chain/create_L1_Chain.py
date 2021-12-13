@@ -43,7 +43,7 @@ def create_L1_Chain(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     OUTPUT_FILE_NAME = PACKAGE_NAME + ".bsv"
 
 
-    BITS_NEEDED = int(log2(NUMBER_OF_NODES)) + 1
+    # BITS_NEEDED = int(log2(NUMBER_OF_NODES)) + 1
     all_nodes = []
     rules_L2R = []
     rules_R2L = []
@@ -81,7 +81,7 @@ def create_L1_Chain(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     d['L1_L2_connection'] = "\n".join(rule_l2_l1_connection)
 
 
-    with open('./Chain/ChainL1/template_NOC_L1.txt', 'r') as f:
+    with open('./Templates/Chain/template_NOC_L1.txt', 'r') as f:
         src = Template(f.read())
         result = src.substitute(d)
         if(IF_OUT_TO_FILE):

@@ -93,7 +93,7 @@ def create_L2_Mesh(NO_OF_NETWORKS, ALL_NETWORK_NUM, ALL_NETWORK_ID, ALL_NUMBER_O
 
         d['HEADNODE'] = f"{NUMBER_OF_ROWS//2}{NUMBER_OF_COLS//2}"
 
-        with open('./Mesh/template_L2_Mesh.txt', 'r') as f:
+        with open('./Templates/Mesh/template_L2_Mesh.txt', 'r') as f:
             src = Template(f.read())
             result = src.substitute(d)
             if(IF_OUT_TO_FILE):

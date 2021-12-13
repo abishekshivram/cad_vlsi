@@ -112,7 +112,7 @@ def create_L1_FT(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     d['L1_L2_connection'] = "\n".join(rulesL1L2)
 
 
-    with open('./FoldedTorus/template_L1_FoldedTorus.txt', 'r') as f:
+    with open('./Templates/FoldedTorus/template_L1_FoldedTorus.txt', 'r') as f:
         src = Template(f.read())
         result = src.substitute(d)
         if(IF_OUT_TO_FILE):

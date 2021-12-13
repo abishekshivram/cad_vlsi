@@ -29,7 +29,7 @@ endinterface
 
 (* synthesize *)
 
-module mkRingNode #(parameter Address my_addr, parameter NodeAddressLen maxNodeAddress, parameter Address head_node_addr) (IfcRingNode);
+module mkRingNode #(parameter Address my_addr, parameter NodeAddress maxNodeAddress, parameter Address head_node_addr) (IfcRingNode);
 
     // Reg#(bit) lvl <- mkReg(level); // 0 for low level (L2), 1 for high level (L1)
 

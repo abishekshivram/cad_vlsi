@@ -4,20 +4,20 @@
 # to_add1 = cur_path + "/Chain"
 # sys.path.append(to_add1)
 
-from FoldedTorus.create_L1_FoldedTorus import create_L1_FT
-from FoldedTorus.create_L2_FoldedTorus import create_L2_FT
+from Templates.FoldedTorus.create_L1_FoldedTorus import create_L1_FT
+from Templates.FoldedTorus.create_L2_FoldedTorus import create_L2_FT
 
-from Mesh.create_L1_Mesh import create_L1_Mesh
-from Mesh.create_L2_Mesh import create_L2_Mesh
+from Templates.Mesh.create_L1_Mesh import create_L1_Mesh
+from Templates.Mesh.create_L2_Mesh import create_L2_Mesh
 
-from Ring.create_L1_Ring import create_L1_Ring
-from Ring.create_L2_Rings import create_L2_Rings
+from Templates.Ring.create_L1_Ring import create_L1_Ring
+from Templates.Ring.create_L2_Rings import create_L2_Rings
 
-from Chain.ChainL1.create_L1_Chain import create_L1_Chain
-from Chain.Script.create_L2_Chains import create_L2_Chains
+from Templates.Chain.create_L1_Chain import create_L1_Chain
+from Templates.Chain.create_L2_Chains import create_L2_Chains
 
-from Hypercube.HypercubeL1.Template_L1_Hypercube_gen import create_L1_Hypercube
-from Butterfly.ButterflyL1.create_l1_noc_butterfly import create_L1_Butterfly
+from Templates.Hypercube.Template_L1_Hypercube_gen import create_L1_Hypercube
+from Templates.Butterfly.create_l1_noc_butterfly import create_L1_Butterfly
 
 # Function to define the module and NOC files that need to be instantiated and imported 
 #   respectively for each L2 network in the L1 Noc file
@@ -146,7 +146,7 @@ TOP_MODULE:={TOP_MODULE}
 TOP_FILE:=./src_nocs/{TOP_MODULE_FILE}.bsv
 TOP_DIR:=.
 MODULE:=testRunner
-BLUESPEC_TOOL:=/home/abi/tools/bsc\n\n
+BLUESPEC_TOOL:=/home/gay3/bsc\n\n
 """
 with open('Makefile.inc', 'w') as f:
     f.write(makefile_contents)

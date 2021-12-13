@@ -22,7 +22,7 @@ endinterface
 
 
 
-module mkButterfly16x16L2Noc #(parameter NetAddressLen net_id) (IfcButterflyL2Noc);
+module mkButterfly16x16L2Noc #(parameter NetAddress net_id) (IfcButterflyL2Noc);
 
     Address head_node_addr;  head_node_addr.netAddress=net_id;  head_node_addr.nodeAddress=7;
     

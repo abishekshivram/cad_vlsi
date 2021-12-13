@@ -60,7 +60,7 @@ def create_L1_Hypercube(L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
 
     d['L1_TO_L2'] = ''.join(l1_l2_connections)
 
-    with open('./Hypercube/HypercubeL1/Template_HypercubeL1Noc.txt', 'r') as f:
+    with open('./Templates/Hypercube/Template_HypercubeL1Noc.txt', 'r') as f:
         src = Template(f.read())
         result = src.substitute(d)
         if(IF_OUT_TO_FILE):

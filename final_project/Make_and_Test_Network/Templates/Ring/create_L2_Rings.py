@@ -70,7 +70,7 @@ def create_L2_Rings(NO_OF_NETWORKS, ALL_NETWORK_NUM, ALL_NETWORK_ID, ALL_NETWORK
         d['rule_right_to_left'] = ''.join(rules_R2L)
         d['HEADNODE'] = f"{0}"
 
-        with open('./Ring/template_L2_Rings.txt', 'r') as f:
+        with open('./Templates/Ring/template_L2_Rings.txt', 'r') as f:
             src = Template(f.read())
             result = src.substitute(d)
             if(IF_OUT_TO_FILE):
