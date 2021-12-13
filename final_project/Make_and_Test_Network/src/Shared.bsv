@@ -15,8 +15,8 @@ import Parameters::*;
 import DefaultValue::*;
 
 //Assumption - All the network topologies share the same network address length and node address length
-typedef NetAddressLen NetAddress; //Represents the network address in NoC.
-typedef NodeAddressLen NodeAddress; //Represents the node address in NoC.
+//typedef NetAddressLen NetAddress; //Represents the network address in NoC.
+//typedef NodeAddressLen NodeAddress; //Represents the node address in NoC.
 
 //A strucutre to represent the address in the network
 //Address is made up of network address and node address 
@@ -32,7 +32,7 @@ instance DefaultValue #(Address);
 endinstance
 
 //Represents the payload in a Flit
-typedef PayloadLen FlitPayload;
+//typedef PayloadLen FlitPayload;
 
 //A structure representing the Flit in NoC
 //A flit is made of Source Address, Final destination address, \

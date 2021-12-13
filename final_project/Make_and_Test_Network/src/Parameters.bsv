@@ -37,23 +37,26 @@ typedef Bit#(16) LinkUtilisationCounter; //To measure link utilisation performan
 typedef Bit#(3) LinkUtiliPrInterval; //Link utilisation print intervalet
 
 //Modify here for changing network address length 
-typedef Int#(16) NetAddressLen;
+//typedef Int#(16) NetAddressLen;// Can remove?
 
 //Modify here for changing node address length 
-typedef Int#(16) NodeAddressLen;
+//typedef Int#(16) NodeAddressLen;//Can remove?
 
 //For payload parameterisation, change the size here
-typedef UInt#(64) PayloadLen;
+//typedef UInt#(64) PayloadLen; //Can remove?
 typedef Bit#(64) FlitPayload;
 
 //A type to represet the clock count
-typedef PayloadLen ClockCount;
+typedef FlitPayload ClockCount;
 
 //5 indicates the no of networks (L1 node count). This value will change based on the network count
 Integer l1NodeCount=fromInteger(5);
 
 interface MaxAddressInterface;
-    method NodeAddressLen getMaxAddress(NetAddressLen index);
+    method NodeAddressX getMaxAddressX(NetAddress index);
+    method NodeAddressY getMaxAddressY(NetAddress index);
+    method NetAddressX getMaxNetAddressX();
+    method NetAddressY getMaxNetAddressY();
 endinterface: MaxAddressInterface
 
 (* synthesize *)
@@ -62,18 +65,39 @@ module mkMaxAddress(MaxAddressInterface);
     //An array supporitng the core module genrate valid filt addresses
     //NodeAddressLen represents the maximum value each array element can store
     //Each element of the array contains the maximum address possible in that L2 network
-    NodeAddressLen maxNodeAddress[l1NodeCount];
+    //NodeAddressLen maxNodeAddress[l1NodeCount];
+    
+    NodeAddressX maxNodeAddressX[l1NodeCount];     NodeAddressY maxNodeAddressY[l1NodeCount];
+    
+    //initialise the max address of L1 network
+    NetAddressX maxNetAddressX='h00; NetAddressY maxNetAddressY='h06;
 
     //initialise the max address of each network
-    maxNodeAddress[0]=fromInteger(6);
-    maxNodeAddress[1]=fromInteger(16);
-    maxNodeAddress[2]=fromInteger(4);
-    maxNodeAddress[3]=fromInteger(8);
-    maxNodeAddress[4]=fromInteger(12);
+    maxNodeAddressX[0]='h02; maxNodeAddressY[0]='h03; //Suitable only for mesh
+    maxNodeAddressX[1]='h03; maxNodeAddressY[1]='h03;
+    maxNodeAddressX[2]='h03; maxNodeAddressY[2]='h03;
+    maxNodeAddressX[3]='h03; maxNodeAddressY[3]='h03;
+    maxNodeAddressX[4]='h03; maxNodeAddressY[4]='h03;
+                
+    //NOTE LLOYD Add documentation here
+    
 
-    method NodeAddressLen getMaxAddress(NetAddressLen index);
-        return maxNodeAddress[index];
-    endmethod: getMaxAddress
+    method NodeAddressX getMaxAddressX(NetAddress index);
+        return maxNodeAddressX[index];
+    endmethod: getMaxAddressX
+
+    method NodeAddressY getMaxAddressY(NetAddress index);
+        return maxNodeAddressY[index];
+    endmethod: getMaxAddressY
+
+    method NetAddressX getMaxNetAddressX();
+        return maxNetAddressX;
+    endmethod
+
+    method NetAddressY getMaxNetAddressY();
+        return maxNetAddressY;
+    endmethod
+
 
 endmodule: mkMaxAddress
 
