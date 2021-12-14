@@ -61,7 +61,7 @@ def create_L2_Mesh(NO_OF_NETWORKS, ALL_NETWORK_NUM, ALL_NETWORK_ID, ALL_NUMBER_O
         rules_D2U = []
 
         
-        all_nodes.append(f"\tAddress head_node_addr;  head_node_addr.netAddress={NETWORK_ID};  head_node_addr.nodeAddress=16'h{NUMBER_OF_ROWS//2:0>2x}{NUMBER_OF_COLS:0>2x};\n\n")
+        all_nodes.append(f"\tAddress head_node_addr;  head_node_addr.netAddress={NETWORK_ID};  head_node_addr.nodeAddress=16'h{NUMBER_OF_ROWS//2:0>2x}{NUMBER_OF_COLS//2:0>2x};\n\n")
         
         for i in range(NUMBER_OF_ROWS):
             for j in range(NUMBER_OF_COLS):
