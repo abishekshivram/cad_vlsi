@@ -31,7 +31,8 @@ interface IfcRingRouterL1VC ;
     method ActionValue#(Flit) get_valueVC4();
     method ActionValue#(Flit) get_valueVC5();
     method ActionValue#(Flit) get_valueVC6();
-    
+    method LinkUtilisationCounter get_link_util_counter();
+
 endinterface
 
 
@@ -75,6 +76,8 @@ module mkRingRouterL1VC #(parameter Address my_addr, parameter NetAddress maxNet
     rule invert_cycle;
         cycle <= cycle + 1;     // Cycle variable oscillates between 0 and 1
     endrule
+
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Connect input_link to respective VC
     // This rules fires every cycle, and chooses odd named Virtual Channels (VC1, VC3, VC5) 
@@ -267,6 +270,10 @@ module mkRingRouterL1VC #(parameter Address my_addr, parameter NetAddress maxNet
         return temp6;
     endmethod
 
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
+    endmethod
+    
 endmodule: mkRingRouterL1VC
 
 endpackage : RingRouterL1VC

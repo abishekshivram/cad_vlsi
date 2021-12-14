@@ -1,6 +1,7 @@
 package HypercubeL1Node3VC;
 
 import Shared::*;
+import Parameters::*;
 
 import FIFO :: * ;
 import Core :: * ;
@@ -42,6 +43,21 @@ module mkHypercubeL1Node3VC #(parameter Address my_addr) (IfcHypercubeL1Node);
     // This counter_router is used by arbiters to choose VC to send out data
     rule count_every_cycle;
         counter_router <= counter_router + 1;
+    endrule
+
+
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rlsb=router_lsb.get_link_util_counter();
+        let rmid=router_mid.get_link_util_counter();
+        let rmsb=router_msb.get_link_util_counter();
+        let rl2=router_l2.get_link_util_counter();
+        //Needed- router_l2??
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L2 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl2);
     endrule
 
     // Without these buffer, there was error compiling 

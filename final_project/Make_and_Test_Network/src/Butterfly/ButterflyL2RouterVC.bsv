@@ -10,6 +10,7 @@ package ButterflyL2RouterVC;
 
 
 import Shared :: * ;
+import Parameters :: * ;
 
 // FIFO used as buffers in routers
 import FIFO :: * ;
@@ -26,6 +27,7 @@ interface IfcButterflyL2Router ;
     method ActionValue#(Flit) get_valueVC2();
     method ActionValue#(Flit) get_valueVC3();
     method ActionValue#(Flit) get_valueVC4();
+    method LinkUtilisationCounter get_link_util_counter();
     
 endinterface
 
@@ -66,6 +68,8 @@ module mkButterflyL2RouterL2R #(parameter int my_addr, parameter int index_to_ch
     rule invert_cycle;
         cycle <= cycle + 1;     // Cycle variable oscillates between 0 and 1
     endrule
+
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Connect input_link to respective VC
     // This rules fires every alternate cycle, and chooses even named Virtual Channels (VC1, VC3, VC5)
@@ -357,6 +361,10 @@ module mkButterflyL2RouterR2L #(parameter int my_addr, parameter int index_to_ch
     //     return temp6;
     // endmethod
 
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
+    endmethod
+    
 endmodule: mkButterflyL2RouterR2L
 
 

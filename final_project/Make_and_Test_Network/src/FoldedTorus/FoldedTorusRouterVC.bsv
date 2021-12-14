@@ -30,6 +30,7 @@ interface IfcFoldedTorusRouterVC ;
     method ActionValue#(Flit) get_valueVC8();   
     method ActionValue#(Flit) get_valueVC9();
     method ActionValue#(Flit) get_valueVC10();
+    method LinkUtilisationCounter get_link_util_counter();
     
 endinterface
 
@@ -85,6 +86,7 @@ module mkFoldedTorusRouterVC #(parameter Address my_addr, parameter NodeAddressX
 
     Reg#(NodeAddress) maxXAddressReg <- mkReg(zeroExtend(unpack(maxXAddress)));
     Reg#(NodeAddress) maxYAddressReg <- mkReg(zeroExtend(unpack(maxYAddress)));
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
     
     (* descending_urgency = "read_input_link_dateline_and_send_to_VC, read_input_link_and_send_to_VC, read_input_link_and_send_to_VC_extreme" *)
     // Y routing after dateline is left
@@ -424,6 +426,11 @@ module mkFoldedTorusRouterVC #(parameter Address my_addr, parameter NodeAddressX
          let temp10 = vir_chnl_10.first();
          vir_chnl_10.deq();
         return temp10;
+    endmethod
+
+
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
     endmethod
 
 endmodule: mkFoldedTorusRouterVC

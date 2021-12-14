@@ -31,6 +31,13 @@ $rule_right_to_left
 
 
 
+$rule_up_to_down
+
+
+
+$rule_down_to_up
+
+
 $L1_L2_connection
 
 endmodule

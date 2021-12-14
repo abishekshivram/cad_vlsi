@@ -73,7 +73,20 @@ module mkFoldedTorusNode #(parameter Address my_addr, parameter Address head_nod
         end
     endrule
 
-      
+
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_left.get_link_util_counter();
+        let rr=router_right.get_link_util_counter();
+        let ru=router_up.get_link_util_counter();
+        let rd=router_down.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d, Up Link->%d, Down Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd);
+    endrule
+          
     //NOTE LLOYD This (Round robin arbiter) can be improved
     //If chosen VC (counter) has no data, the cycle would be wasted, cannot consume data available in other VCs??
     

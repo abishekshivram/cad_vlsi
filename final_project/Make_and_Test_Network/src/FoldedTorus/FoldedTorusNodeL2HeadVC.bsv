@@ -70,6 +70,21 @@ module mkFoldedTorusL2HeadNode  #(parameter Address my_addr, parameter Address h
         else counter <= counter + 1;
     endrule
 
+
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_left.get_link_util_counter();
+        let rr=router_right.get_link_util_counter();
+        let ru=router_up.get_link_util_counter();
+        let rd=router_down.get_link_util_counter();
+        let rl1=router_L1.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d, Up Link->%d, Down Link->%d, L1 link",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd,rl1);
+    endrule
+
     //If core generated a flit, move it to core router    
     rule core_to_router;
         let flit_generated = core.get_generated_flit();

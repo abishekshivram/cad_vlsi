@@ -1,6 +1,7 @@
 package ChainNodeVC;
 
 import Shared::*;
+import Parameters::*;
 
 import FIFO :: * ;
 import Core :: * ;
@@ -45,6 +46,17 @@ module mkChainNode #(parameter Address my_addr, parameter Address head_node_addr
             router_core.put_value(flit_generated);
     endrule
 
+
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_left.get_link_util_counter();
+        let rr=router_right.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr);
+    endrule
     
     // VC1 and VC2 are used to send data to the core (as decided earlier)
     // Rule - Output link - connecting to associated core

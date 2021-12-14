@@ -59,6 +59,18 @@ module mkButterflySwitch #(parameter int my_addr, parameter int layer, parameter
     FIFO#(Flit) output_link_right_up    <- mkFIFO;
     FIFO#(Flit) output_link_right_down  <- mkFIFO;
 
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_l2r_up.get_link_util_counter();
+        let rr=router_l2r_down.get_link_util_counter();
+        let ru=router_r2l_up.get_link_util_counter();
+        let rd=router_r2l_down.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : L2R_Up->%d, L2R_Down->%d, R2L_Down->%d, R2L_down->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd);
+    endrule
 
     // We know that l2r router will send only to right output links
     rule l2r_up2up_connect_even(counter_even_odd == 1'b0 && counter_up_down==1'b0);

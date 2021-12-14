@@ -7,6 +7,8 @@ package HypercubeRouterL2HeadVC;
 // This routing can be seen in line 58: Two rules are written that connects the Input link to the respective VC
 
 import Shared::*;
+import Parameters :: * ;
+
 import FIFO :: * ;
 
 `define MAX_ROW_BITS 8
@@ -30,6 +32,7 @@ interface IfcHypercubeRouterL2HeadVC;
     method ActionValue#(Flit) get_valueVC8();
 
     method ActionValue#(Flit) get_valueVCl1();
+    method LinkUtilisationCounter get_link_util_counter();
     
 endinterface
 
@@ -74,6 +77,8 @@ module mkHypercubeRouterL2HeadVC #(parameter Address my_addr) (IfcHypercubeRoute
     rule invert_cycle;
         cycle <= cycle + 1;     // Cycle variable oscillates between 0 and 1
     endrule
+
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Connect input_link to respective VC
     // This rules fires every alternate cycle, and chooses even named Virtual Channels (VC1, VC3, VC5)
@@ -193,6 +198,9 @@ module mkHypercubeRouterL2HeadVC #(parameter Address my_addr) (IfcHypercubeRoute
         return temp8;
     endmethod
 
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
+    endmethod
 
 endmodule
 

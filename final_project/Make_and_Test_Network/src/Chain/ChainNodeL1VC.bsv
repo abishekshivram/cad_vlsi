@@ -1,6 +1,7 @@
 package ChainNodeL1VC;
 
 import Shared::*;
+import Parameters::*;
 
 import FIFO :: * ;
 import Core :: * ;
@@ -54,6 +55,19 @@ module mkChainNodeL1 #(parameter Address my_addr) (IfcChainL1Node);
     // In this rule, we choose VC1 or VC2 from router_left or router_right (router_core cannot send to itself)
     // in a round robin fashion (implemented through 2 bit counter) (2 bit because we have 4 VCs to choose from)
     FIFO#(Flit) output_link_l2 <- mkFIFO;
+
+
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_left.get_link_util_counter();
+        let rr=router_right.get_link_util_counter();
+        let rl2=router_l2.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d, L2 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,rl2);
+    endrule
 
     rule outputLinkl20(counter == 2'b00);
         $display("here flit is put into router_l2 from router left vc1; Arbiter count-%d", counter);      

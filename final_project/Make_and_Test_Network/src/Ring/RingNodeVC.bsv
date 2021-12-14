@@ -41,6 +41,19 @@ module mkRingNode #(parameter Address my_addr, parameter NodeAddress maxNodeAddr
 
     Reg#(Bit#(2)) counter   <- mkReg(0);
 
+
+    //A counter to help deciding when to display link utilisation
+    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
+    rule incr_link_util_print_interval;
+        link_util_print_interval <= link_util_print_interval+1;
+    endrule
+    rule print_link_utilisation(link_util_print_interval==0);
+        let rl=router_left.get_link_util_counter();
+        let rr=router_right.get_link_util_counter();
+        //Needed- router_l2??
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Left Link->%d, Right Link->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr);
+    endrule
+
     // This counter is used by arbiters to choose VC to send out data
     rule count_every_cycle;
         counter <= counter + 1;
