@@ -78,9 +78,9 @@ def create_L1_Mesh(L1_DIM,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
 
     for j in range(NUMBER_OF_COLS):
         for i in range(NUMBER_OF_ROWS-1):
-            stringUD = ruleL2R.format(from_row_id= i, from_col_id = j, to_row_id=(i+1), to_col_id=j)
+            stringUD = ruleU2D.format(from_row_id= i, from_col_id = j, to_row_id=(i+1), to_col_id=j)
             rules_U2D.append(stringUD)
-            stringDU = ruleR2L.format(from_row_id= (i+1), from_col_id = j, to_row_id=i , to_col_id = j)
+            stringDU = ruleD2U.format(from_row_id= (i+1), from_col_id = j, to_row_id=i , to_col_id = j)
             rules_D2U.append(stringDU)
 
     d['nodes_instantiate'] = ''.join(all_nodes)
