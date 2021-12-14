@@ -52,11 +52,11 @@ typedef FlitPayload ClockCount;
 //5 indicates the no of networks (L1 node count). This value will change based on the network count
 //NOTE To be changed as per node count in the L1 network
 //If L1 is a 4x3 mesh, l1NodeCount count to be set to 12
-Integer l1NodeCount=fromInteger(5);
+Integer l1NodeCount=fromInteger(12);
 
 interface MaxAddressInterface;
-    method NodeAddressX getMaxAddressX(NetAddress index);
-    method NodeAddressY getMaxAddressY(NetAddress index);
+    method NodeAddressX getMaxAddressX(NetAddressY index); //NOTE here the argument type NetAddressY is acting just like an int used to index into the array maxNodeAddressX
+    method NodeAddressY getMaxAddressY(NetAddressY index); //NOTE here the argument type NetAddressY is acting just like an int used to index into the array maxNodeAddressY
     method NetAddressX getMaxNetAddressX();
     method NetAddressY getMaxNetAddressY();
 endinterface: MaxAddressInterface
@@ -72,26 +72,33 @@ module mkMaxAddress(MaxAddressInterface);
     NodeAddressX maxNodeAddressX[l1NodeCount];     NodeAddressY maxNodeAddressY[l1NodeCount];
     
     //NOTE To be changed as per the configuration of L1 network
-    //If L1 is a 4x3 mesh, maxNetAddressX would be 'h05, maxNetAddressY would be ='h04
-    NetAddressX maxNetAddressX='h00; NetAddressY maxNetAddressY='h06; //initialise the max address of L1 network
+    //If L1 is a 4x3 mesh, maxNetAddressX would be 'h04, maxNetAddressY would be ='h03
+    NetAddressX maxNetAddressX='h04; NetAddressY maxNetAddressY='h03; //initialise the max address of L1 network
 
     //NOTE To be changed as per the configuration of L1 & L2 network
     //initialise the max address of each L2 network. The line count in this source block will be equal to l1NodeCount
-    //So if l1NodeCount=12, there will be 12 L2 networks and each setworks max parameters are to be set
-    //If 0th L2 network is a 3x4 mesh, the configuration will be maxNodeAddressX[0]='h04; maxNodeAddressY[0]='h05;
-    //If 1th L2 network is a 3 node chain, the configuration will be maxNodeAddressX[1]='h01; maxNodeAddressY[1]='h04; etc..
-    maxNodeAddressX[0]='h02; maxNodeAddressY[0]='h03;
-    maxNodeAddressX[1]='h03; maxNodeAddressY[1]='h03;
-    maxNodeAddressX[2]='h03; maxNodeAddressY[2]='h03;
-    maxNodeAddressX[3]='h03; maxNodeAddressY[3]='h03;
-    maxNodeAddressX[4]='h03; maxNodeAddressY[4]='h03;
+    //So if l1NodeCount=12, there will be 12 L2 networks and each networks max parameters are to be set
+    //If 0th L2 network is a 3x4 mesh, the configuration will be maxNodeAddressX[0]='h03; maxNodeAddressY[0]='h04;
+    //If 1th L2 network is a 3 node chain, the configuration will be maxNodeAddressX[1]='h00; maxNodeAddressY[1]='h03; etc..
+    maxNodeAddressX[0]='h03; maxNodeAddressY[0]='h04;
+    maxNodeAddressX[1]='h00; maxNodeAddressY[1]='h03;
+    maxNodeAddressX[2]='h00; maxNodeAddressY[2]='h03;
+    maxNodeAddressX[3]='h00; maxNodeAddressY[3]='h03;
+    maxNodeAddressX[4]='h00; maxNodeAddressY[4]='h03;
+    maxNodeAddressX[5]='h00; maxNodeAddressY[5]='h03;
+    maxNodeAddressX[6]='h00; maxNodeAddressY[6]='h03;
+    maxNodeAddressX[7]='h00; maxNodeAddressY[7]='h03;
+    maxNodeAddressX[8]='h00; maxNodeAddressY[8]='h03;
+    maxNodeAddressX[9]='h00; maxNodeAddressY[9]='h03;
+    maxNodeAddressX[10]='h00; maxNodeAddressY[10]='h03;
+    maxNodeAddressX[11]='h00; maxNodeAddressY[11]='h03;
                 
 
-    method NodeAddressX getMaxAddressX(NetAddress index);
+    method NodeAddressX getMaxAddressX(NetAddressY index); //NOTE here the argument type NetAddressY is acting just like an int used to index into the array maxNodeAddressX
         return maxNodeAddressX[index];
     endmethod: getMaxAddressX
 
-    method NodeAddressY getMaxAddressY(NetAddress index);
+    method NodeAddressY getMaxAddressY(NetAddressY index); //NOTE here the argument type NetAddressY is acting just like an int used to index into the array maxNodeAddressY
         return maxNodeAddressY[index];
     endmethod: getMaxAddressY
 
@@ -107,3 +114,4 @@ module mkMaxAddress(MaxAddressInterface);
 endmodule: mkMaxAddress
 
 endpackage: Parameters
+

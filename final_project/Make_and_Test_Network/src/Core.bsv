@@ -76,7 +76,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
     //This is meant for generating valid flits randomly
     (* preempts = "generateFlit, resetFlitStat" *)
     //rule generateFlit(lfsr.value() < 32768); 
-    rule generateFlit(clockCount==3); //NOTE for testing. Generate only 1 flit
+    rule generateFlit(clockCount==3 || clockCount==8 || clockCount==11); //NOTE for testing. Generate only 1 flit
         
         if(myAddress.nodeAddress==fromInteger(0) && myAddress.netAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
         //NOTE The test traffic is from node 0 to node 1
@@ -100,16 +100,19 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 flit.finalDstAddress.netAddress     = destNetAddress;
                 //flit.finalDstAddress.netAddress     = 'h0000;//$$$$$$$$$$$$$$NOTE- for testing
 
+
+                NetAddressY l2_array_index = ((addressLengths.getMaxNetAddressY())*destNetAddressX)+destNetAddressY; //NetAddressY type acts just like an int to access aray element
+
                 NodeAddressX destNodeAddressX       = fromInteger(0);
-                if(addressLengths.getMaxAddressX(destNetAddress)!=0) begin
-                    destNodeAddressX                = unpack(lfsrNodeX.value()%pack(addressLengths.getMaxAddressX(destNetAddress)));
+                if(addressLengths.getMaxAddressX(l2_array_index)!=0) begin
+                    destNodeAddressX                = unpack(lfsrNodeX.value()%pack(addressLengths.getMaxAddressX(l2_array_index)));
                 end
                 NodeAddressY destNodeAddressY       = fromInteger(0);
-                if(addressLengths.getMaxAddressY(destNetAddress)!=0) begin
-                    destNodeAddressY                = unpack(lfsrNodeY.value()%pack(addressLengths.getMaxAddressY(destNetAddress)));
+                if(addressLengths.getMaxAddressY(l2_array_index)!=0) begin
+                    destNodeAddressY                = unpack(lfsrNodeY.value()%pack(addressLengths.getMaxAddressY(l2_array_index)));
                 end
                 
-                NodeAddress destNodeAddress          = {destNodeAddressX,destNodeAddressY};
+                NodeAddress destNodeAddress         = {destNodeAddressX,destNodeAddressY};
                 flit.finalDstAddress.nodeAddress    = destNodeAddress;
                 //flit.finalDstAddress.nodeAddress    = 'h0101;//$$$$$$$$$$$$$$NOTE- for testing
 
@@ -126,7 +129,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
 
                 flitReg                             <= flit;
                 if(myAddress!=flit.finalDstAddress) begin //Generate only the flits which are not self destined 
-                    flitValidStat                       <= True;
+                    flitValidStat                   <= True;
                     $display("Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.currentDstAddress.netAddress,flit.currentDstAddress.nodeAddress);
                 end    
 
