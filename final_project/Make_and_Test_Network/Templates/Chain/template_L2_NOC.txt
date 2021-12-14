@@ -10,6 +10,8 @@ import Core :: * ;
 import ChainRouterL1VC :: *;
 import ChainNodeL1VC :: *;
 
+import ChainNodeVC :: *;
+import ChainRouterVC :: *;
 
 import ChainRouterL2HeadVC :: *;
 import ChainNodeL2HeadVC :: *;

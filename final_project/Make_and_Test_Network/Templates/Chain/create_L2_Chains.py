@@ -47,7 +47,7 @@ def create_L2_Chains(NO_OF_NETWORKS, ALL_NETWORK_NUM, ALL_NETWORK_ID, ALL_NETWOR
             if(i==NUMBER_OF_NODES//2):
                 string_node += f"\tlet node{i}   <- mkChainL2HeadNode(node{i}_address, head_node_addr);\n"
             else:
-                string_node += f"\tlet node{i}   <- mkChainNodeL1(node{i}_address);\n"
+                string_node += f"\tlet node{i}   <- mkChainNode(node{i}_address, head_node_addr);\n"
             all_nodes.append(string_node)
 
         for i in range(NUMBER_OF_NODES-1):
