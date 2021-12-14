@@ -96,9 +96,9 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                     destNetAddressY                 = unpack(lfsrNetY.value()%pack(addressLengths.getMaxNetAddressY())); 
                 end
 
-                let destNetAddress                  = {destNetAddressX,destNetAddressY};
-                flit.finalDstAddress.netAddress     = destNetAddress;
-                //flit.finalDstAddress.netAddress     = 'h0000;//$$$$$$$$$$$$$$NOTE- for testing
+                let destNetAddress                  = {destNetAddressY,destNetAddressX};
+                // flit.finalDstAddress.netAddress     = destNetAddress;
+                flit.finalDstAddress.netAddress     = 'h0001;//$$$$$$$$$$$$$$NOTE- for testing
 
 
                 NetAddressY l2_array_index = ((addressLengths.getMaxNetAddressY())*destNetAddressX)+destNetAddressY; //NetAddressY type acts just like an int to access aray element
@@ -112,9 +112,9 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                     destNodeAddressY                = unpack(lfsrNodeY.value()%pack(addressLengths.getMaxAddressY(l2_array_index)));
                 end
                 
-                NodeAddress destNodeAddress         = {destNodeAddressX,destNodeAddressY};
-                flit.finalDstAddress.nodeAddress    = destNodeAddress;
-                //flit.finalDstAddress.nodeAddress    = 'h0101;//$$$$$$$$$$$$$$NOTE- for testing
+                NodeAddress destNodeAddress         = {destNodeAddressY,destNodeAddressX};
+                // flit.finalDstAddress.nodeAddress    = destNodeAddress;
+                flit.finalDstAddress.nodeAddress    = 'h0001;//$$$$$$$$$$$$$$NOTE- for testing
 
                 if(flit.srcAddress.netAddress==flit.finalDstAddress.netAddress) begin
                     flit.currentDstAddress.netAddress   = flit.finalDstAddress.netAddress;
@@ -130,7 +130,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 flitReg                             <= flit;
                 if(myAddress!=flit.finalDstAddress) begin //Generate only the flits which are not self destined 
                     flitValidStat                   <= True;
-                    $display("Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.currentDstAddress.netAddress,flit.currentDstAddress.nodeAddress);
+                    $display("Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress);
                 end    
 
             end

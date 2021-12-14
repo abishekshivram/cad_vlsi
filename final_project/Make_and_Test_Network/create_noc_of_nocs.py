@@ -19,61 +19,72 @@ from Templates.Chain.create_L2_Chains import create_L2_Chains
 from Templates.Hypercube.Template_L1_Hypercube_gen import create_L1_Hypercube
 from Templates.Butterfly.create_l1_noc_butterfly import create_L1_Butterfly
 
+from make_params import make_param_file
+
 
 def isPowerOfTwo(x):
-	"""
-	Checks if the given number is power of 2 or not
+    """
+    Checks if the given number is power of 2 or not
 
-	Parameters:
-	-----------
-	x : Integer
-	The number to be checked for 
+    Parameters:
+    -----------
+    x : Integer
+    The number to be checked for 
 
-	Returns:
-	--------
-	True if the number is power of two
-	"""
+    Returns:
+    --------
+    True if the number is power of two
+    """
     # First x in the below expression
     # is for the case when x is 0
-	return (x and (not(x & (x - 1))))
+    return (x and (not(x & (x - 1))))
+
 
 # A set of assertion statements to make sure that L1 and L2 Topolgy has been defined rightly
 def check_input(level,networkType,n,m):
-	if (networkType == 'B'):
-		assert (n==m),f"Dimensions of Butterfly network should be equal in {level}Topology.txt"
-		assert (isPowerOfTwo(n)), "n should be a power of two in Butterfly network"
-		if level == 'L1':
-			total_head_nodes = 2*m
-	
-	elif (networkType == 'C'):
-		assert (m==1),f"Second dimension of Chain network is invalid in {level}Topology.txt"
-		if level == 'L1':
-			total_head_nodes = n
+    dim = None
+    if (networkType == 'B'):
+        assert (n==m),f"Dimensions of Butterfly network should be equal in {level}Topology.txt"
+        assert (isPowerOfTwo(n)), "n should be a power of two in Butterfly network"
+        dim = [0,2*m]
+        if level == 'L1':
+            total_head_nodes = 2*m
+    
+    elif (networkType == 'C'):
+        assert (m==1),f"Second dimension of Chain network is invalid in {level}Topology.txt"
+        dim = [0,n]
+        if level == 'L1':
+            total_head_nodes = n
 
-	elif (networkType == 'R'):
-		assert (m==1),f"Second dimension of Ring network is invalid in {level}Topology.txt"
-		if level == 'L1':
-			total_head_nodes = n
+    elif (networkType == 'R'):
+        assert (m==1),f"Second dimension of Ring network is invalid in {level}Topology.txt"
+        dim = [0,n]
+        if level == 'L1':
+            total_head_nodes = n
 
-	elif (networkType == 'M'):
-		assert (m>1 and n>1),f"The given dimension doesn't correspond to a Mesh network in {level}Topology.txt"
-		if level == 'L1':
-			total_head_nodes = m*n
+    elif (networkType == 'M'):
+        assert (m>1 and n>1),f"The given dimension doesn't correspond to a Mesh network in {level}Topology.txt"
+        dim = [n,m]
+        if level == 'L1':
+            total_head_nodes = m*n
 
-	elif (networkType == 'F'):
-		assert (m>1 and n>1),f"The given dimension doesn't correspond to a Folded Torus network in {level}Topology.txt"
-		if level == 'L1':
-			total_head_nodes = m*n
+    elif (networkType == 'F'):
+        assert (m>1 and n>1),f"The given dimension doesn't correspond to a Folded Torus network in {level}Topology.txt"
+        dim = [n,m]
+        if level == 'L1':
+            total_head_nodes = m*n
 
-	elif (networkType == 'H'):
-		assert (m==n and m==3),f"Please specify the dimension of the Hypercube network properly in {level}Topology.txt, can only be specified as 'H,3,3'"
-		if level == 'L1':
-			total_head_nodes = 2**n
+    elif (networkType == 'H'):
+        assert (m==n and m==3),f"Please specify the dimension of the Hypercube network properly in {level}Topology.txt, can only be specified as 'H,3,3'"
+        dim = [0,8]
+        if level == 'L1':
+            total_head_nodes = 2**n
 
-	else:
-		print(f"Please choose a valid network in {level}Topology.txt, {networkType} is not a valid network type")
+    else:
+        print(f"Please choose a valid network in {level}Topology.txt, {networkType} is not a valid network type")
+        exit()
 
-	return total_head_nodes if level == 'L1' else None
+    return dim,total_head_nodes if level == 'L1' else dim
 
 
 
@@ -101,6 +112,9 @@ def choose_noc_file(L2_net_type, L2_net_idx,dim1):
         L2_NETWORK_NOC_FILES.append(f"Noc_butterfly{dim1}x{dim1}L2")
         L2_NETWORK_BSV_MODULES.append(f"mkButterfly{dim1}x{dim1}L2Noc({L2_net_idx})") 
       
+# L1 and L2 dimension for the purpose of making the Parameters.bsv 
+l1_dim = []
+l2_dim = []
 
 # Reading L1 topology text file: 
 # L1: Stores the attributes in L1Topology.txt
@@ -112,7 +126,7 @@ with open ("L1Topology.txt",'r') as f:
             continue
         L1 = line.strip().replace(" ", "").split(',')
         assert(len(L1) == 3), "Please check your input in L1Toplogy.txt"
-        total_head_nodes = check_input('L1',L1[0],int(L1[1]),int(L1[2]))        
+        l1_dim,total_head_nodes = check_input('L1',L1[0],int(L1[1]),int(L1[2]))     
         L1_DIM = (int(L1[2]),int(L1[1]))
 
 
@@ -141,7 +155,7 @@ with open ("L2Topology.txt", 'r') as f:
         assert (len(L2_input_network) == 3), "In L2Topology.txt, line is of invalid format, please check the inputs"
         
         # Checking if the input matches the expected behaviour
-        check_input('L2',L2_input_network[0],int(L2_input_network[1]),int(L2_input_network[2]))
+        l2_dim.append(check_input('L2',L2_input_network[0],int(L2_input_network[1]),int(L2_input_network[2]))[0])
         L2_dictionary[L2_input_network[0]][0] += 1          # NO_OF_NETWORKS
         L2_dictionary[L2_input_network[0]][1].append(idx)   # ALL_NETWORK_NUM
         
@@ -218,3 +232,5 @@ BLUESPEC_TOOL:=/home/gay3/bsc\n\n
 with open('Makefile.inc', 'w') as f:
     f.write(makefile_contents)
 
+# Making Parameters.bsv
+make_param_file(total_head_nodes,l1_dim,l2_dim)

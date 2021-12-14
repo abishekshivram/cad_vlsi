@@ -1,4 +1,5 @@
-
+# MAKING Parameters.bsv
+params_contents = """
 /*************************************************************************************
 CS6230:CAD for VLSI Systems - Final Project
 Name: Implementation of a configuralble NoC using Python and bluespec
@@ -53,7 +54,7 @@ typedef FlitPayload ClockCount;
 //5 indicates the no of networks (L1 node count). This value will change based on the network count
 //NOTE To be changed as per node count in the L1 network
 //If L1 is a 4x3 mesh, l1NodeCount count to be set to 12
-Integer l1NodeCount=fromInteger(6);
+Integer l1NodeCount=fromInteger({l1_nodes});
 
 interface MaxAddressInterface;
     method NodeAddressX getMaxAddressX(NetAddressY index); //NOTE here the argument type NetAddressY is acting just like an int used to index into the array maxNodeAddressX
@@ -74,20 +75,14 @@ module mkMaxAddress(MaxAddressInterface);
     
     //NOTE To be changed as per the configuration of L1 network
     //If L1 is a 4x3 mesh, maxNetAddressX would be 'h03, maxNetAddressY would be ='h04
-    NetAddressX maxNetAddressX='h2; NetAddressY maxNetAddressY='h3; //initialise the max address of L1 network
+    NetAddressX maxNetAddressX='h{x_dim_l1}; NetAddressY maxNetAddressY='h{y_dim_l1}; //initialise the max address of L1 network
 
     //NOTE To be changed as per the configuration of L1 & L2 network
     //initialise the max address of each L2 network. The line count in this source block will be equal to l1NodeCount
     //So if l1NodeCount=12, there will be 12 L2 networks and each networks max parameters are to be set
     //If 0th L2 network is a 3x4 mesh, the configuration will be maxNodeAddressX[0]='h04; maxNodeAddressY[0]='h03;
     //If 1th L2 network is a 3 node chain, the configuration will be maxNodeAddressX[1]='h00; maxNodeAddressY[1]='h03; etc..
-    
-	maxNodeAddressX[0]='h00; maxNodeAddressY[0]='h02;
-	maxNodeAddressX[1]='h00; maxNodeAddressY[1]='h03;
-	maxNodeAddressX[2]='h00; maxNodeAddressY[2]='h02;
-	maxNodeAddressX[3]='h00; maxNodeAddressY[3]='h03;
-	maxNodeAddressX[4]='h00; maxNodeAddressY[4]='h02;
-	maxNodeAddressX[5]='h00; maxNodeAddressY[5]='h03;
+    {sentence}
                 
 
     method NodeAddressX getMaxAddressX(NetAddressY index); //NOTE here the argument type NetAddressY is acting just like an int used to index into the array maxNodeAddressX
@@ -109,4 +104,18 @@ module mkMaxAddress(MaxAddressInterface);
 
 endmodule: mkMaxAddress
 
-endpackage: Parameters
+endpackage: Parameters"""
+
+
+
+def make_param_file(l1_nodes,l1_dim,l2_dim):
+    sentence = ""
+    for i in range(l1_nodes):
+        sentence += f"\n\tmaxNodeAddressX[{i}]='h{l2_dim[i][0]:0>2x}; maxNodeAddressY[{i}]='h{l2_dim[i][1]:0>2x};"
+
+    with open('./src/Parameters.bsv', 'w') as f:
+        f.write(params_contents.format(l1_nodes=l1_nodes,x_dim_l1=l1_dim[0],y_dim_l1=l1_dim[1],sentence=sentence))
+
+
+
+
