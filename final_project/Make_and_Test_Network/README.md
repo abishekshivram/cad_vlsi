@@ -32,7 +32,7 @@ A folder for each of the network involved in the project. Each node has a router
 2. **Node:** Instantiates routers for each link, and contains the arbitrer logic: to move flits from virtual channels to the corresponding output link/core. Contains methods to move flits to the adjacent nodes.
 
 ### Classification based on the type of routing
-- **L2 nodes:** Contains L2 routing information for all nodes except the head-node. Each link is associated with 2 virtual channels (except for Hypercube, whose each node has 8 VCs)
+- **L2 nodes:** Contains L2 routing information for all nodes except the head-node. Each link is associated with 2 virtual channels (except for Hypercube, whose each node has 8 VCs).
     1. **Chain:** Left-right algorithm
     2. **Ring:** Dateline algorithm
     3. **Mesh:** X-Y routing
@@ -40,10 +40,17 @@ A folder for each of the network involved in the project. Each node has a router
     5. **Hypercube:** LSB to MSB routing and 1-flit virtual channel for each node in every node.
     6. **Butterfly:** L to R will be MSB-to-LSB bit-by-bit difference-based routing and R to L is LSB-to-MSB bit-by-bit difference-based routing.
 
+- **L1 nodes:** L1 nodes created are nodes created just for L1 routing.
+- **L2 Headnode:** Headnodes have two VCs allocated for movig between L2 routing carried out by L2 nodes and L1 routing by L1 nodes.
+
 ### Files inside src_nocs/
+For the given L1 and L2 topology, this folder will contain all the bsv files generated
+to describe each of the L2 topologies and the L1 network that will instantiate all the 
+L2 bsv modules and connect them. This bsv file creation only happens for Chain, Ring, Mesh
+and Folded Torus as they are the topologies that have dynamic sizes. The files for Hypercube and Butterfly are fixed as they are only in certain sizes.
 
 ### Files inside Templates/
-
+This folder contains python scripts to generate the L1 and L2 network based on the input topologies. This generates the files into src_nocs folder and they are called from *create_noc_of_nocs.py* script.
 
 ## Theory behind the Project
 ### Link
@@ -86,9 +93,9 @@ Core represents the host module in a NoC. Its role is to generate and consume tr
 ### Buffer (FIFO)
 All the synchronisation buffers are to be implemented using the FIFO. The size of this FIFO is to be determined.
 
-> Deliverables - Performance measure
-Measure link utilisation - in descending order: Each router should be able to calculate the link utilisation (Based on the data in its input link)
-> Delay - Max delay from source to destination: Each core should be able to calculate the delay. The sending core can store the timestamp (How to get timestamp? - current clock?) while flit generation as a payload in the flit. The receiving core can find the difference between the sending time stamps and receiving timestamps to measure the delay.
+### Deliverables - Performance measure
+- **Measure link utilisation:** Each router should be able to calculate the link utilisation (Based on the data in its input link)
+- **Delay:** Max delay from source to destination: Each core should be able to calculate the delay. The sending core stores the timestamp while flit generation as a payload in the flit. The receiving core finds the difference between the sending time stamps and receiving timestamps to measure the delay.
 
 
 ### Node
@@ -96,27 +103,21 @@ A node is composed of core, multiple routers (routing algorithm), arbiters (arbi
 
 ## Constructing NoC
 
-Should the node be composed dynamically or to be selected from a set of statically constructed nodes?. (Initially may be thought of as static nodes, later can be moved to dynamic node construction using python). Dynamic construction would be needed otherwise a large number of static node configurations would be needed (Consider the construction of head nodes). 
-
 Once the nodes are ready, the links are to be established between them as per the network configuration.
 
 The python code reads the input of Project1 (L2 topologies and L1 topology) and payload length. Based on the input, the script generates BSV project files which combine different nodes together to form the NoC. It also parametrises payload size of the flit.
 
 ## Implementation Steps
 
-As a quick proof of the total system, a simple chain based NoC with only L2 (1 level) can be implemented. Then it can be expanded to L1&L2 based complete NoC supporting different routing algorithms and network topologies.
+1. In each clock pulse the core randomly generates a valid flit and stores it in the input FIFO (Input link FIFO). It is not necessary to generate the flit in every clock cycle. A Linear Feedback Shift Register is used to generate the destination address of the flits.
 
-1. A- In each clock pulse the core randomly generates a valid flit and stores it in the input FIFO (Input link FIFO). It is not necessary to generate the flit in every clock cycle. 
-B- In each clock cycle, the core checks its output FIFO (VC) and if flits are present, one flit is consumed. If a flit is consumed, the core computes the transmission delay. The transmission delay is printed on the screen.
-2. In each clock, the routers read its input FIFO and decide to which VC (+output link) the flit should be placed. The flit is removed from input FIFO and placed in the VC’s FIFO associated with the router. (A VC will have an associated FIFO in all routers). The router also updates the link utilisation parameter for its input link.
-	
-	> How and when the link utilisation to be conveyed to the external world?
+2. In each clock cycle, the core checks its output FIFO (VC) and if flits are present, one flit is consumed. If a flit is consumed, the core computes the transmission delay. The transmission delay is printed on the screen.
 
-3. In each clock, The arbiters scans all the VC FIFOs (Output FIFO) associated with it in a round robin fashion and selects the flit to be transferred. The selected flit is transmitted in the respective output link.
+3. In each clock, the routers read its input FIFO and decide to which VC (+output link) the flit should be placed. The flit is removed from input FIFO and placed in the VC’s FIFO associated with the router. (A VC will have an associated FIFO in all routers). The router also updates the link utilisation parameter for its input link.
+
+4. In each clock, The arbiters scans all the VC FIFOs (Output FIFO) associated with it in a round robin fashion and selects the flit to be transferred. The selected flit is transmitted in the respective output link.
 
 > NOTE: There are two types of FIFOs in a node. Input FIFO and VC FIFO (Output FIFO).
 
-
-Once a basic system is ready, the whole system can be quickly (relatively) evolved to a fully functional 2 layer NoC with six routing algorithms.
 
 
