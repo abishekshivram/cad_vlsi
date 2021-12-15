@@ -37,6 +37,8 @@ A folder for each of the network involved in the project. Each node has a router
     2. **Ring:** Dateline algorithm
     3. **Mesh:** X-Y routing
     4. **Folded Torus:** X routing- Dateline algorithm for the Y direction 
+    5. **Hypercube:** LSB to MSB routing and 1-flit virtual channel for each node in every node.
+    6. **Butterfly:** L to R will be MSB-to-LSB bit-by-bit difference-based routing and R to L is LSB-to-MSB bit-by-bit difference-based routing.
 
 ### Files inside src_nocs/
 
