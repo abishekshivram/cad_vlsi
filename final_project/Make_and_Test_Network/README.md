@@ -27,10 +27,18 @@ L2Topology.txt: L2 networks need to be specified in the format specified in Proj
 2. **Parameters.bsv:** The data types used in the project. Also contains the maximum address for each network that aids generation of a valid destination address in *Core.bsv*.
 3. **Shared.bsv:** The structures used in the project.
 #### Folders inside src/
-A folder for each of the network involved in the project. Each node has a router associated with each of its links. Thus, for each network, there is a <network_name>NodeVC.bsv (referred to as the Node file) and <network_name>RouterVC.bsv (referred to as the Router file) associated with it. Since there are two kinds of routing (L2 routing and L1 routing), and the head-node is the interface between both networks, we have 3 sets of router and node files: for the normal L2 nodes, the headnode and for the L1 nodes.
+A folder for each of the network involved in the project. Each node has a router associated with each of its links. Thus, for each network, there is a *<network_name>NodeVC.bsv* (referred to as the Node file) and *<network_name>RouterVC.bsv* (referred to as the Router file) associated with it. Since there are two kinds of routing (L2 routing and L1 routing), and the head-node is the interface between both networks, we have 3 sets of router and node files: for the normal L2 nodes, the headnode and for the L1 nodes.
+1. **Router:** Contains the router algorithm for each node. Sends flits from the input link to a virtual channel (in round robin fashion and according to the path it needs to follow) and contains methods to release flits from the virtual channels.
+2. **Node:** Instantiates routers for each link, and contains the arbitrer logic: to move flits from virtual channels to the corresponding output link/core. Contains methods to move flits to the adjacent nodes.
 
 ### Classification based on the type of routing
-- **L2 nodes:**  
+- **L2 nodes:** Contains L2 routing information for all nodes except the head-node. Each link is associated with 2 virtual channels (except for Hypercube, whose each node has 8 VCs)
+    1. **Chain:** Left-right algorithm
+    2. **Ring:** Dateline algorithm
+    3. **Mesh:** X-Y routing
+    4. **Folded Torus:** X routing- Dateline algorithm for the Y direction 
+    5. **Hypercube:** LSB to MSB routing and 1-flit virtual channel for each node in every node.
+    6. **Butterfly:** L to R will be MSB-to-LSB bit-by-bit difference-based routing and R to L is LSB-to-MSB bit-by-bit difference-based routing.
 
 ### Files inside src_nocs/
 
