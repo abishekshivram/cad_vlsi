@@ -103,36 +103,36 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
         // Extracting the X and Y coordinates
         //NetAddressX my_nod_addr_x          = pack(my_addr.NetAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		//NetAddressY my_nod_addr_y          = pack(my_addr.NetAddress)[valueOf(NetAddressXLen)-1:0];
-        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
         //NetAddressX curr_dest_nod_addr_x   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		//NetAddressY curr_dest_nod_addr_y   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressXLen)-1:0];
-        NetAddressX final_dest_net_addr_x    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY final_dest_net_addr_y    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NetAddressX final_dest_net_addr_x    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY final_dest_net_addr_y    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
         if(flit.finalDstAddress.netAddress == my_addr.netAddress)  begin
-            $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_1.enq at net addr:%h", my_addr);
             vir_chnl_1.enq(flit);
         end
-        else begin
-            if(final_dest_net_addr_y == my_net_addr_y) begin 
-                if(final_dest_net_addr_x < my_net_addr_x) begin 
-                    $display("Odd cycle: vir_chnl_7.enq at addr:%b, payload:%d", my_addr,flit.payload);
+        else begin 
+            if(final_dest_net_addr_x == my_net_addr_x) begin 
+                if(final_dest_net_addr_y < my_net_addr_y) begin 
+                    $display("L1 Odd cycle: vir_chnl_7.enq at net addr:%h, payload:%d", my_addr,flit.payload);
                     vir_chnl_7.enq(flit);// The current flit has to go up 
                 end
                 else begin
-                    $display("Odd cycle: vir_chnl_9.enq at addr:%b, payload:%d", my_addr,flit.payload);
+                    $display("L1 Odd cycle: vir_chnl_9.enq at net addr:%h, payload:%d", my_addr,flit.payload);
                     vir_chnl_9.enq(flit);// The current flit has to go down 
                 end
             end
             else begin //Do X routing
-                if(final_dest_net_addr_y < my_net_addr_y) begin 
-                    $display("Odd cycle: vir_chnl_3.enq at addr:%b, payload:%d", my_addr,flit.payload);
+                if(final_dest_net_addr_x < my_net_addr_x) begin 
+                    $display("L1 Odd cycle: vir_chnl_3.enq at net addr:%h, payload:%d", my_addr,flit.payload);
                     vir_chnl_3.enq(flit);// The current flit has to go to left 
                 end
                 else begin
-                    $display("Odd cycle: vir_chnl_5.enq at addr:%b, payload:%d", my_addr,flit.payload);
+                    $display("L1 Odd cycle: vir_chnl_5.enq at net addr:%h, payload:%d", my_addr,flit.payload);
                     vir_chnl_5.enq(flit);// The current flit has to go to right 
                 end
             end
@@ -151,36 +151,36 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
         // Extracting the X and Y coordinates
         //NetAddressX my_nod_addr_x          = pack(my_addr.NetAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		//NetAddressY my_nod_addr_y          = pack(my_addr.NetAddress)[valueOf(NetAddressXLen)-1:0];
-        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
         //NetAddressX final_dest_nod_addr_x   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 		//NetAddressY curr_dest_nod_addr_y   = pack(flit.currentDstAddress.NetAddress)[valueOf(NetAddressXLen)-1:0];
-        NetAddressX final_dest_net_addr_x    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY final_dest_net_addr_y    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NetAddressX final_dest_net_addr_x    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY final_dest_net_addr_y    = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
-        if(flit.currentDstAddress.netAddress == my_addr.netAddress)  begin
-            $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
+        if(flit.finalDstAddress.netAddress == my_addr.netAddress)  begin
+            $display("L1 Odd cycle: vir_chnl_1.enq at net addr:%h", my_addr);
             vir_chnl_2.enq(flit);
         end
         else begin
-            if(final_dest_net_addr_y == my_net_addr_y) begin 
-                if(final_dest_net_addr_x < my_net_addr_x) begin 
-                    $display("Even cycle: vir_chnl_8.enq at addr:%b, payload:%d", my_addr,flit.payload);
+            if(final_dest_net_addr_x == my_net_addr_x) begin 
+                if(final_dest_net_addr_y < my_net_addr_y) begin 
+                    $display("L1 Even cycle: vir_chnl_8.enq at net addr:%h, payload:%d", my_addr,flit.payload);
                     vir_chnl_8.enq(flit);// The current flit has to go up 
                 end
                 else begin
-                    $display("Even cycle: vir_chnl_10.enq at addr:%b, payload:%d", my_addr,flit.payload);
+                    $display("L1 Even cycle: vir_chnl_10.enq at net addr:%h, payload:%d", my_addr,flit.payload);
                     vir_chnl_10.enq(flit);// The current flit has to go down 
                 end
             end
             else begin //Do X routing
-                if(final_dest_net_addr_y < my_net_addr_y) begin 
-                    $display("Even cycle: vir_chnl_4.enq at addr:%b, payload:%d", my_addr,flit.payload);
+                if(final_dest_net_addr_x < my_net_addr_x) begin 
+                    $display("L1 Even cycle: vir_chnl_4.enq at net addr:%h, payload:%d", my_addr,flit.payload);
                     vir_chnl_4.enq(flit);// The current flit has to go to left 
                 end
                 else begin
-                    $display("Even cycle: vir_chnl_6.enq at addr:%b, payload:%d", my_addr,flit.payload);
+                    $display("L1 Even cycle: vir_chnl_6.enq at net addr:%h, payload:%d", my_addr,flit.payload);
                     vir_chnl_6.enq(flit);// The current flit has to go to right
                 end
             end
@@ -193,7 +193,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
     method Action put_value(Flit flit);
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
-        $display("Router(Addr: %b) received the flit into its Input Link", my_addr);
+        $display("L1 Router(Addr: %b) received the flit into its Input Link", my_addr);
         print_flit_details(flit);
         link_util_counter <= link_util_counter+1;
     endmethod
@@ -208,7 +208,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
     // The VC1, VC2 methods will be invoked to send the flits to the core (as we fixed earlier, line:4)
 
     method ActionValue#(Flit) get_valueVC1();
-        $display("get_valueVC1 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC1 method called at Router(Addr: %b)", my_addr);
          let temp1 = vir_chnl_1.first();
          vir_chnl_1.deq();
         return temp1;
@@ -216,7 +216,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC2();
-        $display("get_valueVC2 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC2 method called at Router(Addr: %b)", my_addr);
          let temp2 = vir_chnl_2.first();
          vir_chnl_2.deq();
         return temp2;
@@ -224,7 +224,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC3();
-        $display("get_valueVC3 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC3 method called at Router(Addr: %b)", my_addr);
          let temp3 = vir_chnl_3.first();
          vir_chnl_3.deq();
         return temp3;
@@ -232,7 +232,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC4();
-        $display("get_valueVC4 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC4 method called at Router(Addr: %b)", my_addr);
          let temp4 = vir_chnl_4.first();
          vir_chnl_4.deq();
         return temp4;
@@ -240,7 +240,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC5();
-        $display("get_valueVC5 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC5 method called at Router(Addr: %b)", my_addr);
          let temp5 = vir_chnl_5.first();
          vir_chnl_5.deq();
         return temp5;
@@ -248,7 +248,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC6();
-        $display("get_valueVC6 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC6 method called at Router(Addr: %b)", my_addr);
          let temp6 = vir_chnl_6.first();
          vir_chnl_6.deq();
         return temp6;
@@ -256,7 +256,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC7();
-        $display("get_valueVC7 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC7 method called at Router(Addr: %b)", my_addr);
          let temp7 = vir_chnl_7.first();
          vir_chnl_7.deq();
         return temp7;
@@ -264,7 +264,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC8();
-        $display("get_valueVC8 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC8 method called at Router(Addr: %b)", my_addr);
          let temp8 = vir_chnl_8.first();
          vir_chnl_8.deq();
         return temp8;
@@ -272,7 +272,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC9();
-        $display("get_valueVC9 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC9 method called at Router(Addr: %b)", my_addr);
          let temp9 = vir_chnl_9.first();
          vir_chnl_9.deq();
         return temp9;
@@ -280,7 +280,7 @@ module mkMeshRouterL1VC #(parameter Address my_addr) (IfcMeshRouterVC);
 
 
     method ActionValue#(Flit) get_valueVC10();
-        $display("get_valueVC10 method called at Router(Addr: %b)", my_addr);
+        $display("L1 get_valueVC10 method called at Router(Addr: %b)", my_addr);
          let temp10 = vir_chnl_10.first();
          vir_chnl_10.deq();
         return temp10;

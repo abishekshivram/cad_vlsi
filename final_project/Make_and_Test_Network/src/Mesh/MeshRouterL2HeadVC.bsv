@@ -110,20 +110,20 @@ module mkMeshRouterL2HeadVC #(parameter Address my_addr) (IfcMeshRouterL2HeadVC)
         input_link.deq();
 
         // Extracting the X and Y coordinates
-        NodeAddressX my_nod_addr_x          = pack(my_addr.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
-		NodeAddressY my_nod_addr_y          = pack(my_addr.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
-        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NodeAddressX my_nod_addr_x          = pack(my_addr.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
+		NodeAddressY my_nod_addr_y          = pack(my_addr.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
+        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
-        NodeAddressX curr_dest_nod_addr_x   = pack(flit.currentDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
-		NodeAddressY curr_dest_nod_addr_y   = pack(flit.currentDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
-        NetAddressX curr_dest_net_addr_x    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY curr_dest_net_addr_y    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NodeAddressX curr_dest_nod_addr_x   = pack(flit.currentDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
+		NodeAddressY curr_dest_nod_addr_y   = pack(flit.currentDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
+        NetAddressX curr_dest_net_addr_x    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY curr_dest_net_addr_y    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
-        NodeAddressX final_dest_nod_addr_x  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
-		NodeAddressY final_dest_nod_addr_y  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
-        NetAddressX final_dest_net_addr_x   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY final_dest_net_addr_y   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NodeAddressX final_dest_nod_addr_x  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
+		NodeAddressY final_dest_nod_addr_y  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
+        NetAddressX final_dest_net_addr_x   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY final_dest_net_addr_y   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
         if(flit.finalDstAddress.netAddress != my_addr.netAddress) begin
             $display("Odd cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
@@ -135,8 +135,8 @@ module mkMeshRouterL2HeadVC #(parameter Address my_addr) (IfcMeshRouterL2HeadVC)
             vir_chnl_1.enq(flit);
         end
         else begin
-            if(curr_dest_nod_addr_y == my_nod_addr_y) begin 
-                if(curr_dest_nod_addr_x < my_nod_addr_x) begin 
+            if(curr_dest_nod_addr_x == my_nod_addr_x) begin 
+                if(curr_dest_nod_addr_y < my_nod_addr_y) begin 
                     $display("Odd cycle: vir_chnl_7.enq at addr:%b, payload:%d", my_addr,flit.payload);
                     vir_chnl_7.enq(flit);// The current flit has to go up in L2 network
                 end
@@ -146,7 +146,7 @@ module mkMeshRouterL2HeadVC #(parameter Address my_addr) (IfcMeshRouterL2HeadVC)
                 end
             end
             else begin //Do X routing
-                if(curr_dest_nod_addr_y < my_nod_addr_y) begin 
+                if(curr_dest_nod_addr_x < my_nod_addr_x) begin 
                     $display("Odd cycle: vir_chnl_3.enq at addr:%b, payload:%d", my_addr,flit.payload);
                     vir_chnl_3.enq(flit);// The current flit has to go to left in L2 network
                 end
@@ -168,20 +168,20 @@ module mkMeshRouterL2HeadVC #(parameter Address my_addr) (IfcMeshRouterL2HeadVC)
         input_link.deq();
 
         // Extracting the X and Y coordinates
-        NodeAddressX my_nod_addr_x          = pack(my_addr.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
-		NodeAddressY my_nod_addr_y          = pack(my_addr.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
-        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NodeAddressX my_nod_addr_x          = pack(my_addr.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
+		NodeAddressY my_nod_addr_y          = pack(my_addr.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
+        NetAddressX my_net_addr_x           = pack(my_addr.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY my_net_addr_y           = pack(my_addr.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
-        NodeAddressX curr_dest_nod_addr_x   = pack(flit.currentDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
-		NodeAddressY curr_dest_nod_addr_y   = pack(flit.currentDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
-        NetAddressX curr_dest_net_addr_x    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY curr_dest_net_addr_y    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NodeAddressX curr_dest_nod_addr_x   = pack(flit.currentDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
+		NodeAddressY curr_dest_nod_addr_y   = pack(flit.currentDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
+        NetAddressX curr_dest_net_addr_x    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY curr_dest_net_addr_y    = pack(flit.currentDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
-        NodeAddressX final_dest_nod_addr_x  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
-		NodeAddressY final_dest_nod_addr_y  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
-        NetAddressX final_dest_net_addr_x   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
-		NetAddressY final_dest_net_addr_y   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+        NodeAddressX final_dest_nod_addr_x  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressXLen)-1:0];
+		NodeAddressY final_dest_nod_addr_y  = pack(flit.finalDstAddress.nodeAddress)[valueOf(NodeAddressTotalLen)-1:valueOf(NodeAddressXLen)];
+        NetAddressX final_dest_net_addr_x   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressXLen)-1:0];
+		NetAddressY final_dest_net_addr_y   = pack(flit.finalDstAddress.netAddress)[valueOf(NetAddressTotalLen)-1:valueOf(NetAddressXLen)];
 
         if(flit.finalDstAddress.netAddress != my_addr.netAddress) begin
             $display("Even cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
@@ -193,8 +193,8 @@ module mkMeshRouterL2HeadVC #(parameter Address my_addr) (IfcMeshRouterL2HeadVC)
             vir_chnl_2.enq(flit);
         end
         else begin
-            if(curr_dest_nod_addr_y == my_nod_addr_y) begin 
-                if(curr_dest_nod_addr_x < my_nod_addr_x) begin 
+            if(curr_dest_nod_addr_x == my_nod_addr_x) begin 
+                if(curr_dest_nod_addr_y < my_nod_addr_y) begin 
                     $display("Even cycle: vir_chnl_8.enq at addr:%b, payload:%d", my_addr,flit.payload);
                     vir_chnl_8.enq(flit);// The current flit has to go up in L2 network
                 end
@@ -204,7 +204,7 @@ module mkMeshRouterL2HeadVC #(parameter Address my_addr) (IfcMeshRouterL2HeadVC)
                 end
             end
             else begin //Do X routing
-                if(curr_dest_nod_addr_y < my_nod_addr_y) begin 
+                if(curr_dest_nod_addr_x < my_nod_addr_x) begin 
                     $display("Even cycle: vir_chnl_4.enq at addr:%b, payload:%d", my_addr,flit.payload);
                     vir_chnl_4.enq(flit);// The current flit has to go to left in L2 network
                 end
