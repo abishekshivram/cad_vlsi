@@ -14,12 +14,21 @@ L2Topology.txt: L2 networks need to be specified in the format specified in Proj
 ##### The user just needs to change configuration in the input files and run *run.sh*.
 
 ## Description of the Organisation of the Project
-### Files in the Current 
+### Files in the Current Directory
 1. **run.sh:** Used to run the project.
 2. **create_noc_of_nocs.py:** Reads L1Topology.txt and L2Topology.txt, checks if the input configuration specified is valid, and creates the NoC .bsv files (stored in src_nodes/) for each network where nodes are instantiated as per configuration in the input files. Additionally, Parameters.bsv (inside the src/) is also created.
 3. **make_params.py:** Called from *create_noc_of_nocs.py* to make Parameters.bsv.
 4. **organise.sh:** Used in *run.sh*. Moves the NoC files to src_nocs/.
 5. **clean.sh:** Removes folders and files created while running *run.sh*.
+6. **testRunner.py:** Python File used to run the Design Under Test.
+
+### Files and folders inside src/
+1. 
+
+### Files inside src_nocs/
+
+### Files inside Templates/
+
 
 ## Theory behind the Project
 ### Link
