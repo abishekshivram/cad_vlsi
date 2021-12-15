@@ -26,17 +26,16 @@ typedef struct
     NodeAddress nodeAddress;
 }Address deriving(Bits,Eq); 
 
+// Default initialiser for the Address structure
 instance DefaultValue #(Address);
     defaultValue = Address { netAddress : 0,
                              nodeAddress : 0 };
 endinstance
 
-//Represents the payload in a Flit
-//typedef PayloadLen FlitPayload;
 
-//A structure representing the Flit in NoC
-//A flit is made of Source Address, Final destination address, \
-//       Current Destination Address (Head node) and Payload (The data)
+// A structure representing the Flit in NoC
+// A flit is made of Source Address, Final destination address, \
+// Current Destination Address (Head node) and Payload (The data)
 typedef struct
 {
     Address srcAddress;
@@ -45,6 +44,7 @@ typedef struct
     FlitPayload payload;
 }Flit deriving(Bits,Eq); 
 
+// Default initialiser for the Flit structure
 instance DefaultValue #(Flit);
     defaultValue = Flit { srcAddress: defaultValue, 
                           finalDstAddress:defaultValue,
