@@ -36,7 +36,7 @@ typedef SizeOf#(NodeAddressX) NodeAddressXLen; //Length of Node address X length
 typedef SizeOf#(NodeAddressY) NodeAddressYLen; //Length of Node address Y length
 
 typedef Bit#(16) LinkUtilisationCounter; //To measure link utilisation performance
-typedef Bit#(3) LinkUtiliPrInterval; //Link utilisation print intervalet
+typedef Bit#(7) LinkUtiliPrInterval; //Link utilisation print intervalet
 
 //Modify here for changing network address length 
 typedef Int#(16) NetAddressLen;
