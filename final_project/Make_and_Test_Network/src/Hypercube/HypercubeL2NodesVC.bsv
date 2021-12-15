@@ -394,9 +394,8 @@ module mkHypercubeNode1VC #(parameter Address my_addr) (IfcHypercubeNode);
         let rlsb=router_lsb.get_link_util_counter();
         let rmid=router_mid.get_link_util_counter();
         let rmsb=router_msb.get_link_util_counter();
-        let rl1=router_l1.get_link_util_counter();
         //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L1 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl1);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
 
     // This counter_router is used by arbiters to choose VC to send out data
@@ -689,9 +688,8 @@ module mkHypercubeNode2VC #(parameter Address my_addr) (IfcHypercubeNode);
         let rlsb=router_lsb.get_link_util_counter();
         let rmid=router_mid.get_link_util_counter();
         let rmsb=router_msb.get_link_util_counter();
-        let rl1=router_l1.get_link_util_counter();
         //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L1 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl1);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -979,9 +977,8 @@ module mkHypercubeNode3VC #(parameter Address my_addr) (IfcHypercubeNode);
         let rlsb=router_lsb.get_link_util_counter();
         let rmid=router_mid.get_link_util_counter();
         let rmsb=router_msb.get_link_util_counter();
-        let rl1=router_l1.get_link_util_counter();
         //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L1 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl1);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -1269,9 +1266,8 @@ module mkHypercubeNode4VC #(parameter Address my_addr) (IfcHypercubeNode);
         let rlsb=router_lsb.get_link_util_counter();
         let rmid=router_mid.get_link_util_counter();
         let rmsb=router_msb.get_link_util_counter();
-        let rl1=router_l1.get_link_util_counter();
         //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L1 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl1);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -1559,9 +1555,8 @@ module mkHypercubeNode5VC #(parameter Address my_addr) (IfcHypercubeNode);
         let rlsb=router_lsb.get_link_util_counter();
         let rmid=router_mid.get_link_util_counter();
         let rmsb=router_msb.get_link_util_counter();
-        let rl1=router_l1.get_link_util_counter();
         //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L1 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl1);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -1849,9 +1844,8 @@ module mkHypercubeNode6VC #(parameter Address my_addr) (IfcHypercubeNode);
         let rlsb=router_lsb.get_link_util_counter();
         let rmid=router_mid.get_link_util_counter();
         let rmsb=router_msb.get_link_util_counter();
-        let rl1=router_l1.get_link_util_counter();
         //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L1 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl1);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -2139,9 +2133,8 @@ module mkHypercubeNode7VC #(parameter Address my_addr) (IfcHypercubeNode);
         let rlsb=router_lsb.get_link_util_counter();
         let rmid=router_mid.get_link_util_counter();
         let rmsb=router_msb.get_link_util_counter();
-        let rl1=router_l1.get_link_util_counter();
         //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L1 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl1);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
     
     // Arbiter - connecting Output links to VC
