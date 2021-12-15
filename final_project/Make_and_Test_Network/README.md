@@ -3,13 +3,13 @@
 ## Project Working
 ### How to run the project?
 #### Input File
-L1Topology.txt: L1 network needs to be specified in the format specified in Project 1.
+L1Topology.txt: L1 network needs to be specified in the format specified in Project 1. \
 L2Topology.txt: L2 networks need to be specified in the format specified in Project 1.
 
 ### File that needs to be run for the project
 - Run the file *run.sh* for building the network on bluespec.
 - First, *run.sh* removes the *.bsv* files which instantiate nodes based on the previous input configuration.
-- Then it runs the python script *create_noc_of_nocs.py*  
+- Then it runs the python script *create_noc_of_nocs.py* 
 
 ## Components
 
