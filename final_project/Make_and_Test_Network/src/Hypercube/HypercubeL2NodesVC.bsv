@@ -1,7 +1,6 @@
 package HypercubeL2NodesVC;
 
 import Shared::*;
-import Parameters::*;
 
 import FIFO :: * ;
 import Core :: * ;
@@ -42,6 +41,8 @@ interface IfcHypercubeNode;
 
 endinterface
 
+// HEADNODE START
+
 
 
 // HEAD NODE OF HYPERCUBE NETWORK - NODE0
@@ -61,26 +62,12 @@ module mkHypercubeNode0VC #(parameter Address my_addr) (IfcHypercubeHeadNode);
     let router_msb  <- mkHypercubeRouterL2HeadVC(my_addr);
     let router_l1   <- mkHypercubeRouterL2HeadVC(my_addr);
 
-    Reg#(Bit#(2)) counter_router   <- mkReg(0);
-
-
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rlsb=router_lsb.get_link_util_counter();
-        let rmid=router_mid.get_link_util_counter();
-        let rmsb=router_msb.get_link_util_counter();
-        let rl1=router_l1.get_link_util_counter();
-        //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d, L1 Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb,rl1);
-    endrule
+    Reg#(Bit#(3)) counter_router   <- mkReg(0);
 
     // This counter_router is used by arbiters to choose VC to send out data
     rule count_every_cycle;
-        counter_router <= counter_router + 1;
+        if(counter_router == 3'b100) counter_router <= 0;
+        else counter_router <= counter_router + 1;
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -94,25 +81,25 @@ module mkHypercubeNode0VC #(parameter Address my_addr) (IfcHypercubeHeadNode);
 
     
     // FROM VC TO CORE
-    rule outputLinkCore00(counter_router==2'b00);
+    rule outputLinkCore00(counter_router == 3'b000);
         $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_lsb.get_valueVC1();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore01(counter_router==2'b01);
+    rule outputLinkCore01(counter_router == 3'b001);
         $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_mid.get_valueVC1();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore02(counter_router==2'b10);
+    rule outputLinkCore02(counter_router == 3'b010);
         $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_msb.get_valueVC1();
         core.put_flit(data_core);
     endrule
-    rule outputLinkCore03(counter_router==2'b11);
+    rule outputLinkCore03(counter_router == 3'b011);
         $display("here flit is put into core from router left vc1; Arbiter count-%d", counter_router);      
         Flit data_core=defaultValue;
         data_core <- router_l1.get_valueVC1();
@@ -133,42 +120,32 @@ module mkHypercubeNode0VC #(parameter Address my_addr) (IfcHypercubeHeadNode);
     Reg#(Bit#(2)) counter_lsb       <- mkReg(0);
     // This counter_lsb is used by arbiters to choose VC to send out data
     rule count_lsb;
-        if(counter_router == 2'b11) begin
-            counter_lsb <= counter_lsb + 2;
-        end
-        else begin
-            counter_lsb <= counter_lsb + 1;
-        end
+        counter_lsb <= counter_lsb + 1;
     endrule
 
     Reg#(Bit#(1)) counter_mid  <- mkReg(0);
     // This counter_lsb is used by arbiters to choose VC to send out data
     rule count_mid;
-        if(counter_router == 2'b11) begin
-            counter_mid <= counter_mid;
-        end
-        else begin
-            counter_mid <= counter_mid + 1;
-        end
+        counter_mid <= counter_mid + 1;
     endrule
     
 
-    rule send_from_core_to_l1 (counter_router==2'b00);
+    rule send_from_core_to_l1 (counter_router == 3'b000);
         Flit data;
         data <- router_core.get_valueVCl1();
         output_link_l1.enq(data);
     endrule
-    rule send_from_lsb_to_l1 (counter_router==2'b01);
+    rule send_from_lsb_to_l1 (counter_router == 3'b001);
         Flit data;
         data <- router_lsb.get_valueVCl1();
         output_link_l1.enq(data);
     endrule
-    rule send_from_mid_to_l1 (counter_router==2'b10);
+    rule send_from_mid_to_l1 (counter_router == 3'b010);
         Flit data;
         data <- router_mid.get_valueVCl1();
         output_link_l1.enq(data);
     endrule
-    rule send_from_msb_to_l1 (counter_router==2'b11);
+    rule send_from_msb_to_l1 (counter_router == 3'b011);
         Flit data;
         data <- router_msb.get_valueVCl1();
         output_link_l1.enq(data);
@@ -177,147 +154,184 @@ module mkHypercubeNode0VC #(parameter Address my_addr) (IfcHypercubeHeadNode);
 
 
 
-    rule send_from_vc2_ie_to_lsbcore0 (counter_router == 2'b00 && counter_lsb==2'b00);
+    rule send_from_vc2_ie_to_lsbcore0 (counter_router == 3'b000 && counter_lsb==2'b00);
         Flit data=defaultValue;
         data <- router_core.get_valueVC2();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc3_ie_to_midcore0 (counter_router == 2'b00 && counter_mid==1'b0);
+    rule send_from_vc3_ie_to_midcore0 (counter_router == 3'b000 && counter_mid==1'b0);
         Flit data=defaultValue;
         data <- router_core.get_valueVC3();
         output_link_mid.enq(data);
     endrule
-    rule send_from_vc4_ie_to_lsbcore0 (counter_router == 2'b00 && counter_lsb==2'b01);
+    rule send_from_vc4_ie_to_lsbcore0 (counter_router == 3'b000 && counter_lsb==2'b01);
         Flit data=defaultValue;
         data <- router_core.get_valueVC4();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc5_ie_to_msbcore0 (counter_router == 2'b00 );
+    rule send_from_vc5_ie_to_msbcore0 (counter_router == 3'b000 );
         Flit data=defaultValue;
         data <- router_core.get_valueVC5();
         output_link_msb.enq(data);
     endrule
-    rule send_from_vc6_ie_to_lsbcore0 (counter_router == 2'b00 && counter_lsb==2'b10);
+    rule send_from_vc6_ie_to_lsbcore0 (counter_router == 3'b000 && counter_lsb==2'b10);
         Flit data=defaultValue;
         data <- router_core.get_valueVC6();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc7_ie_to_midcore0 (counter_router == 2'b00 && counter_mid==1'b1);
+    rule send_from_vc7_ie_to_midcore0 (counter_router == 3'b000 && counter_mid==1'b1);
         Flit data=defaultValue;
         data <- router_core.get_valueVC7();
         output_link_mid.enq(data);
     endrule
-    rule send_from_vc8_ie_to_lsbcore0 (counter_router == 2'b00 && counter_lsb==2'b11);
+    rule send_from_vc8_ie_to_lsbcore0 (counter_router == 3'b000 && counter_lsb==2'b11);
         Flit data=defaultValue;
         data <- router_core.get_valueVC8();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc2_ie_to_lsblsb0 (counter_router == 2'b01 && counter_lsb==2'b00);
+    rule send_from_vc2_ie_to_lsblsb0 (counter_router == 3'b001 && counter_lsb==2'b00);
         Flit data=defaultValue;
         data <- router_lsb.get_valueVC2();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc3_ie_to_midlsb0 (counter_router == 2'b01 && counter_mid==1'b0);
+    rule send_from_vc3_ie_to_midlsb0 (counter_router == 3'b001 && counter_mid==1'b0);
         Flit data=defaultValue;
         data <- router_lsb.get_valueVC3();
         output_link_mid.enq(data);
     endrule
-    rule send_from_vc4_ie_to_lsblsb0 (counter_router == 2'b01 && counter_lsb==2'b01);
+    rule send_from_vc4_ie_to_lsblsb0 (counter_router == 3'b001 && counter_lsb==2'b01);
         Flit data=defaultValue;
         data <- router_lsb.get_valueVC4();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc5_ie_to_msblsb0 (counter_router == 2'b01 );
+    rule send_from_vc5_ie_to_msblsb0 (counter_router == 3'b001 );
         Flit data=defaultValue;
         data <- router_lsb.get_valueVC5();
         output_link_msb.enq(data);
     endrule
-    rule send_from_vc6_ie_to_lsblsb0 (counter_router == 2'b01 && counter_lsb==2'b10);
+    rule send_from_vc6_ie_to_lsblsb0 (counter_router == 3'b001 && counter_lsb==2'b10);
         Flit data=defaultValue;
         data <- router_lsb.get_valueVC6();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc7_ie_to_midlsb0 (counter_router == 2'b01 && counter_mid==1'b1);
+    rule send_from_vc7_ie_to_midlsb0 (counter_router == 3'b001 && counter_mid==1'b1);
         Flit data=defaultValue;
         data <- router_lsb.get_valueVC7();
         output_link_mid.enq(data);
     endrule
-    rule send_from_vc8_ie_to_lsblsb0 (counter_router == 2'b01 && counter_lsb==2'b11);
+    rule send_from_vc8_ie_to_lsblsb0 (counter_router == 3'b001 && counter_lsb==2'b11);
         Flit data=defaultValue;
         data <- router_lsb.get_valueVC8();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc2_ie_to_lsbmid0 (counter_router == 2'b10 && counter_lsb==2'b00);
+    rule send_from_vc2_ie_to_lsbmid0 (counter_router == 3'b010 && counter_lsb==2'b00);
         Flit data=defaultValue;
         data <- router_mid.get_valueVC2();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc3_ie_to_midmid0 (counter_router == 2'b10 && counter_mid==1'b0);
+    rule send_from_vc3_ie_to_midmid0 (counter_router == 3'b010 && counter_mid==1'b0);
         Flit data=defaultValue;
         data <- router_mid.get_valueVC3();
         output_link_mid.enq(data);
     endrule
-    rule send_from_vc4_ie_to_lsbmid0 (counter_router == 2'b10 && counter_lsb==2'b01);
+    rule send_from_vc4_ie_to_lsbmid0 (counter_router == 3'b010 && counter_lsb==2'b01);
         Flit data=defaultValue;
         data <- router_mid.get_valueVC4();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc5_ie_to_msbmid0 (counter_router == 2'b10 );
+    rule send_from_vc5_ie_to_msbmid0 (counter_router == 3'b010 );
         Flit data=defaultValue;
         data <- router_mid.get_valueVC5();
         output_link_msb.enq(data);
     endrule
-    rule send_from_vc6_ie_to_lsbmid0 (counter_router == 2'b10 && counter_lsb==2'b10);
+    rule send_from_vc6_ie_to_lsbmid0 (counter_router == 3'b010 && counter_lsb==2'b10);
         Flit data=defaultValue;
         data <- router_mid.get_valueVC6();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc7_ie_to_midmid0 (counter_router == 2'b10 && counter_mid==1'b1);
+    rule send_from_vc7_ie_to_midmid0 (counter_router == 3'b010 && counter_mid==1'b1);
         Flit data=defaultValue;
         data <- router_mid.get_valueVC7();
         output_link_mid.enq(data);
     endrule
-    rule send_from_vc8_ie_to_lsbmid0 (counter_router == 2'b10 && counter_lsb==2'b11);
+    rule send_from_vc8_ie_to_lsbmid0 (counter_router == 3'b010 && counter_lsb==2'b11);
         Flit data=defaultValue;
         data <- router_mid.get_valueVC8();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc2_ie_to_lsbmsb0 (counter_router == 2'b11 && counter_lsb==2'b00);
+    rule send_from_vc2_ie_to_lsbmsb0 (counter_router == 3'b011 && counter_lsb==2'b00);
         Flit data=defaultValue;
         data <- router_msb.get_valueVC2();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc3_ie_to_midmsb0 (counter_router == 2'b11 && counter_mid==1'b0);
+    rule send_from_vc3_ie_to_midmsb0 (counter_router == 3'b011 && counter_mid==1'b0);
         Flit data=defaultValue;
         data <- router_msb.get_valueVC3();
         output_link_mid.enq(data);
     endrule
-    rule send_from_vc4_ie_to_lsbmsb0 (counter_router == 2'b11 && counter_lsb==2'b01);
+    rule send_from_vc4_ie_to_lsbmsb0 (counter_router == 3'b011 && counter_lsb==2'b01);
         Flit data=defaultValue;
         data <- router_msb.get_valueVC4();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc5_ie_to_msbmsb0 (counter_router == 2'b11 );
+    rule send_from_vc5_ie_to_msbmsb0 (counter_router == 3'b011 );
         Flit data=defaultValue;
         data <- router_msb.get_valueVC5();
         output_link_msb.enq(data);
     endrule
-    rule send_from_vc6_ie_to_lsbmsb0 (counter_router == 2'b11 && counter_lsb==2'b10);
+    rule send_from_vc6_ie_to_lsbmsb0 (counter_router == 3'b011 && counter_lsb==2'b10);
         Flit data=defaultValue;
         data <- router_msb.get_valueVC6();
         output_link_lsb.enq(data);
     endrule
-    rule send_from_vc7_ie_to_midmsb0 (counter_router == 2'b11 && counter_mid==1'b1);
+    rule send_from_vc7_ie_to_midmsb0 (counter_router == 3'b011 && counter_mid==1'b1);
         Flit data=defaultValue;
         data <- router_msb.get_valueVC7();
         output_link_mid.enq(data);
     endrule
-    rule send_from_vc8_ie_to_lsbmsb0 (counter_router == 2'b11 && counter_lsb==2'b11);
+    rule send_from_vc8_ie_to_lsbmsb0 (counter_router == 3'b011 && counter_lsb==2'b11);
         Flit data=defaultValue;
         data <- router_msb.get_valueVC8();
         output_link_lsb.enq(data);
     endrule
-
+  
+  
+    // ADDING FOR ROUTER L1
+    rule send_from_vc2_ie_to_lsb_l1_0 (counter_router == 3'b100 && counter_lsb==2'b00);
+        Flit data=defaultValue;
+        data <- router_l1.get_valueVC2();
+        output_link_lsb.enq(data);
+    endrule
+    rule send_from_vc3_ie_to_mid_l1_0 (counter_router == 3'b100 && counter_mid==1'b0);
+        Flit data=defaultValue;
+        data <- router_l1.get_valueVC3();
+        output_link_mid.enq(data);
+    endrule
+    rule send_from_vc4_ie_to_lsb_l1_0 (counter_router == 3'b100 && counter_lsb==2'b01);
+        Flit data=defaultValue;
+        data <- router_l1.get_valueVC4();
+        output_link_lsb.enq(data);
+    endrule
+    rule send_from_vc5_ie_to_msb_l1_0 (counter_router == 3'b100 );
+        Flit data=defaultValue;
+        data <- router_l1.get_valueVC5();
+        output_link_msb.enq(data);
+    endrule
+    rule send_from_vc6_ie_to_lsb_l1_0 (counter_router == 3'b100 && counter_lsb==2'b10);
+        Flit data=defaultValue;
+        data <- router_l1.get_valueVC6();
+        output_link_lsb.enq(data);
+    endrule
+    rule send_from_vc7_ie_to_mid_l1_0 (counter_router == 3'b100 && counter_mid==1'b1);
+        Flit data=defaultValue;
+        data <- router_l1.get_valueVC7();
+        output_link_mid.enq(data);
+    endrule
+    rule send_from_vc8_ie_to_lsb_l1_0 (counter_router == 3'b100 && counter_lsb==2'b11);
+        Flit data=defaultValue;
+        data <- router_l1.get_valueVC8();
+        output_link_lsb.enq(data);
+    endrule
 
 
 
@@ -348,6 +362,7 @@ module mkHypercubeNode0VC #(parameter Address my_addr) (IfcHypercubeHeadNode);
     // Methods to take care of input links 
     // (ie) the flits that come from left neighbour are inserted to the router_left's input link buffer
     method Action put_value_from_l1(Flit data_l1);
+        $display("Moving from L1 to L2 head node's router: %h",my_addr);
         router_l1.put_value(data_l1);
     endmethod
     
@@ -368,6 +383,10 @@ endmodule
 
 
 
+
+
+
+// HEADNODE END
 (* synthesize *)
 
 module mkHypercubeNode1VC #(parameter Address my_addr) (IfcHypercubeNode);
@@ -383,20 +402,6 @@ module mkHypercubeNode1VC #(parameter Address my_addr) (IfcHypercubeNode);
     let router_msb  <- mkHypercubeRouterL2VC(my_addr);
 
     Reg#(Bit#(2)) counter_router   <- mkReg(0);
-
-
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rlsb=router_lsb.get_link_util_counter();
-        let rmid=router_mid.get_link_util_counter();
-        let rmsb=router_msb.get_link_util_counter();
-        //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
-    endrule
 
     // This counter_router is used by arbiters to choose VC to send out data
     rule count_every_cycle;
@@ -679,19 +684,6 @@ module mkHypercubeNode2VC #(parameter Address my_addr) (IfcHypercubeNode);
         counter_router <= counter_router + 1;
     endrule
 
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rlsb=router_lsb.get_link_util_counter();
-        let rmid=router_mid.get_link_util_counter();
-        let rmsb=router_msb.get_link_util_counter();
-        //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
-    endrule
-
     // Arbiter - connecting Output links to VC
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
@@ -966,19 +958,6 @@ module mkHypercubeNode3VC #(parameter Address my_addr) (IfcHypercubeNode);
     // This counter_router is used by arbiters to choose VC to send out data
     rule count_every_cycle;
         counter_router <= counter_router + 1;
-    endrule
-
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rlsb=router_lsb.get_link_util_counter();
-        let rmid=router_mid.get_link_util_counter();
-        let rmsb=router_msb.get_link_util_counter();
-        //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -1257,19 +1236,6 @@ module mkHypercubeNode4VC #(parameter Address my_addr) (IfcHypercubeNode);
         counter_router <= counter_router + 1;
     endrule
 
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rlsb=router_lsb.get_link_util_counter();
-        let rmid=router_mid.get_link_util_counter();
-        let rmsb=router_msb.get_link_util_counter();
-        //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
-    endrule
-
     // Arbiter - connecting Output links to VC
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
@@ -1544,19 +1510,6 @@ module mkHypercubeNode5VC #(parameter Address my_addr) (IfcHypercubeNode);
     // This counter_router is used by arbiters to choose VC to send out data
     rule count_every_cycle;
         counter_router <= counter_router + 1;
-    endrule
-
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rlsb=router_lsb.get_link_util_counter();
-        let rmid=router_mid.get_link_util_counter();
-        let rmsb=router_msb.get_link_util_counter();
-        //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
     endrule
 
     // Arbiter - connecting Output links to VC
@@ -1835,19 +1788,6 @@ module mkHypercubeNode6VC #(parameter Address my_addr) (IfcHypercubeNode);
         counter_router <= counter_router + 1;
     endrule
 
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rlsb=router_lsb.get_link_util_counter();
-        let rmid=router_mid.get_link_util_counter();
-        let rmsb=router_msb.get_link_util_counter();
-        //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
-    endrule
-
     // Arbiter - connecting Output links to VC
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
@@ -2124,19 +2064,6 @@ module mkHypercubeNode7VC #(parameter Address my_addr) (IfcHypercubeNode);
         counter_router <= counter_router + 1;
     endrule
 
-    //A counter to help deciding when to display link utilisation
-    Reg#(LinkUtiliPrInterval) link_util_print_interval <- mkReg(0); 
-    rule incr_link_util_print_interval;
-        link_util_print_interval <= link_util_print_interval+1;
-    endrule
-    rule print_link_utilisation(link_util_print_interval==0);
-        let rlsb=router_lsb.get_link_util_counter();
-        let rmid=router_mid.get_link_util_counter();
-        let rmsb=router_msb.get_link_util_counter();
-        //Needed- router_l2??
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : Lsb Link->%d, Mid Link->%d, Msb Link->%d",my_addr.netAddress,my_addr.nodeAddress,rlsb,rmid,rmsb);
-    endrule
-    
     // Arbiter - connecting Output links to VC
     rule core_to_router;
         let flit_generated = core.get_generated_flit();
