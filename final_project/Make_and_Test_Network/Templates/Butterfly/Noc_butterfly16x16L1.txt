@@ -1,10 +1,10 @@
 package Noc_butterfly16x16L1;
 
 import ButterflyL1NodeVC::*;
-import ButterflyL1RouterVC::*;
+//import ButterflyL1RouterVC::*;
 
-import ButterflyL1HeadNodeVC::*;
-import ButterflyL1HeadRouterVC::*;
+//import ButterflyL1HeadNodeVC::*;
+//import ButterflyL1HeadRouterVC::*;
 
 import ButterflySwitchL1::*;
 import ButterflySwitchL2::*;

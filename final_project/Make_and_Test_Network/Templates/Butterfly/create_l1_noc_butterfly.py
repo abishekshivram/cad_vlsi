@@ -13,23 +13,30 @@ def create_L1_Butterfly(size,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     files_to_import = []
     l2_noc_list = []
     rule_l2_l1_connection = """
-    rule connect_N{net_id}_to_node{net_id:0>3b}_L1_to_L2;
+    rule connect_N{net_id}_to_node{net_id_bin}_L1_to_L2;
             Flit data=defaultValue;
-            data <- node{net_id:0>3b}.get_value_to_l2();
+            data <- node{net_id_bin}.get_value_to_l2();
             data.currentDstAddress.netAddress   = data.finalDstAddress.netAddress;
             data.currentDstAddress.nodeAddress  = data.finalDstAddress.nodeAddress;
             noc_N{net_id}.put_value_from_l1(data);
         endrule
-        rule connect_node{net_id:0>3b}_to_N{net_id}_L2_to_L1;
+        rule connect_node{net_id_bin}_to_N{net_id}_L2_to_L1;
             Flit data=defaultValue;
             data <- noc_N{net_id}.get_value_to_l1();
-            node{net_id:0>3b}.put_value_from_l2(data);
+            node{net_id_bin}.put_value_from_l2(data);
         endrule"""
 
     for i in range(NO_OF_NETWORKS):
         files_to_import.append(f"import {L2_NETWORK_NODE_FILES[i]} :: * ;\n")
         l2_noc_list.append(f"\tlet noc_N{i} <- {L2_NETWORK_BSV_MODULES[i]};\n")
-        connect_nodes_noc.append(rule_l2_l1_connection.format(net_id=i))
+        
+        if NO_OF_NETWORKS == 8:
+            bin = f"{i:0>3b}"
+        elif NO_OF_NETWORKS == 16:
+            bin = f"{i:0>4b}"
+        elif NO_OF_NETWORKS == 32:
+            bin = f"{i:0>5b}"
+        connect_nodes_noc.append(rule_l2_l1_connection.format(net_id=i,net_id_bin=bin))
 
     d['import_l2_noc_files'] = ''.join(files_to_import)
     d['NOC_INSTANTIATE'] = ''.join(l2_noc_list)
