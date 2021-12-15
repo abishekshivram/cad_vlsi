@@ -11,7 +11,7 @@ L2Topology.txt: L2 networks need to be specified in the format specified in Proj
 - Then it runs the python script *create_noc_of_nocs.py* which creates makes .bsv files(will refer to them as NoC files) for instantiating nodes based on L1 and L2 configuration. These files will be avilable in directory src_nocs/.
 - Once the NoC files are created, it runs *runbsvcode* to build the network and routing.
 
-The user just needs to change configuration in the input files and run *run.sh*.
+#### The user just needs to change configuration in the input files and run *run.sh*.
 
 ## Description of the Organisation of the Project
 ### Files in the Current 
