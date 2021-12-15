@@ -75,7 +75,7 @@ module mkMaxAddress(MaxAddressInterface);
     
     //NOTE To be changed as per the configuration of L1 network
     //If L1 is a 4x3 mesh, maxNetAddressX would be 'h03, maxNetAddressY would be ='h04
-    NetAddressX maxNetAddressX='h{x_dim_l1}; NetAddressY maxNetAddressY='h{y_dim_l1}; //initialise the max address of L1 network
+    NetAddressX maxNetAddressX='h{x_dim_l1:0>2x}; NetAddressY maxNetAddressY='h{y_dim_l1:0>2x}; //initialise the max address of L1 network
 
     //NOTE To be changed as per the configuration of L1 & L2 network
     //initialise the max address of each L2 network. The line count in this source block will be equal to l1NodeCount
