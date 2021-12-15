@@ -46,19 +46,19 @@ def check_input(level,networkType,n,m):
     if (networkType == 'B'):
         assert (n==m),f"Dimensions of Butterfly network should be equal in {level}Topology.txt"
         assert (isPowerOfTwo(n)), "n should be a power of two in Butterfly network"
-        dim = [0,2*m]
+        dim = [2*m,0]
         if level == 'L1':
             total_head_nodes = 2*m
     
     elif (networkType == 'C'):
         assert (m==1),f"Second dimension of Chain network is invalid in {level}Topology.txt"
-        dim = [0,n]
+        dim = [n,0]
         if level == 'L1':
             total_head_nodes = n
 
     elif (networkType == 'R'):
         assert (m==1),f"Second dimension of Ring network is invalid in {level}Topology.txt"
-        dim = [0,n]
+        dim = [n,0]
         if level == 'L1':
             total_head_nodes = n
 
@@ -76,7 +76,7 @@ def check_input(level,networkType,n,m):
 
     elif (networkType == 'H'):
         assert (m==n and m==3),f"Please specify the dimension of the Hypercube network properly in {level}Topology.txt, can only be specified as 'H,3,3'"
-        dim = [0,8]
+        dim = [8,0]
         if level == 'L1':
             total_head_nodes = 2**n
 
