@@ -1,10 +1,26 @@
-package ChainRouterL2HeadVC;
-// This package contains the router - which implements the routing algorithm for the chain topology
+/*************************************************************************************
+CS6230:CAD for VLSI Systems - Final Project
+Name: Implementation of a configuralble NoC using Python and bluespec
+Team Name: Kilbees
+Team Members: Abishekshivram AM (EE18B002)
+              Gayatri Ramanathan Ratnam (EE18B006)
+              Lloyd K L (CS21M001)
+Description: Represents a router in a head node in a chain network
+Last updated on: 09-Dec-2021
+**************************************************************************************/
+
+// This package contains the chain head node router - which implements the routing algorithm for the chain head node
 // Routing algorithm works as follows:
-// For each link, two VCs are allocated. For example, in each node in chain topology, we have
-// 3 links (core, left neighbour, right neighbour). So 6 VCs are made and VC1,2 allocated to core, 
-// VC3,4 allocated to left neighbour, VC5,6 allocated to right neighbour
-// This routing can be seen in line 58: Two rules are written that connects the Input link to the respective VC
+// For each link, two VCs are allocated. For example, in head node of a chain topology, we have
+// 4 links (core, left neighbour, right neighbour and link connecting node in L1 network). So 8 VCs are made. VC 1 & 2 are allocated to core, 
+// VC 3 & 4 are allocated to left neighbour, VC 5 & 6 are allocated to right neighbour and VC 7 & 8 are allocated to L1 link. 
+// Each input link the node has an associated router. When the routing rule is fired, each router reads the flit from its respective input link 
+// and moves it to any of the VC associated with the respective output link (Core (1,2), left (3,4) , right (5,6), or L1 (7,8))
+// The arbiter at the 'node' reads each VC in a round robin fashion and moves the flit to the output link.
+// If the flit is destined to 'this' node, it will be moved from input link to core and the core would consume it.
+// Flit transmission delay is calculated by the core.
+
+package ChainRouterL2HeadVC;
 
 import Shared::*;
 import Parameters::*;
@@ -13,15 +29,16 @@ import FIFO :: * ;
 import FIFOF :: * ;
 
 
-
+// This interface is used by the chain head node router module. The methods can be used to put/get flit to/from the router.
 interface IfcChainRouterL2HeadVC ;
-    // Put value is used to insert data to the router
-    // Get Value is used to read the value from the router
+
+    // Method to move the flit into the node.
+    // Used to move data to the input link FIFO of the router.
     method Action put_value (Flit flit);
 
-    // Each output link gets two VC channel (for chain, we have: left, right, core)
-    // Hence, we need 6 VCs
-    // Each of the following methods will dequeue (ACTION) an element from the VC and return it (VALUE)
+    // Get Value methods are used to read the value from the virtual channels (VC) of the router
+    // Each output link gets two VC (for a chain head node we have: left, right, L1 and core output link), Hence we need 8 VCs
+    // Each of the following methods will dequeue a flit from the VC and return it
     method ActionValue#(Flit) get_valueVC1();
     method ActionValue#(Flit) get_valueVC2();
     method ActionValue#(Flit) get_valueVC3();
@@ -32,17 +49,18 @@ interface IfcChainRouterL2HeadVC ;
     method ActionValue#(Flit) get_valueVC7();
     method ActionValue#(Flit) get_valueVC8();
     
+    // A method to get the link utilisation count of the link (input) associated with this router.
+    // Each link in the NoC is associated with a router in a node. So the utilisation of all the links in the NoC can be measured         
     method LinkUtilisationCounter get_link_util_counter();
 
 endinterface
 
-
+//This module implements the routing algorithm for the chain head node. There are two rules which get fired in alternate cycles (odd and even)
+// This router moves the flit in left, right or L1  directions. 
 (* synthesize *)
-
-// This router sends both in left right directions. 
-// For the nodes at the extremes, we can just not use two links (leftmost node's left link and rightmost node's right link)
 module mkChainRouterL2HeadVC #(parameter Address my_addr) (IfcChainRouterL2HeadVC);
 
+    //A function to print the flit details
     function Action print_flit_details(Flit flit_to_print);
         return action
             $display("\nPrinting Flit details:");
@@ -52,9 +70,9 @@ module mkChainRouterL2HeadVC #(parameter Address my_addr) (IfcChainRouterL2HeadV
         endaction;
     endfunction
 
-    // Right now, it has been commented, we may need it for L1, L2 routing
-    //Reg#(bit)   level       <- mkReg(0); // 0 for low level (L2), 1 for high level (L1)
     
+    // FIFOs used to store the flits from input link and to represet each VCs associated with the router
+
     // Input link for the router
     FIFO#(Flit)  input_link  <- mkFIFO; // to get data from left router
     
@@ -70,10 +88,11 @@ module mkChainRouterL2HeadVC #(parameter Address my_addr) (IfcChainRouterL2HeadV
     FIFO#(Flit)  vir_chnl_5  <- mkFIFO; // Virtual Channel 5
     FIFO#(Flit)  vir_chnl_6  <- mkFIFO; // Virtual Channel 6
 
-    // TO L1
+    // To store the flits that are sent to L1
     FIFO#(Flit)  vir_chnl_7  <- mkFIFO; // Virtual Channel 7
     FIFO#(Flit)  vir_chnl_8  <- mkFIFO; // Virtual Channel 8
 
+    // A couter which helps to fire the odd and even routing rules alternatively
     // Since we have two VIRUTAL CHANNELs for each flit's next path, we have one bit cycle
     // that chooses one VC in a round robin fashion.
     Reg#(bit) cycle  <- mkReg(0);
@@ -81,10 +100,13 @@ module mkChainRouterL2HeadVC #(parameter Address my_addr) (IfcChainRouterL2HeadV
         cycle <= cycle + 1;     // Cycle variable oscillates between 0 and 1
     endrule
 
+    // A register to store the link utilisation calculated for the input link associated with this router.
+    // Each link in the NoC is associated with a router in a node. So the utilisation of all the links in the NoC can be measured     
     Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
-    // Connect input_link to respective VC
-    // This rules fires every alternate cycle, and chooses even named Virtual Channels (VC1, VC3, VC5)
+
+    // Implementation of the routing algorithm. Connects the input_link to respective odd numbered VC
+    // This rules fires every alternate cycle (odd cycles), and chooses odd named Virtual Channel (VC1, VC3, VC5) associated with the output link    
     rule read_input_link_and_send_to_VC_odd(cycle == 1);
 
         let flit = input_link.first();
@@ -111,10 +133,10 @@ module mkChainRouterL2HeadVC #(parameter Address my_addr) (IfcChainRouterL2HeadV
         end
     endrule
 
-    // This rules fires every alternate cycle, and chooses odd named Virtual Channels (VC2, VC4, VC6)
+    // Implementation of the routing algorithm. Connects the input_link to respective even numbered VC
+    // This rules fires every alternate cycle (even cycles), and chooses the even named Virtual Channel (VC2, VC4, VC6) associated with the output link    
     rule read_input_link_and_send_to_VC_even(cycle == 0);
-        //NOTE This logic would need change when L1 is introduced
-        //NOTE network address is not considered now
+
         let flit = input_link.first();
         input_link.deq();
             
@@ -139,9 +161,12 @@ module mkChainRouterL2HeadVC #(parameter Address my_addr) (IfcChainRouterL2HeadV
         end
     endrule
 
-    // Method to get the flit into the node
+
+    // Method to move the flit into the node.
+    // Used to move data to the input link FIFO of the router.
+    // Increments the link utilisation counter    
     method Action put_value(Flit flit);
-        // Data that comes from left/right/core link is put into the input link buffer
+        // Data that comes from left/right/core/L1 link is put into the input link buffer
         input_link.enq(flit);
         print_flit_details(flit);
         $display("Core router (Addr: %h) received the flit into Input Link", my_addr);
@@ -149,9 +174,10 @@ module mkChainRouterL2HeadVC #(parameter Address my_addr) (IfcChainRouterL2HeadV
     endmethod
 
 
-    // Following are the six methods (corresponding to six available VCs) 
-    // These methods return the flit so that it can reach the next node in its path
-    // The VC1, VC2 methods will be invoked to send the flits to the core (as we fixed earlier, line:4)
+    // Get Value methods are used to read the value from the virtual channels (VC) of the router
+    // Each output link gets two VC (for a chain head node we have: left, right, L1 and core output link), Hence we need 8 VCs
+    // Each of the following eight methods will dequeue a flit from the VC and return it
+    // The flit returned by this method is moved to the next node in the destinations path
     method ActionValue#(Flit) get_valueVC1();
         $display("get_valueVC1 called at Router (Addr: %h)", my_addr);
          let temp1 = vir_chnl_1.first();
@@ -208,7 +234,7 @@ module mkChainRouterL2HeadVC #(parameter Address my_addr) (IfcChainRouterL2HeadV
         return temp8;
     endmethod
 
-
+    // A method to get the current value in the link utilisation couter
     method LinkUtilisationCounter get_link_util_counter();
         return link_util_counter;
     endmethod
