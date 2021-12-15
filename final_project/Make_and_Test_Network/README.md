@@ -1,19 +1,27 @@
 # CAD for VLSI - Project 3 - Configurable NoC using bluespec and Python
 
-## Project Working
-### How to run the project?
-#### Input File
+## Project Working: How to run the project?
+### Input File
 L1Topology.txt: L1 network needs to be specified in the format specified in Project 1. \
 L2Topology.txt: L2 networks need to be specified in the format specified in Project 1.
 
 ### File that needs to be run for the project
 - Run the file *run.sh* for building the network on bluespec.
 - First, *run.sh* removes the *.bsv* files which instantiate nodes based on the previous input configuration.
-- Then it runs the python script *create_noc_of_nocs.py* 
+- Then it runs the python script *create_noc_of_nocs.py* which creates makes .bsv files(will refer to them as NoC files) for instantiating nodes based on L1 and L2 configuration. These files will be avilable in directory src_nocs/.
+- Once the NoC files are created, it runs *runbsvcode* to build the network and routing.
 
-## Components
+The user just needs to change configuration in the input files and run *run.sh*.
 
+## Description of the Organisation of the Project
+### Files in the Current 
+1. **run.sh:** Used to run the project.
+2. **create_noc_of_nocs.py:** Reads L1Topology.txt and L2Topology.txt, checks if the input configuration specified is valid, and creates the NoC .bsv files (stored in src_nodes/) for each network where nodes are instantiated as per configuration in the input files. Additionally, Parameters.bsv (inside the src/) is also created.
+3. **make_params.py:** Called from *create_noc_of_nocs.py* to make Parameters.bsv.
+4. **organise.sh:** Used in *run.sh*. Moves the NoC files to src_nocs/.
+5. **clean.sh:** Removes folders and files created while running *run.sh*.
 
+## Theory behind the Project
 ### Link
 Each link works in full duplex mode - Can send and receive the data at the same time. So if the flit size (length) is ‘x’ we would need ‘2x’ wires between each pair of nodes. Here the communication happens in parallel. The Flit size and Phit size are the same. This means a flit is transferred completely in a single clock cycle.
 
