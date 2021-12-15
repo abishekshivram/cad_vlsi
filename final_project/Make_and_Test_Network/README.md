@@ -23,7 +23,14 @@ L2Topology.txt: L2 networks need to be specified in the format specified in Proj
 6. **testRunner.py:** Python File used to run the Design Under Test.
 
 ### Files and folders inside src/
-1. 
+1. **Core.bsv:** Models the cores in the network. Each node in a network is connected to the core which generates or consumes the flit. 
+2. **Parameters.bsv:** The data types used in the project. Also contains the maximum address for each network that aids generation of a valid destination address in *Core.bsv*.
+3. **Shared.bsv:** The structures used in the project.
+#### Folders inside src/
+A folder for each of the network involved in the project. Each node has a router associated with each of its links. Thus, for each network, there is a <network_name>NodeVC.bsv (referred to as the Node file) and <network_name>RouterVC.bsv (referred to as the Router file) associated with it. Since there are two kinds of routing (L2 routing and L1 routing), and the head-node is the interface between both networks, we have 3 sets of router and node files: for the normal L2 nodes, the headnode and for the L1 nodes.
+
+### Classification based on the type of routing
+- **L2 nodes:**  
 
 ### Files inside src_nocs/
 
