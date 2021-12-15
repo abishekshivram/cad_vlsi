@@ -97,11 +97,11 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 end
 
                 let destNetAddress                  = {destNetAddressY,destNetAddressX};
-                // flit.finalDstAddress.netAddress     = destNetAddress;
-                flit.finalDstAddress.netAddress     = 'h0001;//$$$$$$$$$$$$$$NOTE- for testing
+                flit.finalDstAddress.netAddress     = destNetAddress;
+                // flit.finalDstAddress.netAddress     = 'h0001;//$$$$$$$$$$$$$$NOTE- for testing
 
 
-                NetAddressY l2_array_index = ((addressLengths.getMaxNetAddressY())*destNetAddressX)+destNetAddressY; //NetAddressY type acts just like an int to access aray element
+                NetAddressY l2_array_index = ((addressLengths.getMaxNetAddressX())*destNetAddressY)+destNetAddressX; //NetAddressY type acts just like an int to access aray element
 
                 NodeAddressX destNodeAddressX       = fromInteger(0);
                 if(addressLengths.getMaxAddressX(l2_array_index)!=0) begin
@@ -113,8 +113,8 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 end
                 
                 NodeAddress destNodeAddress         = {destNodeAddressY,destNodeAddressX};
-                // flit.finalDstAddress.nodeAddress    = destNodeAddress;
-                flit.finalDstAddress.nodeAddress    = 'h0001;//$$$$$$$$$$$$$$NOTE- for testing
+                flit.finalDstAddress.nodeAddress    = destNodeAddress;
+                // flit.finalDstAddress.nodeAddress    = 'h0001;//$$$$$$$$$$$$$$NOTE- for testing
 
                 if(flit.srcAddress.netAddress==flit.finalDstAddress.netAddress) begin
                     flit.currentDstAddress.netAddress   = flit.finalDstAddress.netAddress;
