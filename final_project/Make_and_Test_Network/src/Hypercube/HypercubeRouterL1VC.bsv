@@ -110,6 +110,7 @@ module mkHypercubeRouterL1VC #(parameter Address my_addr) (IfcHypercubeRouterL1V
         input_link.enq(flit);
         $display("Router(Addr: %h) received the flit into its Input Link", my_addr.nodeAddress);
         print_flit_details(flit);
+        link_util_counter <= link_util_counter+1;
     endmethod
 
 

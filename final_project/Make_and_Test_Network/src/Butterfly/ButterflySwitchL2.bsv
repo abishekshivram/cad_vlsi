@@ -1,6 +1,7 @@
 package ButterflySwitchL2;
 
 import Shared::*;
+import Parameters::*;
 
 import FIFO :: * ;
 import Core :: * ;
@@ -36,8 +37,8 @@ module mkButterflySwitchL2 #(parameter int my_addr, parameter int layer, paramet
     int butterfly_MAX_BITS_INDEX = max_bits_index;
     let router_l2r_up       <- mkButterflyL2RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, right_ext);
     let router_l2r_down     <- mkButterflyL2RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, right_ext);
-    let router_r2l_up       <- mkButterflyL2RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
-    let router_r2l_down     <- mkButterflyL2RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
+    let router_r2l_up       <- mkButterflyL2RouterR2L(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
+    let router_r2l_down     <- mkButterflyL2RouterR2L(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
     
     Reg#(Bit#(1)) counter_even_odd      <- mkReg(0);
     Reg#(Bit#(1)) counter_up_down       <- mkReg(0);
@@ -67,11 +68,11 @@ module mkButterflySwitchL2 #(parameter int my_addr, parameter int layer, paramet
         link_util_print_interval <= link_util_print_interval+1;
     endrule
     rule print_link_utilisation(link_util_print_interval==0);
-        let rl=router_l2r_up.get_link_util_counter();
-        let rr=router_l2r_down.get_link_util_counter();
-        let ru=router_r2l_up.get_link_util_counter();
-        let rd=router_r2l_down.get_link_util_counter();
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : L2R_Up->%d, L2R_Down->%d, R2L_Down->%d, R2L_down->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd);
+        Bit#(16) rl=router_l2r_up.get_link_util_counter();
+        Bit#(16) rr=router_l2r_down.get_link_util_counter();
+        Bit#(16) ru=router_r2l_up.get_link_util_counter();
+        Bit#(16) rd=router_r2l_down.get_link_util_counter();
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Switch:%h | : L2R_Up->%d, L2R_Down->%d, R2L_Down->%d, R2L_down->%d",my_addr,rl,rr,ru,rd);
     endrule
 
     // We know that l2r router will send only to right output links

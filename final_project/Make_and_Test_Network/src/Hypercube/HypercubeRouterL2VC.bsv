@@ -114,6 +114,7 @@ module mkHypercubeRouterL2VC #(parameter Address my_addr) (IfcHypercubeRouterL2V
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
         $display("Router(Addr: %h) received the flit into its Input Link", my_addr.nodeAddress);
+        link_util_counter <= link_util_counter+1;
         print_flit_details(flit);
     endmethod
 

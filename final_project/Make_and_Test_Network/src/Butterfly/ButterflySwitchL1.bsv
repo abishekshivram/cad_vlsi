@@ -1,7 +1,7 @@
 package ButterflySwitchL1;
 
 import Shared::*;
-
+import Parameters ::*;
 import FIFO :: * ;
 import Core :: * ;
 import ButterflyL1RouterVC :: *;
@@ -35,8 +35,8 @@ module mkButterflySwitch #(parameter int my_addr, parameter int layer, parameter
     // int butterfly_MAX_BITS_INDEX = 3;
     let router_l2r_up       <- mkButterflyL1RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, right_ext);
     let router_l2r_down     <- mkButterflyL1RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, right_ext);
-    let router_r2l_up       <- mkButterflyL1RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
-    let router_r2l_down     <- mkButterflyL1RouterL2R(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
+    let router_r2l_up       <- mkButterflyL1RouterR2L(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
+    let router_r2l_down     <- mkButterflyL1RouterR2L(my_addr, butterfly_MAX_BITS_INDEX-1-layer, left_ext);
     
     Reg#(Bit#(1)) counter_even_odd      <- mkReg(0);
     Reg#(Bit#(1)) counter_up_down       <- mkReg(0);
@@ -69,7 +69,7 @@ module mkButterflySwitch #(parameter int my_addr, parameter int layer, parameter
         let rr=router_l2r_down.get_link_util_counter();
         let ru=router_r2l_up.get_link_util_counter();
         let rd=router_r2l_down.get_link_util_counter();
-        $display("@@@@@@@@@@@@@@@ Link utilisation at Node:%h,%h | : L2R_Up->%d, L2R_Down->%d, R2L_Down->%d, R2L_down->%d",my_addr.netAddress,my_addr.nodeAddress,rl,rr,ru,rd);
+        $display("@@@@@@@@@@@@@@@ Link utilisation at Switch:%h | : L2R_Up->%d, L2R_Down->%d, R2L_Down->%d, R2L_down->%d",my_addr,rl,rr,ru,rd);
     endrule
 
     // We know that l2r router will send only to right output links

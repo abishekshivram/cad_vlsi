@@ -40,7 +40,7 @@ module mkButterflyL1RouterL2R #(parameter int my_addr, parameter int index_to_ch
 
     function Action print_flit_details(Flit flit_to_print);
         return action
-            $display("\nPrinting Flit details:");
+            $display("\nL1 Printing Flit details:");
             $display("Flit Source      address: NetworkID: %h | NodeID: %h", flit_to_print.srcAddress.netAddress, flit_to_print.srcAddress.nodeAddress);
             $display("Flit Destination address: NetworkID: %h | NodeID: %h", flit_to_print.finalDstAddress.netAddress, flit_to_print.finalDstAddress.nodeAddress);
             $display("Flit Current Dst address: NetworkID: %h | NodeID: %h\n", flit_to_print.currentDstAddress.netAddress, flit_to_print.currentDstAddress.nodeAddress);
@@ -74,15 +74,15 @@ module mkButterflyL1RouterL2R #(parameter int my_addr, parameter int index_to_ch
 
         let flit = input_link.first();
         input_link.deq();
-
+                
         // Reached the destination - core will consume
         if(pack(flit.finalDstAddress.netAddress)[index_to_check] == pack(flit.srcAddress.netAddress)[index_to_check])  begin
-            $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
             vir_chnl_1.enq(flit);
         end
         // The current flit has to go to left 
         else begin
-            $display("Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
             vir_chnl_3.enq(flit);
         end
     endrule
@@ -95,12 +95,12 @@ module mkButterflyL1RouterL2R #(parameter int my_addr, parameter int index_to_ch
         input_link.deq();
 
         if(pack(flit.finalDstAddress.netAddress)[index_to_check] == pack(flit.srcAddress.netAddress)[index_to_check])  begin
-            $display("Odd cycle: vir_chnl_2.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_2.enq at addr:%h", my_addr);
             vir_chnl_2.enq(flit);
         end
         // The current flit has to go to left 
         else begin
-            $display("Odd cycle: vir_chnl_4.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_4.enq at addr:%h", my_addr);
             vir_chnl_4.enq(flit);
         end
     endrule
@@ -112,12 +112,12 @@ module mkButterflyL1RouterL2R #(parameter int my_addr, parameter int index_to_ch
 
         // Reached the destination - core will consume
         if(pack(flit.finalDstAddress.netAddress)[index_to_check] == 0)  begin
-            $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
             vir_chnl_1.enq(flit);
         end
         // The current flit has to go to left 
         else begin
-            $display("Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
             vir_chnl_3.enq(flit);
         end
     endrule
@@ -130,12 +130,12 @@ module mkButterflyL1RouterL2R #(parameter int my_addr, parameter int index_to_ch
         input_link.deq();
 
         if(pack(flit.finalDstAddress.netAddress)[index_to_check] == 0)  begin
-            $display("Odd cycle: vir_chnl_2.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_2.enq at addr:%h", my_addr);
             vir_chnl_2.enq(flit);
         end
         // The current flit has to go to left 
         else begin
-            $display("Odd cycle: vir_chnl_4.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_4.enq at addr:%h", my_addr);
             vir_chnl_4.enq(flit);
         end
     endrule
@@ -145,7 +145,8 @@ module mkButterflyL1RouterL2R #(parameter int my_addr, parameter int index_to_ch
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
         print_flit_details(flit);
-        $display("Butterfly Router (Addr: %h, INDEX_TOCHECK:%h) received the flit into Input Link", my_addr, index_to_check);
+        $display("L1 Butterfly Router (Addr: %h, INDEX_TOCHECK:%h) received the flit into Input Link", my_addr, index_to_check);
+        link_util_counter <= link_util_counter+1;
     endmethod
 
 
@@ -153,34 +154,37 @@ module mkButterflyL1RouterL2R #(parameter int my_addr, parameter int index_to_ch
     // These methods return the flit so that it can reach the next node in its path
     // The VC1, VC2 methods will be invoked to send the flits to the core (as we fixed earlier, line:4)
     method ActionValue#(Flit) get_valueVC1();
-        $display("get_valueVC1 called at Router (Addr: %h)", my_addr);
+        $display("L1 get_valueVC1 called at Router (Addr: %h)", my_addr);
          let temp1 = vir_chnl_1.first();
          vir_chnl_1.deq();
         return temp1;
     endmethod
 
     method ActionValue#(Flit) get_valueVC2();
-        $display("get_valueVC2 called at Router (Addr: %h)", my_addr);
+        $display("L1 get_valueVC2 called at Router (Addr: %h)", my_addr);
          let temp2 = vir_chnl_2.first();
          vir_chnl_2.deq();
         return  temp2;
     endmethod
 
     method ActionValue#(Flit) get_valueVC3();
-        $display("get_valueVC3 called at Router (Addr: %h)", my_addr);
+        $display("L1 get_valueVC3 called at Router (Addr: %h)", my_addr);
         let temp3 = vir_chnl_3.first();
         vir_chnl_3.deq();
         return temp3;
     endmethod
 
     method ActionValue#(Flit) get_valueVC4();
-        $display("get_valueVC4 called at Router (Addr: %h)", my_addr);
+        $display("L1 get_valueVC4 called at Router (Addr: %h)", my_addr);
         let temp4 = vir_chnl_4.first();
         vir_chnl_4.deq();
         return temp4;
     endmethod
 
 
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
+    endmethod
 
 endmodule: mkButterflyL1RouterL2R
 
@@ -191,7 +195,7 @@ module mkButterflyL1RouterR2L #(parameter int my_addr, parameter int index_to_ch
 
     function Action print_flit_details(Flit flit_to_print);
         return action
-            $display("\nPrinting Flit details:");
+            $display("\nL1 Printing Flit details:");
             $display("Flit Source      address: NetworkID: %h | NodeID: %h", flit_to_print.srcAddress.netAddress, flit_to_print.srcAddress.nodeAddress);
             $display("Flit Destination address: NetworkID: %h | NodeID: %h", flit_to_print.finalDstAddress.netAddress, flit_to_print.finalDstAddress.nodeAddress);
             $display("Flit Current Dst address: NetworkID: %h | NodeID: %h\n", flit_to_print.currentDstAddress.netAddress, flit_to_print.currentDstAddress.nodeAddress);
@@ -218,6 +222,8 @@ module mkButterflyL1RouterR2L #(parameter int my_addr, parameter int index_to_ch
     rule invert_cycle;
         cycle <= cycle + 1;     // Cycle variable oscillates between 0 and 1
     endrule
+    
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Connect input_link to respective VC
     // This rules fires every alternate cycle, and chooses even named Virtual Channels (VC1, VC3, VC5)
@@ -228,12 +234,12 @@ module mkButterflyL1RouterR2L #(parameter int my_addr, parameter int index_to_ch
 
         // Reached the destination - core will consume
         if(pack(flit.finalDstAddress.netAddress)[index_to_check_updated] == pack(flit.srcAddress.netAddress)[index_to_check_updated])  begin
-            $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
             vir_chnl_1.enq(flit);
         end
         // The current flit has to go to left 
         else begin
-            $display("Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
             vir_chnl_3.enq(flit);
         end
     endrule
@@ -246,12 +252,12 @@ module mkButterflyL1RouterR2L #(parameter int my_addr, parameter int index_to_ch
         input_link.deq();
 
         if(pack(flit.finalDstAddress.netAddress)[index_to_check_updated] == pack(flit.srcAddress.netAddress)[index_to_check_updated])  begin
-            $display("Odd cycle: vir_chnl_2.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_2.enq at addr:%h", my_addr);
             vir_chnl_2.enq(flit);
         end
         // The current flit has to go to left 
         else begin
-            $display("Odd cycle: vir_chnl_4.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_4.enq at addr:%h", my_addr);
             vir_chnl_4.enq(flit);
         end
     endrule
@@ -263,12 +269,12 @@ module mkButterflyL1RouterR2L #(parameter int my_addr, parameter int index_to_ch
 
         // Reached the destination - core will consume
         if(pack(flit.finalDstAddress.netAddress)[0] == 0)  begin
-            $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
             vir_chnl_1.enq(flit);
         end
         // The current flit has to go to left 
         else begin
-            $display("Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_3.enq at addr:%h", my_addr);
             vir_chnl_3.enq(flit);
         end
     endrule
@@ -281,12 +287,12 @@ module mkButterflyL1RouterR2L #(parameter int my_addr, parameter int index_to_ch
         input_link.deq();
 
         if(pack(flit.finalDstAddress.netAddress)[0] == 0)  begin
-            $display("Odd cycle: vir_chnl_2.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_2.enq at addr:%h", my_addr);
             vir_chnl_2.enq(flit);
         end
         // The current flit has to go to left 
         else begin
-            $display("Odd cycle: vir_chnl_4.enq at addr:%h", my_addr);
+            $display("L1 Odd cycle: vir_chnl_4.enq at addr:%h", my_addr);
             vir_chnl_4.enq(flit);
         end
     endrule
@@ -296,7 +302,8 @@ module mkButterflyL1RouterR2L #(parameter int my_addr, parameter int index_to_ch
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
         print_flit_details(flit);
-        $display("Butterfly Router (Addr: %h, INDEX_TOCHECK:%h) received the flit into Input Link (leftext? %b)", my_addr, index_to_check, pack(left_ext));
+        $display("L1 Butterfly Router (Addr: %h, INDEX_TOCHECK:%h) received the flit into Input Link (leftext? %b)", my_addr, index_to_check, pack(left_ext));
+        link_util_counter <= link_util_counter+1;
     endmethod
 
 
@@ -304,28 +311,28 @@ module mkButterflyL1RouterR2L #(parameter int my_addr, parameter int index_to_ch
     // These methods return the flit so that it can reach the next node in its path
     // The VC1, VC2 methods will be invoked to send the flits to the core (as we fixed earlier, line:4)
     method ActionValue#(Flit) get_valueVC1();
-        $display("get_valueVC1 called at Router (Addr: %h)", my_addr);
+        $display("L1 get_valueVC1 called at Router (Addr: %h)", my_addr);
          let temp1 = vir_chnl_1.first();
          vir_chnl_1.deq();
         return temp1;
     endmethod
 
     method ActionValue#(Flit) get_valueVC2();
-        $display("get_valueVC2 called at Router (Addr: %h)", my_addr);
+        $display("L1 get_valueVC2 called at Router (Addr: %h)", my_addr);
          let temp2 = vir_chnl_2.first();
          vir_chnl_2.deq();
         return  temp2;
     endmethod
 
     method ActionValue#(Flit) get_valueVC3();
-        $display("get_valueVC3 called at Router (Addr: %h)", my_addr);
+        $display("L1 get_valueVC3 called at Router (Addr: %h)", my_addr);
         let temp3 = vir_chnl_3.first();
         vir_chnl_3.deq();
         return temp3;
     endmethod
 
     method ActionValue#(Flit) get_valueVC4();
-        $display("get_valueVC4 called at Router (Addr: %h)", my_addr);
+        $display("L1 get_valueVC4 called at Router (Addr: %h)", my_addr);
         let temp4 = vir_chnl_4.first();
         vir_chnl_4.deq();
         return temp4;

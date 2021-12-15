@@ -149,6 +149,7 @@ module mkButterflyL2RouterL2R #(parameter int my_addr, parameter int index_to_ch
         input_link.enq(flit);
         print_flit_details(flit);
         $display("Butterfly Router (Addr: %h, INDEX_TOCHECK:%h) received the flit into Input Link", my_addr, index_to_check);
+        link_util_counter <= link_util_counter+1;
     endmethod
 
 
@@ -181,6 +182,10 @@ module mkButterflyL2RouterL2R #(parameter int my_addr, parameter int index_to_ch
         let temp4 = vir_chnl_4.first();
         vir_chnl_4.deq();
         return temp4;
+    endmethod
+
+    method LinkUtilisationCounter get_link_util_counter();
+        return link_util_counter;
     endmethod
 
     // method ActionValue#(Flit) get_valueVC5();
@@ -234,6 +239,8 @@ module mkButterflyL2RouterR2L #(parameter int my_addr, parameter int index_to_ch
     rule invert_cycle;
         cycle <= cycle + 1;     // Cycle variable oscillates between 0 and 1
     endrule
+
+    Reg#(LinkUtilisationCounter) link_util_counter  <- mkReg(0);
 
     // Connect input_link to respective VC
     // This rules fires every alternate cycle, and chooses even named Virtual Channels (VC1, VC3, VC5)
@@ -313,6 +320,7 @@ module mkButterflyL2RouterR2L #(parameter int my_addr, parameter int index_to_ch
         input_link.enq(flit);
         print_flit_details(flit);
         $display("Butterfly Router (Addr: %h, INDEX_TOCHECK:%h) received the flit into Input Link (leftext? %b)", my_addr, index_to_check, pack(left_ext));
+        link_util_counter <= link_util_counter+1;
     endmethod
 
 

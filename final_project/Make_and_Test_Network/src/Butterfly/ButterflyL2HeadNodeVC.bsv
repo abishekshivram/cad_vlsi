@@ -1,7 +1,6 @@
 package ButterflyL2HeadNodeVC;
 
 import Shared::*;
-
 import FIFO :: * ;
 import Core :: * ;
 

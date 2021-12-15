@@ -379,6 +379,7 @@ module mkFoldedTorusRouterL2HeadVC #(parameter Address my_addr, parameter NodeAd
         // Data that comes from left/right/core link is put into the input link buffer
         input_link.enq(flit);
         $display("Router L2 Headnode (Addr: %h) received the flit into its Input Link", my_addr);
+        link_util_counter <= link_util_counter+1;
         // print_flit_details(flit);
     endmethod
 
@@ -387,6 +388,7 @@ module mkFoldedTorusRouterL2HeadVC #(parameter Address my_addr, parameter NodeAd
         input_link_dateline.enq(flit);
         // print_flit_details(flit);
         $display("Router L2 Headnode (Addr: %h) received the flit into its Input Link Dateline", my_addr);
+        link_util_counter <= link_util_counter+1;
     endmethod
     
 

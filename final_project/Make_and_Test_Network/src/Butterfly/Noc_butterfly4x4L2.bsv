@@ -47,7 +47,7 @@ module mkButterfly4x4L2Noc #(parameter NetAddress net_id) (IfcButterflyL2Noc);
    
 
     // MAKING SWITCHES
-    // mkButterflySwitch #(int my_addr, int layer, Bool left_ext, Bool right_ext)
+    // mkButterflySwitch #(Address my_addr, int layer, Bool left_ext, Bool right_ext)
     let switch_L0_0 <- mkButterflySwitchL2(0, 0, True, False, 2);
     let switch_L0_1 <- mkButterflySwitchL2(1, 0, True, False, 2);
     let switch_L1_0 <- mkButterflySwitchL2(0, 1, False, True, 2);

@@ -130,6 +130,7 @@ module mkChainRouterVC #(parameter Address my_addr) (IfcChainRouterVC);
         input_link.enq(flit);
         print_flit_details(flit);
         $display("Core router (Addr: %h) received the flit into Input Link", my_addr);
+        link_util_counter <= link_util_counter+1;
     endmethod
 
 
