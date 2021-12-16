@@ -100,18 +100,18 @@ module mkRingRouterL2HeadVC #(parameter Address my_addr, parameter NodeAddress m
 
         if(flit.finalDstAddress.netAddress != my_addr.netAddress) begin
             if (cycle == 1) begin    
-                $display("Odd cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
+                $display("Odd cycle: GOING TO L1 from L2 at addr:%h", my_addr);
                 vir_chnl_7.enq(flit);
             end
             else begin
-                $display("Even cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
+                $display("Even cycle: GOING TO L1 from L2 at addr:%h", my_addr);
                 vir_chnl_8.enq(flit);
             end
         end
         // Reached the destination - core will consume
         else if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
             if (cycle == 1) begin    
-                $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr.nodeAddress);
+                $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
                 vir_chnl_1.enq(flit);
             end
             else begin
@@ -140,11 +140,11 @@ module mkRingRouterL2HeadVC #(parameter Address my_addr, parameter NodeAddress m
         // Need to traverse from L2 to L1 network
         if(flit.finalDstAddress.netAddress != my_addr.netAddress) begin
             if (cycle == 1) begin    
-                $display("Odd cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
+                $display("Odd cycle: GOING TO L1 from L2 at addr:%h", my_addr);
                 vir_chnl_7.enq(flit);
             end
             else begin
-                $display("Even cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
+                $display("Even cycle: GOING TO L1 from L2 at addr:%h", my_addr);
                 vir_chnl_8.enq(flit);
             end
         end
@@ -152,7 +152,7 @@ module mkRingRouterL2HeadVC #(parameter Address my_addr, parameter NodeAddress m
         // Reached the destination - core will consume
         else if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
             if (cycle == 1) begin    
-                $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr.nodeAddress);
+                $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
                 vir_chnl_1.enq(flit);
             end
             else begin
@@ -193,18 +193,18 @@ module mkRingRouterL2HeadVC #(parameter Address my_addr, parameter NodeAddress m
 
         if (flit.finalDstAddress.netAddress != my_addr.netAddress) begin
             if (cycle == 1) begin    
-                $display("Odd cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
+                $display("Odd cycle: GOING TO L1 from L2 at addr:%h", my_addr);
                 vir_chnl_7.enq(flit);
             end
             else begin
-                $display("Even cycle: GOING TO L1 from L2 at addr:%h", my_addr.nodeAddress);
+                $display("Even cycle: GOING TO L1 from L2 at addr:%h", my_addr);
                 vir_chnl_8.enq(flit);
             end
         end
         // Reached the destination - core will consume
         else if(flit.currentDstAddress.nodeAddress == my_addr.nodeAddress)  begin
             if (cycle == 1) begin    
-                $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr.nodeAddress);
+                $display("Odd cycle: vir_chnl_1.enq at addr:%h", my_addr);
                 vir_chnl_1.enq(flit);
             end
             else begin

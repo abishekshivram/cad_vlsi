@@ -14,17 +14,25 @@ def create_L1_Butterfly(size,L2_NETWORK_NODE_FILES,L2_NETWORK_BSV_MODULES):
     l2_noc_list = []
     rule_l2_l1_connection = """
     rule connect_N{net_id}_to_node{net_id_bin}_L1_to_L2;
-            Flit data=defaultValue;
-            data <- node{net_id_bin}.get_value_to_l2();
+        Flit data=defaultValue;
+        data <- node{net_id_bin}.get_value_to_l2();
+
+        if (data.finalDstAddress.netAddress != 16'h{net_id:0>4x}) begin
+            data.srcAddress.netAddress = 16'h{net_id:0>4x};
+            node{net_id_bin}.put_value_from_l2(data);
+            $display("Sending flit in L1 butterfly in the opposite direction, from netAddress: %h",16'h{net_id:0>4x});
+        end
+        else begin
             data.currentDstAddress.netAddress   = data.finalDstAddress.netAddress;
             data.currentDstAddress.nodeAddress  = data.finalDstAddress.nodeAddress;
             noc_N{net_id}.put_value_from_l1(data);
-        endrule
-        rule connect_node{net_id_bin}_to_N{net_id}_L2_to_L1;
-            Flit data=defaultValue;
-            data <- noc_N{net_id}.get_value_to_l1();
-            node{net_id_bin}.put_value_from_l2(data);
-        endrule"""
+        end
+    endrule
+    rule connect_node{net_id_bin}_to_N{net_id}_L2_to_L1;
+        Flit data=defaultValue;
+        data <- noc_N{net_id}.get_value_to_l1();
+        node{net_id_bin}.put_value_from_l2(data);
+    endrule"""
 
     for i in range(NO_OF_NETWORKS):
         files_to_import.append(f"import {L2_NETWORK_NODE_FILES[i]} :: * ;\n")
