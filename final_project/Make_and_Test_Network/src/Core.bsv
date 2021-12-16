@@ -14,6 +14,7 @@ package Core;
 import Parameters::*;
 import Shared::*;
 import FIFO::*;
+import FIFOF::*;
 import LFSR::*;
 
 // Interface for the core module 
@@ -43,6 +44,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
     Reg#(Address) myAddress     <- mkReg(sourceAddress); //Register storing the Address of this Core/Node
     Reg#(Address) head_node_address <- mkReg(head_node_addr); //Register storing the Address of this Core/Node
 
+    FIFOF#(Flit) flit_generate_fifo   <- mkFIFOF; //A fifo to store the flit that needs to move to the opposite side in the case of same-side routing in Butterfly
     FIFO#(Flit) flit_consume_fifo   <- mkFIFO; //A fifo to store the consumed flit
 
     // Set of Lnear Feedback Shift Registers for generating random patterns
@@ -79,14 +81,23 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
             $display("\nClock Cycle: %d",clockCount);
     endrule
 
-    // This rule fires randomly for different core instantiations (32768=(2^16)/2)
-    // This is meant for generating valid flits randomly
-    (* preempts = "generateFlit, resetFlitStat" *)
-    rule generateFlit(lfsr.value() < 32768); 
+    (* preempts = "send_existing_flit, (generateFlit, resetFlitStat)" *)
+    
+    // Rule meant to resend flits when flits are trying to reach the same side of the butterfl network    
+    rule send_existing_flit(flit_generate_fifo.notEmpty());
+        flitReg <= flit_generate_fifo.first();
+        flit_generate_fifo.deq();
 
-    //rule generateFlit(clockCount==3 || clockCount==8 || clockCount==11); //NOTE for testing. 
-        //if(myAddress.nodeAddress==fromInteger(0) && myAddress.netAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
-            //begin
+        flitValidStat                   <= True;
+        $display("Sending existing_flit: address: %h",myAddress);
+    endrule
+
+    // This rule fires randomly for different core instantiations (32768=(2^16)/2)
+    // This is meant for generating valid flits randomly    
+    rule generateFlit(lfsr.value() < 32768 && clockCount < 100); 
+    // rule generateFlit(clockCount==3); //NOTE for testing. 
+    //     if(myAddress.nodeAddress==fromInteger(0) && myAddress.netAddress==fromInteger(0)) //NOTE Test line: Generate flit from Node 0 only.
+    //         begin
                 
                 Flit flit;
                 flit.srcAddress.netAddress          = myAddress.netAddress;
@@ -103,6 +114,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 end
 
                 let destNetAddress                  = {destNetAddressY,destNetAddressX};
+                // flit.finalDstAddress.netAddress = 'h0001;
                 flit.finalDstAddress.netAddress     = destNetAddress;
 
                 NetAddressY l2_array_index = ((addressLengths.getMaxNetAddressX())*destNetAddressY)+destNetAddressX; //NetAddressY type acts just like an int to access aray element
@@ -117,6 +129,7 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 end
                 
                 NodeAddress destNodeAddress         = {destNodeAddressY,destNodeAddressX};
+                // flit.finalDstAddress.nodeAddress    = 'h0001;
                 flit.finalDstAddress.nodeAddress    = destNodeAddress;
 
                 if(flit.srcAddress.netAddress==flit.finalDstAddress.netAddress) begin
@@ -130,13 +143,14 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
                 
                 flit.payload                        = clockCount;
 
-                flitReg                             <= flit;
+                
                 if(myAddress!=flit.finalDstAddress) begin //Generate only the flits which are not self destined 
                     flitValidStat                   <= True;
+                    flitReg                         <= flit;
                     $display("Flit generated | Source: %d (Network),%d (Node) | Destination: -> %d (Network),%d (Node)",flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress);
                 end    
 
-            //end
+            // end
         lfsr.next();
         lfsrNodeX.next();
         lfsrNodeY.next();
@@ -176,8 +190,15 @@ module mkCore#(parameter Address sourceAddress, parameter Address head_node_addr
 
     // A method to store the flit destined for this core (node)
     method Action put_flit(Flit flit);
-        flit_consume_fifo.enq(flit);
-        $display(">>>>>>>>>>>>>>> Flit received with payload: %h  | Source: %h (Network),%h (Node) | Destination: -> %h (Network),%h (Node) | MyAddress: -> %h (Network),%h (Node)",          flit.payload,flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress,myAddress.netAddress,myAddress.nodeAddress);
+        if(flit.finalDstAddress == myAddress) begin
+            flit_consume_fifo.enq(flit);
+            $display(">>>>>>>>>>>>>>> Flit received with payload: %h  | Source: %h (Network),%h (Node) | Destination: -> %h (Network),%h (Node) | MyAddress: -> %h (Network),%h (Node)",          flit.payload,flit.srcAddress.netAddress,flit.srcAddress.nodeAddress,flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress,myAddress.netAddress,myAddress.nodeAddress);
+        end
+        else begin
+            $display("Going to send flit in opp direction  | MyAddress: -> %h (Network),%h (Node) | Destination: -> %h (Network),%h (Node)",myAddress.netAddress,myAddress.nodeAddress,  flit.finalDstAddress.netAddress,flit.finalDstAddress.nodeAddress);
+            flit.srcAddress = myAddress;
+            flit_generate_fifo.enq(flit);
+        end
     endmethod
 
     
